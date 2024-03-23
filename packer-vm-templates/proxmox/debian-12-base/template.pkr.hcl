@@ -146,8 +146,10 @@ build {
 
     provisioner "file" {
         sources = [
-            "files/cloud.cfg",
-            "files/99-pve.cfg"
+            "files/20auto-upgrades",
+            "files/50unattended-upgrades",
+            "files/99-pve.cfg",
+            "files/cloud.cfg"
         ]
         destination = "/tmp/"
     }
