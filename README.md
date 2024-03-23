@@ -17,3 +17,9 @@ op plugin init terraform
 
 ## Virtualization Targets
  - Proxmox VE 8 cluster consisting of atleast 1 node
+
+
+ ## Steps to deploy from scratch
+ 1. Manually setup proxmox cluster
+ 2. Deploy Proxmox templates in [packer-vm-templates](./packer-vm-templates)
+ 3. Deploy Kubernetes cluster in [k3s-proxmox-cluster](./k3s-proxmox-cluster)

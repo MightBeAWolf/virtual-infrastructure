@@ -30,9 +30,14 @@ terraform-plan() {
   op run -- terraform plan "$@"
 }
 
-# Function for terraform build
+# Function for terraform apply
 terraform_apply() {
   op run -- terraform apply "$@"
+}
+
+# Function for terraform destroy
+terraform_destroy() {
+  op run -- terraform destroy "$@"
 }
 
 # Usage function to display help for the script
@@ -52,7 +57,10 @@ case "$TARGET" in
     terraform-plan "$@"
   ;;
   apply)
-    terraform_build "$@"
+    terraform_apply "$@"
+  ;;
+  destroy)
+    terraform_destroy "$@"
   ;;
   *)
     echo "Error: Unknown target '$TARGET'"

@@ -31,6 +31,16 @@ variable "node_count" {
   default     = 3
 }
 
+variable "k3s_node_to_target_node_map" {
+  description = "The map describing where each node should be created"
+  type = map(string)
+  default = {
+    0 = "pve"
+    1 = "pve"
+    2 = "pve"
+  }
+}
+
 variable "vm_template_name" {
   description = "The name of the VM template to clone for K3s nodes"
   type        = string
@@ -44,8 +54,7 @@ variable "vm_resource_settings" {
     memory  = number
     disk    = object({
       storage = string
-      type    = string
-      size    = string
+      size    = number
     })
     network = object({
       bridge = string
@@ -57,8 +66,7 @@ variable "vm_resource_settings" {
     memory  = 2048
     disk    = {
       storage = "local-lvm"
-      type    = "virtio"
-      size    = "20G"
+      size    = 20
     }
     network = {
       bridge = "vmbr0"
@@ -91,22 +99,38 @@ resource "proxmox_vm_qemu" "k3s_node" {
   name  = "k3s-node-${count.index}"
   clone = var.vm_template_name
   desc = "Kubernetes K3S on Debian 12 via '${var.vm_template_name}' template"
+  target_node="${var.k3s_node_to_target_node_map[count.index]}"
+  tags = "debian-12;k3s"
+  agent = 1
 
   vmid = format("4%02v", count.index)
   cores = var.vm_resource_settings.cores
   memory = var.vm_resource_settings.memory
 
-  disk {
-    storage = var.vm_resource_settings.disk.storage
-    type    = var.vm_resource_settings.disk.type
-    size    = var.vm_resource_settings.disk.size
+  disks {
+    virtio {
+      virtio0 {
+        disk {
+          size    = var.vm_resource_settings.disk.size
+          storage = var.vm_resource_settings.disk.storage
+        }
+      }
+    }
   }
 
   network {
     bridge = var.vm_resource_settings.network.bridge
     model = var.vm_resource_settings.network.model
   }
-  // Include additional configurations as needed
+
+  # Specify cloud init settings
+  os_type = "cloud-init"
+  ipconfig0 = format("ip=10.20.4.%g/24,gw=10.20.0.1", count.index + 1)
+  nameserver = "10.20.0.1"
+  # ciuser = ""
+  # sshkeys = <<HEREDOC
+  # ssh-eda25519 ................... .......
+  # HEREDOC
 
   # provisioner "remote-exec" {
   #   // Commands to install K3s go here
