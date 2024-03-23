@@ -42,12 +42,28 @@ variable "vm_resource_settings" {
   type = object({
     cores   = number
     memory  = number
-    storage = string
+    disk    = object({
+      storage = string
+      type    = string
+      size    = string
+    })
+    network = object({
+      bridge = string
+      model  = string
+    })
   })
   default = {
     cores   = 2
     memory  = 2048
-    storage = "local-lvm:20G"
+    disk    = {
+      storage = "local-lvm"
+      type    = "virtio"
+      size    = "20G"
+    }
+    network = {
+      bridge = "vmbr0"
+      model  = "virtio"
+    }
   }
 }
 
@@ -74,13 +90,26 @@ resource "proxmox_vm_qemu" "k3s_node" {
   count = var.node_count
   name  = "k3s-node-${count.index}"
   clone = var.vm_template_name
+  desc = "Kubernetes K3S on Debian 12 via '${var.vm_template_name}' template"
+
+  vmid = format("4%02v", count.index)
   cores = var.vm_resource_settings.cores
   memory = var.vm_resource_settings.memory
-  disk = var.vm_resource_settings.storage
+
+  disk {
+    storage = var.vm_resource_settings.disk.storage
+    type    = var.vm_resource_settings.disk.type
+    size    = var.vm_resource_settings.disk.size
+  }
+
+  network {
+    bridge = var.vm_resource_settings.network.bridge
+    model = var.vm_resource_settings.network.model
+  }
   // Include additional configurations as needed
 
-  provisioner "remote-exec" {
-    // Commands to install K3s go here
-  }
+  # provisioner "remote-exec" {
+  #   // Commands to install K3s go here
+  # }
 }
 
