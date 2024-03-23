@@ -91,8 +91,8 @@ provider "proxmox" {
   pm_api_token_id     = var.pm_api_token_id
   pm_api_token_secret = var.pm_api_token_secret
   pm_tls_insecure     = var.pm_tls_insecure
-  pm_debug            = true
 }
+
 
 resource "proxmox_vm_qemu" "k3s_node" {
   count = var.node_count
@@ -101,6 +101,7 @@ resource "proxmox_vm_qemu" "k3s_node" {
   desc = "Kubernetes K3S on Debian 12 via '${var.vm_template_name}' template"
   target_node="${var.k3s_node_to_target_node_map[count.index]}"
   tags = "debian-12;k3s"
+  qemu_os = "l26"
   agent = 1
 
   vmid = format("4%02v", count.index)
