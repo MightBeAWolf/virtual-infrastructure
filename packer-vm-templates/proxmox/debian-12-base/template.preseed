@@ -81,6 +81,7 @@ d-i grub-installer/bootdev string default
 d-i preseed/late_command string \
 in-target sh -c 'echo "${var.ssh_username} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${var.ssh_username} && chmod 0440 /etc/sudoers.d/${var.ssh_username}' ; \
 in-target systemctl enable cloud-init.service ; \
+in-target systemctl enable unattended-upgrades.service ; \
 in-target systemctl enable NetworkManager.service
 
 
