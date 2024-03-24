@@ -1,10 +1,22 @@
-variable "pm_api_url" {
-  description = "The Proxmox API URL"
+variable "onepassword_vault" {
+  description = "The 1Password vault storing the credentials"
+  type        = string
+  sensitive   = true
+}
+
+variable "onepassword_service_token" {
+  description = "The credential token for the 1Password service account"
+  type        = string
+  sensitive   = true
+}
+
+variable "onepassword_cli_path" {
+  description = "The path on the local system of the 1password 'op' binary"
   type        = string
 }
 
-variable "pm_user" {
-  description = "The Proxmox user for API access"
+variable "pm_api_url" {
+  description = "The Proxmox API URL"
   type        = string
 }
 
@@ -82,17 +94,29 @@ terraform {
       source  = "telmate/proxmox"
       version = "3.0.1-rc1"
     }
+    onepassword = {
+      source  = "1Password/onepassword"
+      version = "1.4.3"
+    }
   }
 }
 
+provider "onepassword" {
+  service_account_token = var.onepassword_service_token
+  op_cli_path           = var.onepassword_cli_path
+}
+
+data "onepassword_vault" "vault" {
+  name=var.onepassword_vault
+}
+
+
 provider "proxmox" {
   pm_api_url          = var.pm_api_url
-  pm_user             = var.pm_user
   pm_api_token_id     = var.pm_api_token_id
   pm_api_token_secret = var.pm_api_token_secret
   pm_tls_insecure     = var.pm_tls_insecure
 }
-
 
 resource "proxmox_vm_qemu" "k3s_node" {
   count = var.node_count
