@@ -15,8 +15,26 @@ variable "onepassword_cli_path" {
   type        = string
 }
 
-variable "pm_api_url" {
-  description = "The Proxmox API URL"
+variable "ssh_pub_key" {
+  description = "The public ssh key used to access the nodes"
+  type        = string
+  sensitive   = true
+}
+
+variable "node_user" {
+  description = "The user created in the nodes"
+  type        = string
+}
+
+variable "node_user_password" {
+  description = "The password for the node user"
+  type        = string
+  sensitive   = true
+}
+
+
+variable "pm_url" {
+  description = "The Proxmox API URL."
   type        = string
 }
 
@@ -112,7 +130,7 @@ data "onepassword_vault" "vault" {
 
 
 provider "proxmox" {
-  pm_api_url          = var.pm_api_url
+  pm_api_url          = "${var.pm_url}"
   pm_api_token_id     = var.pm_api_token_id
   pm_api_token_secret = var.pm_api_token_secret
   pm_tls_insecure     = var.pm_tls_insecure
@@ -149,10 +167,12 @@ resource "proxmox_vm_qemu" "k3s_node" {
   }
 
   # Specify cloud init settings
-  os_type = "cloud-init"
-  ipconfig0 = format("ip=10.20.4.%g/24,gw=10.20.0.1", count.index + 1)
+  os_type    = "cloud-init"
+  ipconfig0  = format("ip=10.20.4.%g/24,gw=10.20.0.1", count.index + 1)
   nameserver = "10.20.0.1"
-  # ciuser = ""
+  ciuser = var.node_user
+  cipassword = var.node_user_password
+  sshkeys = var.ssh_pub_key
   # sshkeys = <<HEREDOC
   # ssh-eda25519 ................... .......
   # HEREDOC
