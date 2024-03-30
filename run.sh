@@ -36,9 +36,8 @@ curl_test() {
   source .venv/bin/activate
   curl -k  \
     -H "Content-Type: application/json" \
-    -H "User-Agent	Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0" \
-    -H "Authorization: PVEAPITOKEN=$(op read "${PROXMOX_PACKER_API_TOKEN_ID:?}")=$(op read "${PROXMOX_PACKER_API_TOKEN_SECRET:?}")" \
-    -X GET "$(op read "${PROXMOX_PACKER_API_URI:?}")/nodes/pve/storage/qemu"
+    -H "Authorization: PVEAPIToken=$(op read "${PROXMOX_PACKER_API_TOKEN_ID:?}")=$(op read "${PROXMOX_PACKER_API_TOKEN_SECRET:?}")" \
+    -X GET "$(op read "${PROXMOX_PACKER_API_URI:?}")/nodes/pve/qemu" 3>&1
 }
 
 

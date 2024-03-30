@@ -2,13 +2,14 @@
 
 - name: Get Templates on Proxmox Server
   ansible.builtin.uri:
-    url: "{{ lookup('ansible.builtin.env', 'PROXMOX_PACKER_API_URI') }}/nodes/{{ inventory_hostname }}/storage/qemu"
+    url: "{{ lookup('ansible.builtin.env', 'PROXMOX_PACKER_API_URI') }}/nodes/{{ inventory_hostname }}/qemu/8000/status/current"
     method: GET
     # user: "{{ proxmox_api_user }}"
     headers:
       Authorization: "PVEAPIToken={{ lookup('ansible.builtin.env', 'PROXMOX_PACKER_API_TOKEN_ID') }}={{ lookup('ansible.builtin.env', 'PROXMOX_PACKER_API_TOKEN_SECRET') }}"
+      # Content-Type: application/json;charset=UTF-8
     validate_certs: false
-    body_format: json
+    # body_format: json
     return_content: true
   register: proxmox_templates
   ignore_errors: yes
@@ -16,6 +17,6 @@
 
 - name: Show template
   debug:
-    var: proxmox_templates.json
+    var: proxmox_templates
 
 # ...followed by your existing tasks to check for the template and display found template info.
