@@ -1,0 +1,10 @@
+---
+- name: Find Template in Proxmox Servers
+  hosts: proxmox
+  become: false
+  gather_facts: false
+  vars:
+    template_name: "ubuntu-20.04"
+  roles:
+    - proxmox-vm-template
+
