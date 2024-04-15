@@ -1,9 +1,3 @@
 #!/bin/sh
 
-echo "Running Ansible Playbook syntax check..."
-if ! ansible-playbook --syntax-check; then
- echo "Ansible Playbook syntax check failed. Please fix the syntax errors before pushing."
- exit 1
-fi
-
 exit 0

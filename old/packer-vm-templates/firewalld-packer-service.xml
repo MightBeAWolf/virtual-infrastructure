@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<service>
-  <short>packer</short>
-  <description>This service opens TCP ports 49152 to 49154 for Packer builds.</description>
-  <port protocol="tcp" port="49152"/>
-  <port protocol="tcp" port="49153"/>
-  <port protocol="tcp" port="49154"/>
-</service>
-

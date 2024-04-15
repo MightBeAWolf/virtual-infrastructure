@@ -1,0 +1,7 @@
+---
+
+- name: Iterate through template definitions
+  ansible.builtin.include_tasks: 'template.yml'
+  loop: "{{ templates }}"
+  loop_control:
+    loop_var: proxmox_vm_template_def

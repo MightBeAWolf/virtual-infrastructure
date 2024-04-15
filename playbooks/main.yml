@@ -1,10 +1,20 @@
 ---
-- name: Find Template in Proxmox Servers
+- name: Setup Packer Control Node
+  hosts: localhost
+  gather_facts: true
+  roles:
+    - packer_control_node
+  tags: ['setup', 'packer']
+  connection: local
+
+- name: Templates on Proxmox Servers
   hosts: proxmox
   become: false
   gather_facts: false
   vars:
-    template_name: "ubuntu-20.04"
+    templates:
+      - name: debian-12-base
+        id: 8000
   roles:
-    - proxmox-vm-template
-
+    - proxmox_vm_template
+  tags: ['setup', 'packer', 'templates']
