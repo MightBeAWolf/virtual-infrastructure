@@ -24,4 +24,4 @@
           - "-var=pm_host={{ ansible_host }}{{ deploy_k3s_cluster_proxmox_port }}"
           - "--auto-approve"
       register: terraform_apply
-      changed_when: terraform_apply.rc == 0
+      changed_when: "'Apply complete! Resources: 0 added, 0 changed, 0 destroyed.' not in terraform_apply.stdout"
