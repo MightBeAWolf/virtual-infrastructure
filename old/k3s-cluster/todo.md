@@ -1,5 +1,0 @@
-- [x] Deploy VM instances from template
-- [ ] Deploy k3s to the instances
-- [ ] Deploy the load balancer
-- [ ] Figure out a solution for SSL certs
-- [ ] Figure out a solution for server ip assignment

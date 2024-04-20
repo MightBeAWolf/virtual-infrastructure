@@ -7,7 +7,11 @@
     group: root
     mode: '0700'
   register: packer_service
+  notify: Reload firewalld
   become: true
+
+- name: Kickoff handlers to ensure firewalld is reloaded
+  ansible.builtin.meta: flush_handlers
 
 - name: Ensure packer service is enabled in firewalld
   ansible.posix.firewalld:

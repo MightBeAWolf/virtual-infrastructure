@@ -6,7 +6,6 @@ export TF_VAR_onepassword_vault="Local Cluster"
 export TF_VAR_onepassword_service_token="op://${TF_VAR_onepassword_vault:?}/Local Cluster - Terraform Service Account/credential"
 export TF_VAR_onepassword_cli_path="$(which op)"
 
-export TF_VAR_pm_url="op://${TF_VAR_onepassword_vault:?}/Proxmox - Terraform API Token/hostname"
 export TF_VAR_pm_api_token_id="op://${TF_VAR_onepassword_vault:?}/Proxmox - Terraform API Token/username"
 export TF_VAR_pm_api_token_secret="op://${TF_VAR_onepassword_vault:?}/Proxmox - Terraform API Token/credential"
 

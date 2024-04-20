@@ -18,3 +18,10 @@
   roles:
     - proxmox_vm_template
   tags: ['setup', 'packer', 'templates']
+
+- name: Terraform the Proxmox k3s Deployments
+  hosts: proxmox
+  become: false
+  roles:
+    - deploy_k3s_cluster
+  tags: ['setup', 'k3s', 'kubernetes']

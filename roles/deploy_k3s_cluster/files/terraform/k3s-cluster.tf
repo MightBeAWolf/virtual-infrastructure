@@ -33,8 +33,8 @@ variable "node_user_password" {
 }
 
 
-variable "pm_url" {
-  description = "The Proxmox API URL."
+variable "pm_host" {
+  description = "The Proxmox Host."
   type        = string
 }
 
@@ -130,7 +130,7 @@ data "onepassword_vault" "vault" {
 
 
 provider "proxmox" {
-  pm_api_url          = "${var.pm_url}"
+  pm_api_url          = "https://${var.pm_host}/api2/json"
   pm_api_token_id     = var.pm_api_token_id
   pm_api_token_secret = var.pm_api_token_secret
   pm_tls_insecure     = var.pm_tls_insecure
