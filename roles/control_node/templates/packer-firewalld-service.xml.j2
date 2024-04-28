@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>packer</short>
+  <description>This service opens TCP ports {{ control_node_min_port }} to {{ control_node_max_port }} for Packer builds.</description>
+  {% for port in range(control_node_min_port, control_node_max_port + 1) %}
+  <port protocol="tcp" port="{{ port }}"/>
+  {% endfor %}
+</service>

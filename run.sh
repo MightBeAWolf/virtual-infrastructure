@@ -1,26 +1,42 @@
-#!/bin/bash
+source "$(realpath "${BASH_SOURCE[0]}" | xargs -I{} dirname {})/secrets.env"
+# Check that the secret credentials are present
+if [[ -z "${PROXMOX_API_TOKEN_ID}" ]]; then
+  echo -e "\e[91mMissing the environment secret PROXMOX_API_TOKEN_ID!\e[39m" >&2
+  echo -e "\e[91mThis should be defined for you personally in secrets.env\e[39m" >&2
+  echo -e "\e[91mSee the README.md for more information!\e[39m" >&2
+  exit 1
+fi
+if [[ -z "${PROXMOX_API_SECRET}" ]]; then
+  echo -e "\e[91mMissing the environment secret PROXMOX_API_SECRET!\e[39m" >&2
+  echo -e "\e[91mThis should be defined for you personally in secrets.env\e[39m" >&2
+  echo -e "\e[91mSee the README.md for more information!\e[39m" >&2
+  exit 1
+fi
+if [[ -z "${PROXMOX_API_HOSTNAME}" ]]; then
+  echo -e "\e[91mMissing the environment secret PROXMOX_API_HOSTNAME!\e[39m" >&2
+  echo -e "\e[91mThis should be defined for you personally in secrets.env\e[39m" >&2
+  echo -e "\e[91mSee the README.md for more information!\e[39m" >&2
+  exit 1
+fi
 
 export ANSIBLE_FORCE_COLOR=True
-
-# Secrets
-export ONEPASSWORD_VAULT="Local Cluster"
-export PROXMOX_PACKER_API_TOKEN_ID="op://${ONEPASSWORD_VAULT:?}/Proxmox - Packer API Token/username"
-export PROXMOX_PACKER_API_TOKEN_SECRET="op://${ONEPASSWORD_VAULT:?}/Proxmox - Packer API Token/credential"
-export PROXMOX_PACKER_API_URI="op://${ONEPASSWORD_VAULT:?}/Proxmox - Packer API Token/hostname"
-
-# export TF_VAR_ssh_pub_key="op://${TF_VAR_onepassword_vault:?}/Local Cluster - SSH Key/public key"
-# export TF_VAR_node_user="op://${TF_VAR_onepassword_vault:?}/Local Cluster Template User/username"
-# export TF_VAR_node_user_password="op://${TF_VAR_onepassword_vault:?}/Local Cluster Template User/password"
 
 # The first argument is the target, the rest are options for the specified target
 TARGET=$1
 shift # Remove the first argument, leaving any additional arguments
 
+get_latest_python() {
+  compgen -c python \
+    | egrep 'python[0-9\.]*$' \
+    | sort -uV \
+    | tail -n 1
+}
+
 # Function to run an ansible playbook
 setup() {
 	ln -s ../../.githooks/pre-push .git/hooks
 	ln -s ../../.githooks/pre-commit .git/hooks
-	python3 -m venv .venv
+	$(get_latest_python) -m venv .venv
 	source .venv/bin/activate
 	pip install --upgrade pip
 	pip install -r requirements.txt
@@ -32,19 +48,24 @@ ansible_playbook() {
   op run -- ansible-playbook "$@"
 }
 
-curl_test() {
+credential_test() {
   source .venv/bin/activate
-    # -H "User-Agent	Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0" \
-  op run -- curl -v -k  \
+  if op run -- curl -v -k  \
     -H "Content-Type: application/json" \
-    -H "Authorization: PVEAPIToken=$(op read "${PROXMOX_PACKER_API_TOKEN_ID:?}")=$(op read "${PROXMOX_PACKER_API_TOKEN_SECRET:?}")" \
-    "$(op read "${PROXMOX_PACKER_API_URI:?}")/nodes"
+    -H "Authorization: PVEAPIToken=$(op read "${PROXMOX_API_TOKEN_ID:?}")=$(op read "${PROXMOX_API_SECRET:?}")" \
+    "$(op read "${PROXMOX_API_HOSTNAME:?}")/nodes"
+  then
+    echo -e "\e[92mCredential test passed\e[39m" >&2
+  else
+    echo -e "\e[91mCredential test failed\e[39m" >&2
+    exit 1
+  fi
 }
 
 
 # Usage function to display help for the script
 usage() {
-  echo "Usage: $0 {setup|ansible-playbook} [options]"
+  echo "Usage: $0 {setup|ansible-playbook|credential-test} [options]"
   echo "Mimics the functionality of a Makefile for Terraform."
 }
 # Main case switch for the script
@@ -55,8 +76,8 @@ case "$TARGET" in
   ansible-playbook)
     ansible_playbook "$@"
   ;;
-  test)
-    curl_test "$@"
+  credential-test)
+    credential_test "$@"
   ;;
   *)
     echo "Error: Unknown target '$TARGET'"

@@ -1,0 +1,7 @@
+---
+
+- name: Install dependencies
+  ansible.builtin.include_tasks: "dependencies/{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+
+- name: Include packer control node tasks
+  ansible.builtin.include_tasks: packer.yml

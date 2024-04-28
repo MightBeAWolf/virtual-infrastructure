@@ -1,6 +1,11 @@
 # Debian 12 Template
 # ---
 
+variable "proxmox_cluster_host" {
+    # Set from the ./run.sh
+    type = string
+}
+
 variable "proxmox_cluster_node" {
     # Set from the ./run.sh
     type = string
@@ -21,24 +26,25 @@ variable "vm_name" {
   default = "debian-12-base" 
 }
 
+variable "vlan" {
+    type = string
+    default = "20"
+}
+
+variable "pool" {
+    type = string
+    default = ""
+}
+
 variable "domain" {
   type    = string
   default = ""
 }
 
-variable "ssh_fullname" {
+variable "guest_username" {
     # Set from the ./run.sh
     type = string
-}
-
-variable "ssh_username" {
-    # Set from the ./run.sh
-    type = string
-}
-
-variable "ssh_password" {
-    # Set from the ./run.sh
-    type = string
+    default = "admin"
 }
 
 packer {
@@ -53,12 +59,15 @@ packer {
 
 # Resource Definiation for the VM Template
 source "proxmox-iso" "debian-12-base" {
+    # Proxmox host settings
+    proxmox_url = "https://${var.proxmox_cluster_host}/api2/json"
  
     # (Optional) Skip TLS Verification
     insecure_skip_tls_verify = true
     
     # VM General Settings
     node = "${var.proxmox_cluster_node}"
+    pool = "${var.pool}"
     vm_id = "${var.proxmox_template_id}"
     vm_name = "debian-12-base"
     template_description = "Debian 12 base template"
@@ -97,7 +106,8 @@ source "proxmox-iso" "debian-12-base" {
     network_adapters {
         model = "virtio"
         bridge = "vmbr0"
-        firewall = "false"
+        firewall = "true"
+        vlan_tag = "${var.vlan}"
     } 
 
     # VM Cloud-Init Settings
@@ -125,11 +135,9 @@ source "proxmox-iso" "debian-12-base" {
     http_port_min = 49152
     http_port_max = 49154
 
-    # ssh_username = "${var.ssh_username}"
-    # ssh_username = "${var.ssh_username}"
-    ssh_username = "${var.ssh_username}"
+    ssh_username = "${var.guest_username}"
     # (Option 1) Add your Password here
-    ssh_password = "${var.ssh_password}"
+    # ssh_password = "${var.guest_password}"
     # - or -
     # (Option 2) Add your Private SSH KEY file here
     # ssh_private_key_file = "~/.ssh/id_ed25519"

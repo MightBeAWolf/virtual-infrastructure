@@ -24,8 +24,6 @@ d-i netcfg/choose_interface select auto
 
 # Root User Setup.
 d-i passwd/root-login boolean false
-#d-i passwd/root-password password ${var.ssh_password}
-#d-i passwd/root-password-again password ${var.ssh_password}
 
 # General User Configuation
 d-i user-setup/allow-password-weak boolean false
@@ -33,10 +31,7 @@ d-i user-setup/encrypt-home boolean false
 
 # User Setup
 #d-i passwd/make-user boolean false
-d-i passwd/user-fullname string ${var.ssh_fullname}
-d-i passwd/username string ${var.ssh_username}
-d-i passwd/user-password password ${var.ssh_password}
-d-i passwd/user-password-again password ${var.ssh_password}
+d-i passwd/username string ${var.guest_username}
 d-i passwd/user-default-groups string users sudo
 
 # Package Setup
@@ -79,7 +74,7 @@ d-i grub-installer/with_other_os boolean false
 d-i grub-installer/bootdev string default
 
 d-i preseed/late_command string \
-in-target sh -c 'echo "${var.ssh_username} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${var.ssh_username} && chmod 0440 /etc/sudoers.d/${var.ssh_username}' ; \
+in-target sh -c 'echo "${var.guest_username} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${var.guest_username} && chmod 0440 /etc/sudoers.d/${var.guest_username}' ; \
 in-target systemctl enable cloud-init.service ; \
 in-target systemctl enable unattended-upgrades.service ; \
 in-target systemctl enable NetworkManager.service

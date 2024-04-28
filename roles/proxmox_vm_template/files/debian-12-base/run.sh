@@ -1,4 +1,28 @@
-#!/bin/bash
+source "$(realpath "${BASH_SOURCE[0]}" | xargs -I{} dirname {})/secrets.env"
+# Check that the secret credentials are present
+if [[ -z "${PROXMOX_API_TOKEN_ID}" ]]; then
+  echo -e "\e[91mMissing the environment secret PROXMOX_API_TOKEN_ID!\e[39m" >&2
+  echo -e "\e[91mThis should be defined for you personally in secrets.env\e[39m" >&2
+  echo -e "\e[91mSee the README.md for more information!\e[39m" >&2
+  exit 1
+fi
+if [[ -z "${PROXMOX_API_SECRET}" ]]; then
+  echo -e "\e[91mMissing the environment secret PROXMOX_API_SECRET!\e[39m" >&2
+  echo -e "\e[91mThis should be defined for you personally in secrets.env\e[39m" >&2
+  echo -e "\e[91mSee the README.md for more information!\e[39m" >&2
+  exit 1
+fi
+if [[ -z "${PROXMOX_API_HOSTNAME}" ]]; then
+  echo -e "\e[91mMissing the environment secret PROXMOX_API_HOSTNAME!\e[39m" >&2
+  echo -e "\e[91mThis should be defined for you personally in secrets.env\e[39m" >&2
+  echo -e "\e[91mSee the README.md for more information!\e[39m" >&2
+  exit 1
+fi
+
+export PROXMOX_USERNAME="${PROXMOX_API_TOKEN_ID}"
+export PROXMOX_TOKEN="${PROXMOX_API_SECRET}"
+export PKR_VAR_proxmox_cluster_host="${PROXMOX_API_HOSTNAME}"
+
 
 TARGET="${1:?}"
 # PROXMOX_CLUSTER_NODE="pve"
@@ -6,17 +30,6 @@ PROXMOX_CLUSTER_NODE="${2:?}"
 # PROXMOX_TEMPLATE_ID="8000"
 PROXMOX_TEMPLATE_ID="${3:?}"
 shift 3
-
-# Secrets
-ONEPASSWORD_VAULT="Local Cluster"
-export PROXMOX_URL="op://${ONEPASSWORD_VAULT:?}/Proxmox - Packer API Token/hostname"
-export PROXMOX_TOKEN="op://${ONEPASSWORD_VAULT:?}/Proxmox - Packer API Token/credential"
-export PROXMOX_USERNAME="op://${ONEPASSWORD_VAULT:?}/Proxmox - Packer API Token/username"
-
-export PKR_VAR_ssh_fullname="op://${ONEPASSWORD_VAULT:?}/Local Cluster Template User/fullname"
-export PKR_VAR_ssh_username="op://${ONEPASSWORD_VAULT:?}/Local Cluster Template User/username"
-export PKR_VAR_ssh_password="op://${ONEPASSWORD_VAULT:?}/Local Cluster Template User/password"
-
 
 # Packer template file
 PACKER_TEMPLATE="template.pkr.hcl"
@@ -43,13 +56,21 @@ packer_verify() {
     "${PACKER_TEMPLATE:?}"
 }
 
-# Function for packer build
-packer_build() {
-  op run -- packer build \
+packer_init() {
+  op run -- packer init \
     -var "proxmox_cluster_node=${PROXMOX_CLUSTER_NODE:?}" \
     -var "proxmox_template_id=${PROXMOX_TEMPLATE_ID:?}" \
     "$@" \
     "${PACKER_TEMPLATE:?}"
+}
+
+# Function for packer build
+packer_build() {
+  op run -- packer build \
+      -var "proxmox_cluster_node=${PROXMOX_CLUSTER_NODE:?}" \
+      -var "proxmox_template_id=${PROXMOX_TEMPLATE_ID:?}" \
+      "$@" \
+      "${PACKER_TEMPLATE:?}"
 }
 
 # Usage function to display help for the script
@@ -64,6 +85,9 @@ case "$TARGET" in
   ;;
   build)
     packer_build "$@"
+  ;;
+  init)
+    packer_init "$@"
   ;;
   *)
     echo "Error: Unknown target '$TARGET'"

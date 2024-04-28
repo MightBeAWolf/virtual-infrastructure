@@ -1,0 +1,15 @@
+
+- name: Enable Hashicorp RPM Repository
+  ansible.builtin.copy:
+    src: RedHat-8/hashicorp.repo
+    dest: /etc/yum.repos.d
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Install Terraform and Packer
+  ansible.builtin.dnf:
+    name: ['terraform', 'packer']
+    state: latest
+  become: true
