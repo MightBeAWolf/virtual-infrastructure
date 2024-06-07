@@ -19,4 +19,6 @@
     - rpcbind.service
     - rpcbind.socket
     - rpcbind.target
+  loop_control:
+    loop_var: __proxmox_nod_host_rpcbind_service
   become: true

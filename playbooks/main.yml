@@ -4,14 +4,16 @@
 # Attempt to run lots of tasks with an incorrect become password. This
 # would lock us out of each machine due to failed password attempts.
 ###############################################################################
-- hosts: localhost
+- name: Pre-Checks
+  hosts: localhost
   gather_facts: false
   tasks:
     - name: Check if Become's (sudo) password is correct
-      command: echo "Success"
+      ansible.builtin.command: echo "Success"
       become: true
       changed_when: false
-      run_once: true # Only run on one machine, then move on to other the plays
+      # Only run on one machine, then move on to other the plays
+      run_once: true # noqa: run-once[task]
       tags: [always]
 
 ###############################################################################
@@ -23,8 +25,9 @@
   hosts: localhost
   gather_facts: true
   roles:
+    - common
     - control_node
-  tags: ['setup', 'packer', 'local','terraform', 'control_node']
+  tags: ['setup', 'packer', 'local', 'terraform', 'control_node']
   connection: local
 
 ###############################################################################
@@ -32,7 +35,8 @@
 # setup and hardening configurations. This does not deploy any VMs, containers,
 # or templates
 ###############################################################################
-- hosts: proxmox
+- name: Configure the proxmox node hosts
+  hosts: proxmox
   gather_facts: false
   roles:
     - proxmox_node_host

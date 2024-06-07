@@ -30,4 +30,3 @@ proxmox_node_host_sshd_tcp_forwarding: "no"
 # WARNING: 'UsePAM no' is not supported in RHEL and may cause several
 # problems.
 proxmox_node_host_sshd_use_pam: "yes"
-
