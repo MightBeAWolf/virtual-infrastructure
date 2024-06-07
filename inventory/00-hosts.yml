@@ -3,9 +3,5 @@ all:
 
     proxmox:
       hosts:
-        intel-nuc-13-01.sti.com:
-          proxmox_node_id: intel-nuc-13-01
-        intel-nuc-13-02.sti.com:
-          proxmox_node_id: intel-nuc-13-02
-        intel-nuc-13-03.sti.com:
-          proxmox_node_id: intel-nuc-13-03
+        pve.local.wolfbox.dev:
+          proxmox_node_id: pve

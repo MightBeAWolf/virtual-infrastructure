@@ -60,9 +60,9 @@
       register: packer_generation
       changed_when: packer_generation.rc == 0
 
-  # always:
-  #   - name: template | Clean up by deleting the temporary packer work directory
-  #     ansible.builtin.file:
-  #       path: "{{ tempdir.path }}"
-  #       state: absent
-  #     when: tempdir.path is defined
+  always:
+    - name: template | Clean up by deleting the temporary packer work directory
+      ansible.builtin.file:
+        path: "{{ tempdir.path }}"
+        state: absent
+      when: tempdir.path is defined

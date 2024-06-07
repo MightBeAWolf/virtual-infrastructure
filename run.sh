@@ -1,3 +1,4 @@
+#!/bin/bash
 source "$(realpath "${BASH_SOURCE[0]}" | xargs -I{} dirname {})/secrets.env"
 # Check that the secret credentials are present
 if [[ -z "${PROXMOX_API_TOKEN_ID}" ]]; then
