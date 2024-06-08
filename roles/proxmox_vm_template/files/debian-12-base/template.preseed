@@ -31,7 +31,10 @@ d-i user-setup/encrypt-home boolean false
 
 # User Setup
 #d-i passwd/make-user boolean false
+d-i passwd/user-fullname string "Template User"
 d-i passwd/username string ${var.guest_username}
+d-i passwd/user-password password ${var.guest_password}
+d-i passwd/user-password-again password ${var.guest_password}
 d-i passwd/user-default-groups string users sudo
 
 # Package Setup

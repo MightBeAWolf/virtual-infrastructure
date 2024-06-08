@@ -25,6 +25,9 @@ export PROXMOX_TOKEN="${PROXMOX_API_SECRET}"
 export PKR_VAR_proxmox_cluster_host="${PROXMOX_API_HOSTNAME}"
 
 
+export PKR_VAR_guest_username="${PROXMOX_VM_TEMPLATE_USER}"
+export PKR_VAR_guest_password="${PROXMOX_VM_TEMPLATE_PASSWD}"
+
 TARGET="${1:?}"
 # PROXMOX_CLUSTER_NODE="pve"
 PROXMOX_CLUSTER_NODE="${2:?}"

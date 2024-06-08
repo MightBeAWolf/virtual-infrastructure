@@ -28,7 +28,7 @@ variable "vm_name" {
 
 variable "vlan" {
     type = string
-    default = "20"
+    default = ""
 }
 
 variable "pool" {
@@ -45,6 +45,12 @@ variable "guest_username" {
     # Set from the ./run.sh
     type = string
     default = "admin"
+}
+
+variable "guest_password" {
+    # Set from the ./run.sh
+    type = string
+    sensitive = true
 }
 
 packer {
@@ -137,7 +143,7 @@ source "proxmox-iso" "debian-12-base" {
 
     ssh_username = "${var.guest_username}"
     # (Option 1) Add your Password here
-    # ssh_password = "${var.guest_password}"
+    ssh_password = "${var.guest_password}"
     # - or -
     # (Option 2) Add your Private SSH KEY file here
     # ssh_private_key_file = "~/.ssh/id_ed25519"
