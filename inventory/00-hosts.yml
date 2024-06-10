@@ -1,7 +1,28 @@
 all:
-  children:
 
+  vars:
+    k3s_clusters:
+      - name: main
+        cloud_provider: proxmox
+        data_center_address: pve.local.wolfbox.dev:8006
+        nodes:
+          k3s-01:
+            id: 401
+            target_node: pve
+            ipv4: 192.168.20.2/24
+            gateway: 192.168.86.1
+          k3s-02:
+            id: 402
+            target_node: pve
+            ipv4: 192.168.20.3/24
+            gateway: 192.168.86.1
+          k3s-03:
+            id: 403
+            target_node: pve
+            ipv4: 192.168.20.4/24
+            gateway: 192.168.86.1
+  children:
     proxmox:
       hosts:
         pve.local.wolfbox.dev:
-          proxmox_node_id: pve
+          proxmox_node_id: pve.local.wolfbox.dev

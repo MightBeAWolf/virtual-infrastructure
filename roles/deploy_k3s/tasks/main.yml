@@ -1,0 +1,7 @@
+---
+
+- name: Iterate through template definitions
+  ansible.builtin.include_tasks: 'deploy_proxmox_cluster.yml'
+  loop: "{{ k3s_clusters | selectattr('cloud_provider', '==', 'proxmox') }}"
+  loop_control:
+    loop_var: deploy_k3s_cluster

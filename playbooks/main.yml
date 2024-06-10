@@ -58,3 +58,14 @@
   roles:
     - proxmox_vm_template
   tags: ['setup', 'packer', 'templates']
+
+###############################################################################
+# Deploy the kubernetes cluster using k3s
+###############################################################################
+- name: Deploy K3S Cluster Nodes
+  hosts: proxmox
+  become: false
+  gather_facts: false
+  roles:
+    - deploy_k3s
+  tags: ['setup', 'terraform', 'kubernetes', 'k3s']

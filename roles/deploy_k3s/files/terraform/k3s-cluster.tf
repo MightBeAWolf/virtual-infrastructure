@@ -55,20 +55,9 @@ variable "pm_tls_insecure" {
   default     = true
 }
 
-variable "node_count" {
-  description = "The number of K3s nodes to create"
-  type        = number
-  default     = 3
-}
-
-variable "k3s_node_to_target_node_map" {
+variable "k3s_node_to_host_map" {
   description = "The map describing where each node should be created"
-  type = map(string)
-  default = {
-    0 = "pve"
-    1 = "pve"
-    2 = "pve"
-  }
+  type = map(object({id=number, target_node=string, ipv4=string, gateway=string}))
 }
 
 variable "vm_template_name" {
@@ -110,7 +99,7 @@ terraform {
   required_providers {
     proxmox = {
       source  = "telmate/proxmox"
-      version = "3.0.1-rc1"
+      version = "3.0.1-rc3"
     }
     onepassword = {
       source  = "1Password/onepassword"
@@ -137,20 +126,27 @@ provider "proxmox" {
 }
 
 resource "proxmox_vm_qemu" "k3s_node" {
-  count = var.node_count
-  name  = "k3s-node-${count.index}"
+  for_each = var.k3s_node_to_host_map
+  name  = "${each.key}"
   clone = var.vm_template_name
-  desc = "Kubernetes K3S on Debian 12 via '${var.vm_template_name}' template"
-  target_node="${var.k3s_node_to_target_node_map[count.index]}"
-  tags = "debian-12;k3s"
+  desc = "Kubernetes K3S via '${var.vm_template_name}' template"
+  target_node="${each.value.target_node}"
+  tags = "k3s"
   qemu_os = "l26"
   agent = 1
 
-  vmid = format("4%02v", count.index)
+  vmid = "${each.value.id}"
   cores = var.vm_resource_settings.cores
   memory = var.vm_resource_settings.memory
 
   disks {
+    ide{
+      ide0{
+        cloudinit{
+          storage = var.vm_resource_settings.disk.storage
+        }
+      }
+    }
     virtio {
       virtio0 {
         disk {
@@ -168,17 +164,10 @@ resource "proxmox_vm_qemu" "k3s_node" {
 
   # Specify cloud init settings
   os_type    = "cloud-init"
-  ipconfig0  = format("ip=10.20.4.%g/24,gw=10.20.0.1", count.index + 1)
-  nameserver = "10.20.0.1"
+  ipconfig0  = "ip=${each.value.ipv4},gw=${each.value.gateway}"
+  nameserver = "${each.value.gateway}"
   ciuser = var.node_user
   cipassword = var.node_user_password
   sshkeys = var.ssh_pub_key
-  # sshkeys = <<HEREDOC
-  # ssh-eda25519 ................... .......
-  # HEREDOC
-
-  # provisioner "remote-exec" {
-  #   // Commands to install K3s go here
-  # }
 }
 
