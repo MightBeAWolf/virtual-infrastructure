@@ -33,8 +33,8 @@ variable "node_user_password" {
 }
 
 
-variable "pm_host" {
-  description = "The Proxmox Host."
+variable "pm_api_uri" {
+  description = "The Proxmox API URI."
   type        = string
 }
 
@@ -55,9 +55,9 @@ variable "pm_tls_insecure" {
   default     = true
 }
 
-variable "k3s_node_to_host_map" {
-  description = "The map describing where each node should be created"
-  type = map(object({id=number, target_node=string, ipv4=string, gateway=string}))
+variable "guest_k3s_nodes" {
+  description = "The map describing each node"
+  type = map(object({id = number, ipv4 = string, gateway = string, target_host = string}))
 }
 
 variable "vm_template_name" {
@@ -119,18 +119,18 @@ data "onepassword_vault" "vault" {
 
 
 provider "proxmox" {
-  pm_api_url          = "https://${var.pm_host}/api2/json"
+  pm_api_url          = var.pm_api_uri
   pm_api_token_id     = var.pm_api_token_id
   pm_api_token_secret = var.pm_api_token_secret
   pm_tls_insecure     = var.pm_tls_insecure
 }
 
 resource "proxmox_vm_qemu" "k3s_node" {
-  for_each = var.k3s_node_to_host_map
+  for_each = var.guest_k3s_nodes
   name  = "${each.key}"
   clone = var.vm_template_name
   desc = "Kubernetes K3S via '${var.vm_template_name}' template"
-  target_node="${each.value.target_node}"
+  target_node="${each.value.target_host}"
   tags = "k3s"
   qemu_os = "l26"
   agent = 1
