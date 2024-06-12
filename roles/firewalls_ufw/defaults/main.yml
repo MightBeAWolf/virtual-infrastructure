@@ -1,0 +1,9 @@
+firewalls_ufw_package_name: ufw
+firewalls_ufw_default_incoming_policy: 'deny'
+firewalls_ufw_default_outgoing_policy: 'allow'
+firewalls_ufw_allow_ssh: true
+firewalls_ufw_default_policies:
+  - comment: OpenSSH
+    port: 22
+    proto: tcp
+    from: 192.168.0.0/16

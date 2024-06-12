@@ -1,0 +1,35 @@
+---
+- name: Firewalls | UFW | Install UFW
+  ansible.builtin.package:
+    name: "{{ firewalls_ufw_package_name }}"
+    state: present
+  become: true
+
+- name: Firewalls | UFW | Set default policies
+  community.general.ufw:
+    rule: "{{ firewalls_ufw_item.rule | default('allow') }}"
+    proto: "{{ firewalls_ufw_item.proto | default('any') }}"
+    comment: "{{ firewalls_ufw_item.comment | default('') }}"
+    from: "{{ firewalls_ufw_item.from | default('any') }}"
+    port: "{{ firewalls_ufw_item.port }}"
+  become: true
+  loop: "{{ firewalls_ufw_default_policies }}"
+  loop_control:
+    loop_var: firewalls_ufw_item
+
+- name: Firewalls | UFW | Set default incoming policy
+  community.general.ufw:
+    direction: incoming
+    default: "{{ firewalls_ufw_default_incoming_policy }}"
+  become: true
+
+- name: Firewalls | UFW | Set default outgoing policy
+  community.general.ufw:
+    direction: outgoing
+    default: "{{ firewalls_ufw_default_outgoing_policy }}"
+  become: true
+
+- name: Firewalls | UFW | Apply UFW rules
+  community.general.ufw:
+    state: enabled
+  become: true

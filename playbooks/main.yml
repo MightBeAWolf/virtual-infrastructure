@@ -78,5 +78,6 @@
   become: false
   gather_facts: false
   roles:
+    - firewalls_ufw
     - enable_k3s_cluster
   tags: ['setup', 'kubernetes', 'k3s']
