@@ -1,0 +1,24 @@
+---
+- name: Harden SSH configuration
+  ansible.builtin.template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart ssh
+  become: true
+
+- name: Ensure rpcbind is disabled and stopped
+  ansible.builtin.service:
+    name: rpcbind.socket
+    enabled: false
+    state: stopped
+  loop:
+    - rpcbind.service
+    - rpcbind.socket
+    - rpcbind.target
+  loop_control:
+    loop_var: __proxmox_nod_host_rpcbind_service
+  become: true

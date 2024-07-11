@@ -1,0 +1,10 @@
+---
+- name: Archlinux-rolling | Install Terraform and Packer
+  community.general.pacman:
+    name:
+      - base-devel
+      - git
+      - terraform
+      - packer
+    state: present
+  become: true

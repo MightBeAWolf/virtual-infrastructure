@@ -1,0 +1,68 @@
+---
+- name: template | Get Template Configuration
+  ansible.builtin.uri:
+    url: "https://{{ lookup('ansible.builtin.env', 'PROXMOX_API_HOSTNAME') }}\
+      /api2/json/nodes/{{ proxmox_node_id }}/qemu/\
+      {{ proxmox_vm_template_def['id'] }}/config"
+    headers:
+      Authorization: "PVEAPIToken=\
+        {{ lookup('ansible.builtin.env', 'PROXMOX_API_TOKEN_ID') }}\
+        ={{ lookup('ansible.builtin.env', 'PROXMOX_API_SECRET') }}"
+    method: GET
+    validate_certs: false
+    return_content: true
+    status_code: [200, 500]
+  changed_when: false
+  register: template_config
+  delegate_to: localhost
+
+- name: template | Using a temporary directory, generate the proxmox template
+  delegate_to: localhost
+  when: "template_config.msg is regex('HTTP Error 500: .* does not exist$')"
+  block:
+    - name: template | Create temporary packer work directory
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: packer
+      register: tempdir
+
+    - name: template | Sync the packer template definition files
+      ansible.builtin.copy:
+        src: "{{ proxmox_vm_template_def['name'] }}/"
+        dest: "{{ tempdir.path }}"
+        mode: 'preserve'
+
+    - name: template | Sync the proxmox secrets
+      ansible.builtin.copy:
+        src: "secrets.env"
+        dest: "{{ tempdir.path }}"
+        mode: 'preserve'
+
+    - name: template | Initialize Packer - {{ proxmox_vm_template_def['name'] }}
+      ansible.builtin.command:
+        chdir: "{{ tempdir.path }}"
+        argv:
+          - "./run.sh"
+          - "init"
+          - "{{ proxmox_node_id }}"
+          - "{{ proxmox_vm_template_def['id'] }}"
+      register: packer_init
+      changed_when: packer_init.rc == 0
+
+    - name: template | Generate template with Packer - {{ proxmox_vm_template_def['name'] }}
+      ansible.builtin.command:
+        chdir: "{{ tempdir.path }}"
+        argv:
+          - "./run.sh"
+          - "build"
+          - "{{ proxmox_node_id }}"
+          - "{{ proxmox_vm_template_def['id'] }}"
+      register: packer_generation
+      changed_when: packer_generation.rc == 0
+
+  always:
+    - name: template | Clean up by deleting the temporary packer work directory
+      ansible.builtin.file:
+        path: "{{ tempdir.path }}"
+        state: absent
+      when: tempdir.path is defined

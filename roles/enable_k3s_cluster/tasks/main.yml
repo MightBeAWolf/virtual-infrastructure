@@ -1,0 +1,85 @@
+---
+
+- name: Enable_k3s_cluster | Ensure /etc/hosts has an entry for the k3s node
+  delegate_to: localhost
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    state: present
+    line: "{{ guest_info['ipv4'].split('/')[0] }} {{ inventory_hostname }}"
+    create: true
+    owner: root
+    group: root
+    mode: '644'
+  become: true
+
+- name: Check if k3s is already installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s
+  register: k3s_install_check
+
+- name: Enable_k3s_cluster | Wait 600 seconds k3s node to become available in case its been rebooted
+  ansible.builtin.wait_for_connection:
+
+- name: Enable_k3s_cluster | Install k3s
+  when: not k3s_install_check.stat.exists
+  block:
+    - name: Enable_k3s_cluster | Install dependencies
+      ansible.builtin.package:
+        name:
+          - curl
+        state: present
+      become: true
+
+    - name: Enable_k3s_cluster | Download k3s installation script
+      ansible.builtin.get_url:
+        url: https://get.k3s.io
+        dest: /tmp/get_k3s.sh
+        mode: '0755'
+      notify: Enable_k3s_cluster | Remove k3s installation script
+      become: true
+
+    - name: Enable_k3s_cluster | Install k3s
+      ansible.builtin.command: /tmp/get_k3s.sh --write-kubeconfig-mode 644
+      args:
+        creates: /usr/local/bin/k3s
+      become: true
+
+- name: Enable_k3s_cluster | Set K3S Port Firewall Rules
+  community.general.ufw:
+    rule: "{{ enable_k3s_cluster_ufw_item.rule | default('allow') }}"
+    proto: "{{ enable_k3s_cluster_ufw_item.proto | default('any') }}"
+    comment: "{{ enable_k3s_cluster_ufw_item.comment | default('') }}"
+    from: "{{ enable_k3s_cluster_ufw_item.from | default('any') }}"
+    port: "{{ enable_k3s_cluster_ufw_item.port }}"
+  become: true
+  loop:
+    - comment: k3s apiserver
+      port: 6443
+      proto: tcp
+      from: 192.168.20.0/24
+    - comment: k3s 2379 required only for HA with embedded etcd
+      port: 2379
+      from: 192.168.20.0/24
+    - comment: k3s 2380 required only for HA with embedded etcd
+      port: 2380
+      from: 192.168.20.0/24
+    - comment: k3s metrics
+      port: 10250
+      from: 192.168.20.0/24
+  loop_control:
+    loop_var: enable_k3s_cluster_ufw_item
+
+- name: Enable_k3s_cluster | Set K3S Service/Pod Firewall Rules
+  community.general.ufw:
+    rule: "{{ enable_k3s_cluster_ufw_item.rule | default('allow') }}"
+    comment: "{{ enable_k3s_cluster_ufw_item.comment | default('') }}"
+    from: "{{ enable_k3s_cluster_ufw_item.address_range }}"
+    to: "{{ enable_k3s_cluster_ufw_item.address_range }}"
+  become: true
+  loop:
+    - comment: k3s pods
+      address_range: 10.42.0.0/16
+    - comment: k3s services
+      address_range: 10.43.0.0/16
+  loop_control:
+    loop_var: enable_k3s_cluster_ufw_item

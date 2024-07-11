@@ -1,0 +1,36 @@
+- name: packer | Ensure firewalld and packer service are configured
+  block:
+    - name: packer | Copy packer service definition to firewalld services directory
+      ansible.builtin.template:
+        src: "packer-firewalld-service.xml.j2"
+        dest: "/etc/firewalld/services/packer.xml"
+        owner: root
+        group: root
+        mode: '0700'
+      register: packer_service
+      become: true
+      notify:
+        - Common | Reload firewalld
+
+    - name: packer |  Reload firewalld load the packer service definition
+      ansible.builtin.meta: flush_handlers
+
+    - name: packer | Get list of used firewalld services
+      ansible.builtin.command: firewall-cmd --list-services
+      register: firewalld_services_permanent
+      changed_when: false
+      become: true
+
+    - name: packer | Add 'packer' service to the firewalld permanent configuration
+      ansible.builtin.command: firewall-cmd --permanent --add-service=packer
+      when: "'packer' not in firewalld_services_permanent.stdout"
+      register: firewalld_add_service
+      changed_when: >
+        'success' in firewalld_add_service.stdout
+        and 'ALREADY_ENABLED' not in firewalld_add_service.stderr
+      become: true
+      notify:
+        - Common | Reload firewalld
+
+    - name: packer |  Reload firewalld to apply permanent configuration
+      ansible.builtin.meta: flush_handlers

@@ -1,0 +1,88 @@
+# Locale Setup
+d-i debian-installer/language string en
+d-i debian-installer/country string US
+d-i debian-installer/locale string en_US.UTF-8
+# d-i localechooser/supported-locales multiselect en_CA.UTF-8 fr_CA.UTF-8 zh_CN.UTF-8
+# d-i pkgsel/install-language-support boolean true
+
+# Keyboard Setup
+d-i keyboard-configuration/xkb-keymap select us
+
+# Clock Setup
+# d-i time/zone string Canada/Eastern
+d-i time/zone string America/Denver
+d-i clock-setup/utc boolean false
+# set above to false if making a bootable USB to run on same system as Windows
+
+# Network Setup
+d-i netcfg/get_hostname string ${var.vm_name}
+d-i netcfg/get_domain string
+# https://bugs.launchpad.net/ubuntu/+source/netcfg/+bug/713385
+d-i netcfg/choose_interface select auto
+# make sure you also add "interface=auto" to your boot command too
+# https://bugs.launchpad.net/ubuntu/+source/netcfg/+bug/713385
+
+# Root User Setup.
+d-i passwd/root-login boolean false
+
+# General User Configuation
+d-i user-setup/allow-password-weak boolean false
+d-i user-setup/encrypt-home boolean false
+
+# User Setup
+#d-i passwd/make-user boolean false
+d-i passwd/user-fullname string "Template User"
+d-i passwd/username string ${var.guest_username}
+d-i passwd/user-password password ${var.guest_password}
+d-i passwd/user-password-again password ${var.guest_password}
+d-i passwd/user-default-groups string users sudo
+
+# Package Setup
+d-i hw-detect/load_firmware boolean false
+d-i hw-detect/load_media boolean false
+apt-cdrom-setup apt-setup/cdrom/set-first boolean false
+d-i mirror/country string manual
+d-i mirror/http/hostname string ftp.us.debian.org
+d-i mirror/http/directory string /debian
+d-i mirror/http/proxy string
+d-i apt-setup/contrib boolean true
+d-i apt-setup/non-free boolean true
+tasksel tasksel/first multiselect print-server, ssh-server, standard
+d-i pkgsel/upgrade select full-upgrade
+popularity-contest popularity-contest/participate boolean false
+
+# Select the additional packages
+d-i pkgsel/include string sudo, unattended-upgrades, qemu-guest-agent, cloud-init, network-manager, sssd, libpam-sss, libnss-sss, sssd-tools, libsss-sudo, vim, podman, podman-compose
+
+d-i partman-auto/method string lvm
+d-i partman-auto/choose_recipe select atomic
+
+# You can define the amount of space that will be used for the LVM volume
+# group. It can either be a size with its unit (eg. 20 GB), a percentage of
+# free space or the 'max' keyword.
+d-i partman-auto-lvm/guided_size string max
+
+# This makes partman automatically partition without confirmation, provided
+# that you told it what to do using one of the methods above.
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+# And the same goes for the confirmation to write the lvm partitions.
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/with_other_os boolean false
+d-i grub-installer/bootdev string default
+
+d-i preseed/late_command string \
+in-target sh -c 'echo "${var.guest_username} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${var.guest_username} && chmod 0440 /etc/sudoers.d/${var.guest_username}' ; \
+in-target systemctl enable cloud-init.service ; \
+in-target systemctl enable unattended-upgrades.service ; \
+in-target systemctl enable NetworkManager.service
+
+
+
+# Final Setup
+d-i finish-install/reboot_in_progress note

@@ -1,0 +1,83 @@
+---
+###############################################################################
+# Just check to make sure that our become password is correct so we don't
+# Attempt to run lots of tasks with an incorrect become password. This
+# would lock us out of each machine due to failed password attempts.
+###############################################################################
+- name: Pre-Checks
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Check if Become's (sudo) password is correct
+      ansible.builtin.command: echo "Success"
+      become: true
+      changed_when: false
+      # Only run on one machine, then move on to other the plays
+      run_once: true # noqa: run-once[task]
+      tags: [always]
+
+###############################################################################
+# Configure the current machine running ansible so that it can execute the rest
+# of the plays, roles and tasks. This is mostly about installing dependencies,
+# ensuring proper firewall rules, etc.
+###############################################################################
+- name: Setup local control node
+  hosts: localhost
+  gather_facts: true
+  roles:
+    - common
+    - control_node
+  tags: ['setup', 'packer', 'local', 'terraform', 'control_node']
+  connection: local
+
+###############################################################################
+# Configure the proxmox node hosts. This sets up ssh configurations and other
+# setup and hardening configurations. This does not deploy any VMs, containers,
+# or templates
+###############################################################################
+- name: Configure the proxmox node hosts
+  hosts: proxmox
+  gather_facts: false
+  roles:
+    - proxmox_node_host
+  tags: ['setup', 'control_node']
+
+###############################################################################
+# Ensure that the proxmox clusters have been setup with the appropriate virtual
+# machine templates. These templates will be used to deploy the infrastructure
+# with minimal adjustments and setup.
+###############################################################################
+- name: Templates on Proxmox Servers
+  hosts: proxmox
+  become: false
+  gather_facts: false
+  vars:
+    templates:
+      - name: debian-12-base
+        id: 8000
+  roles:
+    - proxmox_vm_template
+  tags: ['setup', 'packer', 'templates']
+
+###############################################################################
+# Deploy the kubernetes cluster VMs using k3s
+###############################################################################
+- name: Deploy K3S Cluster VM Nodes
+  hosts: proxmox
+  become: false
+  gather_facts: false
+  roles:
+    - deploy_k3s_vms
+  tags: ['setup', 'terraform', 'kubernetes', 'k3s']
+
+###############################################################################
+# Deploy the kubernetes cluster services to the k3s VMs
+###############################################################################
+- name: Enable K3S Cluster
+  hosts: kubernetes
+  become: false
+  gather_facts: false
+  roles:
+    - firewalls_ufw
+    - enable_k3s_cluster
+  tags: ['setup', 'kubernetes', 'k3s']

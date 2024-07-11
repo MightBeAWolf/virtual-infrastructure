@@ -1,0 +1,24 @@
+---
+- name: Copy packer service definition to firewalld services directory
+  ansible.builtin.template:
+    src: "packer-firewalld-service.xml.j2"
+    dest: "/etc/firewalld/services/packer.xml"
+    owner: root
+    group: root
+    mode: '0700'
+  register: packer_service
+  notify: Reload firewalld
+  become: true
+
+- name: Kickoff handlers to ensure firewalld is reloaded
+  ansible.builtin.meta: flush_handlers
+
+- name: Ensure packer service is enabled in firewalld
+  ansible.posix.firewalld:
+    service: packer
+    state: enabled
+    immediate: true
+    permanent: true
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.11

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo "Running Ansible Playbook syntax check..."
+if ! find playbooks/ -maxdepth 1 -name '*.yml' -exec ansible-playbook --syntax-check {} \;; then
+ echo "Ansible Playbook syntax check failed. Please fix the syntax errors before commiting."
+ exit 1
+fi
+
+echo "Running Ansible Lint..."
+if ! ansible-lint; then
+ echo "Ansible Lint failed. Please fix the issues before committing."
+ exit 1
+fi
+
+exit 0
