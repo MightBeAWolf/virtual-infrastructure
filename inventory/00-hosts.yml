@@ -4,7 +4,7 @@ all:
     proxmox:
       hosts:
         pve.local.wolfbox.dev:
-          proxmox_node_id: pve.local.wolfbox.dev
+          proxmox_node_id: pve
           api_uri: https://pve.local.wolfbox.dev:8006/api2/json
 
     kubernetes:

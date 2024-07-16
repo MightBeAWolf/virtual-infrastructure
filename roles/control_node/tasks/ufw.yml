@@ -1,0 +1,12 @@
+---
+- name: ufw | Enable packer with UFW
+  community.general.ufw:
+    name: Packer
+    comment: >
+      This service opens TCP ports {{ control_node_min_port }} to
+      {{ control_node_max_port }} for Packer builds.
+    direction: incoming
+    rule: allow
+    port: "{{ control_node_min_port }}:{{ control_node_max_port }}"
+    proto: tcp
+    log: true
