@@ -1,29 +1,29 @@
 ---
-- name: deploy_proxmox_cluster | Use terraform from the control node
+- name: Use terraform from the control node
   delegate_to: localhost
   vars:
     build_dir: "{{ lookup('ansible.builtin.env', 'HOME') }}/.local/state/terraform/{{ inventory_hostname }}/{{ role_path | basename }}"
     guests: >
       {{ hostvars | dict2items
-      | selectattr('value.group_names', 'contains', 'kubernetes')
+      | selectattr('value.group_names', 'contains', 'virtual_machines')
       | selectattr('value', 'contains', 'target_host')
-      | selectattr('value.target_host', 'in', [inventory_hostname, inventory_hostname_short])
+      | selectattr('value.target_host', 'in', [inventory_hostname, inventory_hostname_short, proxmox_node_id])
       | items2dict
       }}
   block:
-    - name: deploy_proxmox_cluster | Create local terraform project directory
+    - name: Create local terraform project directory
       ansible.builtin.file:
         path: "{{ build_dir }}"
         mode: '0700'
         state: directory
 
-    - name: deploy_proxmox_cluster |  Sync the terraform project configuration files
+    - name: Sync the terraform project configuration files
       ansible.builtin.copy:
         src: "terraform/"
         dest: "{{ build_dir }}"
         mode: 'preserve'
 
-    - name: deploy_proxmox_cluster |  Initialize the terraform with the project run script
+    - name: Initialize the terraform with the project run script
       ansible.builtin.command:
         chdir: "{{ build_dir }}"
         argv:
@@ -32,16 +32,16 @@
         creates: "{{ build_dir }}/terraform.tfstate"
       register: terraform_init
 
-    - name: deploy_proxmox_cluster |  Apply terraform with the project run script
+    - name: Apply terraform with the project run script
       ansible.builtin.command:
         chdir: "{{ build_dir }}"
         argv:
           - "./run.sh"
           - "apply"
-          - "-var=vm_template_name={{ deploy_k3s_vms_template }}"
+          - "-var=from_template={{ deploy_vms_template }}"
           - "-var=pm_api_uri={{ api_uri }}"
           - >
-            -var=guest_k3s_nodes={{ guests
+            -var=guests={{ guests
               | flatten_to_subitem('guest_info')
               | join_dicts_by_key(guests
                 | filter_keys_of_subitems(

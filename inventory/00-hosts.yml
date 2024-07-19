@@ -5,25 +5,40 @@ all:
       hosts:
         pve.local.wolfbox.dev:
           proxmox_node_id: pve
-          api_uri: https://pve.local.wolfbox.dev:8006/api2/json
+          api_uri: https://192.168.40.22:8006/api2/json
 
-    kubernetes:
+    virtual_machines:
       hosts:
-        k3s-01.local.wolfbox.dev:
+        gitea.sti.com:
           target_host: pve
+          from_template: debian-12-base
+          ansible_host: 192.168.41.5
           guest_info:
-            id: 401
-            ipv4: 192.168.20.2/24
-            gateway: 192.168.86.1
-        k3s-02.local.wolfbox.dev:
-          target_host: pve
-          guest_info:
-            id: 402
-            ipv4: 192.168.20.3/24
-            gateway: 192.168.86.1
-        k3s-03.local.wolfbox.dev:
-          target_host: pve
-          guest_info:
-            id: 403
-            ipv4: 192.168.20.4/24
-            gateway: 192.168.86.1
+            id: 501
+            cidr: /24
+            gateway: 192.168.40.21
+            desc: The virtualized Gitea host
+
+    # kubernetes:
+    #   hosts:
+    #     k3s-01.local.wolfbox.dev:
+    #       target_host: pve
+    #       ansible_host: 192.168.41.2
+    #       guest_info:
+    #         id: 401
+    #         gateway: 192.168.40.21
+    #         cidr: /24
+    #     k3s-02.local.wolfbox.dev:
+    #       target_host: pve
+    #       ansible_host: 192.168.41.3
+    #       guest_info:
+    #         id: 402
+    #         gateway: 192.168.40.21
+    #         cidr: /24
+    #     k3s-03.local.wolfbox.dev:
+    #       target_host: pve
+    #       ansible_host: 192.168.41.4
+    #       guest_info:
+    #         id: 403
+    #         gateway: 192.168.40.21
+    #         cidr: /24

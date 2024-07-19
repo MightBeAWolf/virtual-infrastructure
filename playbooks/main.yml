@@ -62,6 +62,17 @@
 ###############################################################################
 # Deploy the kubernetes cluster VMs using k3s
 ###############################################################################
+- name: Deploy Proxmox Virtual Machines
+  hosts: proxmox
+  become: false
+  gather_facts: false
+  roles:
+    - deploy_vms
+  tags: ['setup', 'terraform', 'vms']
+
+###############################################################################
+# Deploy the kubernetes cluster VMs using k3s
+###############################################################################
 - name: Deploy K3S Cluster VM Nodes
   hosts: proxmox
   become: false

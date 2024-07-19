@@ -56,7 +56,7 @@ variable "guest_password" {
 packer {
   required_plugins {
     name = {
-      version = "~> 1"
+      version = "~> 1.1.8"
       source  = "github.com/hashicorp/proxmox"
     }
   }
@@ -77,15 +77,15 @@ source "proxmox-iso" "debian-12-base" {
     vm_id = "${var.proxmox_template_id}"
     vm_name = "debian-12-base"
     template_description = "Debian 12 base template"
-    tags = "debian-12;template;packer"
+    tags = "debian_12;template;packer"
 
     # VM OS Settings
     # (Option 1) Local ISO File
     # iso_file = "local:iso/ubuntu-20.04.2-live-server-amd64.iso"
     # - or -
     # (Option 2) Download ISO
-    iso_url = "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.5.0-amd64-netinst.iso"
-    iso_checksum = "33c08e56c83d13007e4a5511b9bf2c4926c4aa12fd5dd56d493c0653aecbab380988c5bf1671dbaea75c582827797d98c4a611f7fb2b131fbde2c677d5258ec9"
+    iso_url = "https://cdimage.debian.org/debian-cd/12.6.0/amd64/iso-cd/debian-12.6.0-amd64-netinst.iso"
+    iso_checksum = "sha256:ade3a4acc465f59ca2496344aab72455945f3277a52afc5a2cae88cdc370fa12"
     iso_storage_pool = "local"
     unmount_iso = true
 

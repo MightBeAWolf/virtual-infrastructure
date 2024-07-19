@@ -1,10 +1,18 @@
+from typing import List, Tuple
 
-def filter_keys_of_subitems(old_dict, keep=None, remove=None):
+def filter_keys_of_subitems(old_dict, keep=None, remove=None, rename: List[str]=None ):
     result = {}
+    rename_mappings = [m.split(':') for m in rename or []]
     for key, old_subitem in old_dict.items():
-        result[key] = {k: v for k, v in old_subitem.items()
-                       if (True if keep is None else k in keep) and
-                          (True if remove is None else k not in remove)}
+        subresult = {}
+        for sub_key, sub_value in old_subitem.items():
+            new_key = next((new for original,new in rename_mappings if sub_key == original), None)
+            if new_key:
+                subresult[new_key] = sub_value
+            elif (True if keep is None else sub_key in keep) \
+            and (True if remove is None else sub_key not in remove):
+                subresult[sub_key] = sub_value
+        result[key] = subresult
     return result
 
 def flatten_to_subitem(old_dict, *subkeys):
