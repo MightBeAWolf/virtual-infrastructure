@@ -92,3 +92,13 @@
     - firewalls_ufw
     - enable_k3s_cluster
   tags: ['setup', 'kubernetes', 'k3s']
+
+###############################################################################
+# Deploy the gitea services
+###############################################################################
+- name: Deploy the Gitea service
+  hosts: gitea.local.wolfbox.dev
+  gather_facts: false
+  roles:
+    - services_gitea
+  tags: ['services', 'gitea']

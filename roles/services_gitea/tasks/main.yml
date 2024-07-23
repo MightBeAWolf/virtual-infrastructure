@@ -1,0 +1,41 @@
+- name: Ensure dependencies are installed
+  ansible.builtin.package:
+    name:
+      - podman
+      - fuse-overlayfs
+    state: present
+  become: true
+
+- name: Create directories for Gitea
+  ansible.builtin.file:
+    path: "{{ services_gitea_host_volume_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - /opt/gitea
+    - /opt/gitea/data
+    - /opt/gitea/config
+  loop_control:
+    loop_var: services_gitea_host_volume_path
+  become: true
+
+- name: Create Gitea Podman systemd service file
+  ansible.builtin.template:
+    src: gitea-podman.service.j2
+    dest: /etc/systemd/system/gitea-podman.service
+    owner: root
+    group: root
+    mode: '0700'
+  notify:
+    - Reload systemd
+    - Restart Gitea service
+  become: true
+
+- name: Start and enable Gitea service
+  ansible.builtin.systemd:
+    name: gitea-podman.service
+    enabled: true
+    state: started
+  become: true

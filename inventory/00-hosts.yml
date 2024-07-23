@@ -9,10 +9,11 @@ all:
 
     virtual_machines:
       hosts:
-        gitea.sti.com:
+        gitea.local.wolfbox.dev:
+          ansible_user: cluster
+          ansible_host: 192.168.41.5
           target_host: pve
           from_template: debian-12-base
-          ansible_host: 192.168.41.5
           guest_info:
             id: 501
             cidr: /24
