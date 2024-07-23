@@ -1,0 +1,11 @@
+---
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+
+- name: Restart Gitea service
+  ansible.builtin.systemd:
+    name: gitea-podman.service
+    state: restarted
+  become: true

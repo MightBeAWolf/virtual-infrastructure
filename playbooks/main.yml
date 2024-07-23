@@ -62,22 +62,44 @@
 ###############################################################################
 # Deploy the kubernetes cluster VMs using k3s
 ###############################################################################
-- name: Deploy K3S Cluster VM Nodes
+- name: Deploy Proxmox Virtual Machines
   hosts: proxmox
   become: false
   gather_facts: false
   roles:
-    - deploy_k3s_vms
-  tags: ['setup', 'terraform', 'kubernetes', 'k3s']
+    - deploy_vms
+  tags: ['setup', 'terraform', 'vms']
 
 ###############################################################################
-# Deploy the kubernetes cluster services to the k3s VMs
+# Deploy the kubernetes cluster VMs using k3s
 ###############################################################################
-- name: Enable K3S Cluster
-  hosts: kubernetes
-  become: false
+# - name: Deploy K3S Cluster VM Nodes
+#   hosts: proxmox
+#   become: false
+#   gather_facts: false
+#   roles:
+#     - deploy_k3s_vms
+#   tags: ['setup', 'terraform', 'kubernetes', 'k3s']
+
+# ###############################################################################
+# # Deploy the kubernetes cluster services to the k3s VMs
+# ###############################################################################
+# - name: Enable K3S Cluster
+#   hosts: kubernetes
+#   become: false
+#   gather_facts: false
+#   roles:
+#     - firewalls_ufw
+#     - enable_k3s_cluster
+#   tags: ['setup', 'kubernetes', 'k3s']
+
+###############################################################################
+# Deploy the gitea services
+###############################################################################
+- name: Deploy the Gitea service
+  hosts: gitea.local.silicontech.us
   gather_facts: false
   roles:
-    - firewalls_ufw
-    - enable_k3s_cluster
-  tags: ['setup', 'kubernetes', 'k3s']
+    - deploy_ssh_key
+    # - services_gitea
+  tags: ['services', 'gitea']

@@ -1,0 +1,8 @@
+services_gitea_version: "latest"
+services_gitea_ports:
+  - "3000:3000"
+  - "2222:2222"
+services_gitea_volumes:
+  - /opt/gitea/data:/data/gitea
+  - /etc/timezone:/etc/timezone:ro
+  - /etc/localtime:/etc/localtime:ro

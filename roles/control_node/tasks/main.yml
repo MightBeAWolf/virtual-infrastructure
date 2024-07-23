@@ -3,5 +3,26 @@
 - name: Install dependencies
   ansible.builtin.include_tasks: "dependencies/{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
 
-- name: Include packer control node tasks
-  ansible.builtin.include_tasks: packer.yml
+- name: Configure firewall of the control node
+  block:
+    - name: Check if firewalld is installed
+      ansible.builtin.command: systemctl is-active firewalld
+      register: firewalld_status
+      ignore_errors: true
+      failed_when: false
+      changed_when: false
+
+    - name: Check if ufw is installed
+      ansible.builtin.command: which ufw && ufw status
+      register: ufw_status
+      ignore_errors: true
+      failed_when: false
+      changed_when: false
+
+    - name: Include firewalld tasks if firewalld is active
+      ansible.builtin.include_tasks: firewalld.yml
+      when: firewalld_status.rc == 0
+
+    - name: Include ufw tasks if ufw is active
+      ansible.builtin.include_tasks: ufw.yml
+      when: ufw_status.rc == 0

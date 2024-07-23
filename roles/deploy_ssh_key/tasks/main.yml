@@ -1,0 +1,6 @@
+---
+- name: deploy_ssh_key | Add the SSH key to the authorized_keys
+  ansible.posix.authorized_key:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    state: present
+    key: "{{ lookup('env', 'SSH_PUB_KEY') }}"

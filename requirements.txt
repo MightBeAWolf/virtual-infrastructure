@@ -1,2 +1,4 @@
 ansible
 ansible-lint
+
+ruff-lsp

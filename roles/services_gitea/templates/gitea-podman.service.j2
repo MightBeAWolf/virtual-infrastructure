@@ -1,0 +1,19 @@
+[Unit]
+Description=Gitea Podman Container
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/podman run --rm --name=gitea -p {{ services_gitea_ports[0] }} -p {{ services_gitea_ports[1] }} \
+  {% for volume in services_gitea_volumes %}
+  -v {{ volume }} \
+  {% endfor %}
+  docker.io/gitea/gitea:{{ services_gitea_version }}
+
+ExecStop=/usr/bin/podman stop gitea
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+

@@ -2,16 +2,16 @@
 
 
 # Secrets
-export TF_VAR_onepassword_vault="Local Cluster"
-export TF_VAR_onepassword_service_token="op://${TF_VAR_onepassword_vault:?}/Local Cluster - Terraform Service Account/credential"
-export TF_VAR_onepassword_cli_path="$(which op)"
-
 export TF_VAR_pm_api_token_id="${PROXMOX_API_TOKEN_ID:?}"
 export TF_VAR_pm_api_token_secret="${PROXMOX_API_SECRET:?}"
 
-export TF_VAR_ssh_pub_key="op://${TF_VAR_onepassword_vault:?}/Local Cluster - SSH Key/public key"
-export TF_VAR_node_user="op://${TF_VAR_onepassword_vault:?}/Proxmox Cluster Template User/username"
-export TF_VAR_node_user_password="op://${TF_VAR_onepassword_vault:?}/Proxmox Cluster Template User/password"
+if [[ ! -f "/home/$USER/.ssh/id_ed25519.pub" ]]; then
+  echo -e "\e91mFailed to find /home/$USER/.ssh/id_ed25519.pub!\e[39m" >&2
+  exit 1
+fi
+export TF_VAR_ssh_pub_key="$(cat /home/$USER/.ssh/id_ed25519.pub)"
+export TF_VAR_node_user="op://I.T./Proxmox Cluster Template User/username"
+export TF_VAR_node_user_password="op://I.T./Proxmox Cluster Template User/password"
 
 # The first argument is the target, the rest are options for terraform
 TARGET=$1

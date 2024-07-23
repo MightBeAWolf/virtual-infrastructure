@@ -77,7 +77,7 @@ source "proxmox-iso" "debian-12-base" {
     vm_id = "${var.proxmox_template_id}"
     vm_name = "debian-12-base"
     template_description = "Debian 12 base template"
-    tags = "debian-12;template;packer"
+    tags = "debian_12;template;packer"
 
     # VM OS Settings
     # (Option 1) Local ISO File

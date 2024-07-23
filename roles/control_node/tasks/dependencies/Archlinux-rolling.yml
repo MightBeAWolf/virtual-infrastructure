@@ -1,5 +1,5 @@
 ---
-- name: Archlinux-rolling | Install Terraform and Packer
+- name: dependencies | Archlinux-rolling | Install Terraform and Packer
   community.general.pacman:
     name:
       - base-devel

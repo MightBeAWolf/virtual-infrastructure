@@ -1,20 +1,3 @@
-variable "onepassword_vault" {
-  description = "The 1Password vault storing the credentials"
-  type        = string
-  sensitive   = true
-}
-
-variable "onepassword_service_token" {
-  description = "The credential token for the 1Password service account"
-  type        = string
-  sensitive   = true
-}
-
-variable "onepassword_cli_path" {
-  description = "The path on the local system of the 1password 'op' binary"
-  type        = string
-}
-
 variable "ssh_pub_key" {
   description = "The public ssh key used to access the nodes"
   type        = string
@@ -55,19 +38,19 @@ variable "pm_tls_insecure" {
   default     = true
 }
 
-variable "guest_k3s_nodes" {
-  description = "The map describing each node"
-  type = map(object({id = number, ipv4 = string, cidr = string, gateway = string, target_host = string}))
+variable "from_template" {
+  description = "The name of the template to clone from"
+  type        = string
+  default     = true
 }
 
-variable "vm_template_name" {
-  description = "The name of the VM template to clone for K3s nodes"
-  type        = string
-  default     = "debian-12-base"
+variable "guests" {
+  description = "The map describing each virtual machine to deploy"
+  type = map(object({id = number, ipv4 = string, cidr = string, gateway = string, desc = string, target_host = string}))
 }
 
 variable "vm_resource_settings" {
-  description = "Resource settings for each K3s node VM"
+  description = "Resource settings for each VM"
   type = object({
     cores   = number
     memory  = number
@@ -78,6 +61,7 @@ variable "vm_resource_settings" {
     network = object({
       bridge = string
       model  = string
+      tag = number
     })
   })
   default = {
@@ -90,6 +74,7 @@ variable "vm_resource_settings" {
     network = {
       bridge = "vmbr0"
       model  = "virtio"
+      tag    = 40
     }
   }
 }
@@ -101,20 +86,7 @@ terraform {
       source  = "telmate/proxmox"
       version = "3.0.1-rc3"
     }
-    onepassword = {
-      source  = "1Password/onepassword"
-      version = "1.4.3"
-    }
   }
-}
-
-provider "onepassword" {
-  service_account_token = var.onepassword_service_token
-  op_cli_path           = var.onepassword_cli_path
-}
-
-data "onepassword_vault" "vault" {
-  name=var.onepassword_vault
 }
 
 
@@ -125,13 +97,13 @@ provider "proxmox" {
   pm_tls_insecure     = var.pm_tls_insecure
 }
 
-resource "proxmox_vm_qemu" "k3s_node" {
-  for_each = var.guest_k3s_nodes
+resource "proxmox_vm_qemu" "guest_vms" {
+  for_each = var.guests
   name  = "${each.key}"
-  clone = var.vm_template_name
-  desc = "Kubernetes K3S via '${var.vm_template_name}' template"
+  clone = "${var.from_template}"
+  desc = "${each.value.desc}"
   target_node="${each.value.target_host}"
-  tags = "k3s"
+  # tags=""
   qemu_os = "l26"
   agent = 1
 
