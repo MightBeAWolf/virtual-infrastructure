@@ -40,6 +40,7 @@
           - "-var=gateway={{ guest_info.gateway }}"
           - "-var=desc={{ guest_info.desc }}"
           - "-var=tags={{ guest_info.tags }}"
+          - "-var=start_vm_on_boot={{ guest_info.start_on_boot | default(false) | string | lower }}"
           - "-var=target_node={{ hostvars[target_host]['proxmox_node_id'] }}"
           - "--auto-approve"
       register: terraform_apply

@@ -26,6 +26,7 @@ all:
             gateway: 10.2.40.1
             tags: debian_12,service,infrastructure_as_code
             desc: The virtualized Gitea host
+            start_on_boot: true
 
     # kubernetes:
     #   hosts:

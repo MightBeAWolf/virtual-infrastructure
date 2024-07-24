@@ -44,6 +44,12 @@ variable "from_template" {
   default     = true
 }
 
+variable "start_vm_on_boot" {
+  description = "Whether to have the VM startup after the PVE node starts."
+  type        = bool
+  default     = false
+}
+
 variable "name" {
   type = string 
 }
@@ -133,6 +139,8 @@ resource "proxmox_vm_qemu" "guest_vms" {
   tags="${var.tags}"
   qemu_os = "l26"
   agent = 1
+
+  onboot = "${var.start_vm_on_boot}"
 
   vmid = "${var.id}"
   cores = var.vm_resource_settings.cores
