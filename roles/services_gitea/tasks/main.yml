@@ -8,17 +8,11 @@
 
 - name: Create directories for Gitea
   ansible.builtin.file:
-    path: "{{ services_gitea_host_volume_path }}"
+    path: "/opt/gitea/gitea/conf"
     state: directory
     owner: root
     group: root
     mode: '0755'
-  loop:
-    - /opt/gitea
-    - /opt/gitea/data
-    - /opt/gitea/config
-  loop_control:
-    loop_var: services_gitea_host_volume_path
   become: true
 
 - name: Create Gitea Podman systemd service file
@@ -28,14 +22,76 @@
     owner: root
     group: root
     mode: '0700'
-  notify:
-    - Reload systemd
-    - Restart Gitea service
+  register: gitea_systemd_unit
   become: true
 
 - name: Start and enable Gitea service
   ansible.builtin.systemd:
     name: gitea-podman.service
     enabled: true
-    state: started
+    state: restarted
+    daemon_reload: true
+  when: gitea_systemd_unit.changed
   become: true
+
+- name: Pause for 15 seconds for container to come up
+  ansible.builtin.pause:
+    seconds: 15
+  when: gitea_systemd_unit.changed
+
+- name: Check for Gitea's Certs and generate if needed
+  block:
+    - name: Check if the certificate exists.changed
+      ansible.builtin.stat:
+        path: /opt/gitea/gitea/cert.pem
+      register: cert_check
+
+    - name: Generate Gitea HTTPS Certificates
+      containers.podman.podman_container_exec:
+        name: gitea
+        command: "gitea cert --host {{ ansible_host }}"
+        workdir: /data/gitea
+        user: git
+      become: true
+      when: not cert_check.stat.exists
+      notify: Restart Gitea service
+
+- name: Create Gitea Configuration
+  block:
+    # Because we'll add secrets to our ini file later, We'll only want to
+    # compare our template against a configuration without later modifications.
+    # We'll call this pre-modified ini the preinstall ini
+    - name: Create Gitea Preinstall Configuration
+      ansible.builtin.template:
+        src: app.ini.j2
+        dest: /opt/gitea/gitea/conf/app.preinstall.ini
+        owner: 1000
+        group: 1000
+        mode: '0600'
+      register: gitea_preinstall_conf
+      become: true
+
+    - name: Create Gitea Configuration
+      ansible.builtin.copy:
+        remote_src: true
+        src: /opt/gitea/gitea/conf/app.preinstall.ini
+        dest: /opt/gitea/gitea/conf/app.ini
+        owner: 1000
+        group: 1000
+        mode: '0600'
+      notify: Restart Gitea service
+      when: gitea_preinstall_conf.changed
+      become: true
+
+    - name: Generate Gitea Secrets
+      containers.podman.podman_container_exec:
+        name: gitea
+        command: >
+          bash -c
+          'gitea generate secret INTERNAL_TOKEN &&
+          gitea generate secret JWT_SECRET &&
+          gitea generate secret SECRET_KEY'
+        user: git
+      become: true
+      when: gitea_preinstall_conf.changed
+      notify: Restart Gitea service

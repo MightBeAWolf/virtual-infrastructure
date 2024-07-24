@@ -24,7 +24,7 @@ all:
             id: 501
             cidr: /24
             gateway: 10.2.40.1
-            tags: debian_12,service
+            tags: debian_12,service,infrastructure_as_code
             desc: The virtualized Gitea host
 
     # kubernetes:
