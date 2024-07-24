@@ -44,10 +44,38 @@ variable "from_template" {
   default     = true
 }
 
-variable "guests" {
-  description = "The map describing each virtual machine to deploy"
-  type = map(object({id = number, ipv4 = string, cidr = string, gateway = string, desc = string, target_host = string}))
+variable "name" {
+  type = string 
 }
+
+variable "id" {
+  type = number 
+}
+
+variable "ipv4" {
+  type = string 
+}
+
+variable "cidr" {
+  type = string 
+}
+
+variable "gateway" {
+  type = string 
+}
+
+variable "desc" {
+  type = string 
+}
+
+variable "target_node" {
+  type = string
+}
+
+variable "tags" {
+  type = string
+}
+
 
 variable "vm_resource_settings" {
   description = "Resource settings for each VM"
@@ -98,16 +126,15 @@ provider "proxmox" {
 }
 
 resource "proxmox_vm_qemu" "guest_vms" {
-  for_each = var.guests
-  name  = "${each.key}"
+  name  = "${var.name}"
   clone = "${var.from_template}"
-  desc = "${each.value.desc}"
-  target_node="${each.value.target_host}"
-  # tags=""
+  desc = "${var.desc}"
+  target_node="${var.target_node}"
+  tags="${var.tags}"
   qemu_os = "l26"
   agent = 1
 
-  vmid = "${each.value.id}"
+  vmid = "${var.id}"
   cores = var.vm_resource_settings.cores
   memory = var.vm_resource_settings.memory
 
@@ -136,8 +163,8 @@ resource "proxmox_vm_qemu" "guest_vms" {
 
   # Specify cloud init settings
   os_type    = "cloud-init"
-  ipconfig0  = "ip=${each.value.ipv4}${each.value.cidr},gw=${each.value.gateway}"
-  nameserver = "${each.value.gateway}"
+  ipconfig0  = "ip=${var.ipv4}${var.cidr},gw=${var.gateway}"
+  nameserver = "${var.gateway}"
   ciuser = var.node_user
   cipassword = var.node_user_password
   sshkeys = var.ssh_pub_key

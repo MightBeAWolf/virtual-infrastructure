@@ -2,14 +2,7 @@
 - name: Use terraform from the control node
   delegate_to: localhost
   vars:
-    build_dir: "{{ lookup('ansible.builtin.env', 'HOME') }}/.local/state/terraform/{{ inventory_hostname }}/{{ role_path | basename }}"
-    guests: >
-      {{ hostvars | dict2items
-      | selectattr('value.group_names', 'contains', 'virtual_machines')
-      | selectattr('value', 'contains', 'target_host')
-      | selectattr('value.target_host', 'in', [inventory_hostname, inventory_hostname_short, proxmox_node_id])
-      | items2dict
-      }}
+    build_dir: "{{ lookup('ansible.builtin.env', 'HOME') }}/.local/state/terraform/{{ role_path | basename }}/{{ inventory_hostname }}/{{ target_host }}"
   block:
     - name: Create local terraform project directory
       ansible.builtin.file:
@@ -39,16 +32,37 @@
           - "./run.sh"
           - "apply"
           - "-var=from_template={{ deploy_vms_template }}"
-          - "-var=pm_api_uri={{ api_uri }}"
-          - >
-            -var=guests={{ guests
-              | flatten_to_subitem('guest_info')
-              | join_dicts_by_key(guests
-                | filter_keys_of_subitems(
-                  keep=['target_host', 'ansible_host'],
-                  rename=['ansible_host:ipv4']))
-              | to_json
-            }}
+          - "-var=pm_api_uri={{ hostvars[target_host]['api_uri'] }}"
+          - "-var=name={{ inventory_hostname }}"
+          - "-var=id={{ guest_info.id }}"
+          - "-var=ipv4={{ ansible_host }}"
+          - "-var=cidr={{ guest_info.cidr }}"
+          - "-var=gateway={{ guest_info.gateway }}"
+          - "-var=desc={{ guest_info.desc }}"
+          - "-var=tags={{ guest_info.tags }}"
+          - "-var=target_node={{ hostvars[target_host]['proxmox_node_id'] }}"
           - "--auto-approve"
       register: terraform_apply
       changed_when: "'Apply complete! Resources: 0 added, 0 changed, 0 destroyed.' not in terraform_apply.stdout"
+
+- name: Add Ansible control node's user public SSH key to a host
+  remote_user: "{{ lookup('env', 'PROXMOX_VM_TEMPLATE_USER') }}"
+  block:
+    - name: Ensure deployed VMs are reachable
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+
+    - name: Ensure the deploy user has a .ssh directory
+      ansible.builtin.file:
+        path: "/home/{{ lookup('env', 'USER') }}/.ssh"
+        state: directory
+        mode: '0700'
+        owner: "{{ lookup('env', 'USER') }}"
+        group: "{{ lookup('env', 'USER') }}"
+      become: true
+
+    - name: Add control node's user public SSH key to authorized_keys
+      ansible.posix.authorized_key:
+        user: "{{ lookup('env', 'USER') }}"
+        key: "{{ lookup('env', 'SSH_PUB_KEY') }}"
+      become: true
