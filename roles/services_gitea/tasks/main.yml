@@ -6,6 +6,67 @@
     state: present
   become: true
 
+- name: Create the Gitea pod
+  containers.podman.podman_pod:
+    name: gitea-pod
+    state: started
+    ports:
+      - "443:3000"
+      - "2222:2222"
+      - "127.0.0.1:3306:3306"
+  become: true
+
+- name: Create directories for Gitea Database
+  ansible.builtin.file:
+    path: "/var/gitea/db"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Create Gitea Database systemd service file
+  ansible.builtin.template:
+    src: gitea-db-podman.service.j2
+    dest: /etc/systemd/system/gitea-db-podman.service
+    owner: root
+    group: root
+    mode: '0600'
+  register: gitea_db_systemd_unit
+  become: true
+
+- name: Restart the gitea-db-podman.service if there has been a config change
+  ansible.builtin.systemd:
+    name: gitea-db-podman.service
+    enabled: true
+    state: restarted
+    daemon_reload: true
+  when: gitea_db_systemd_unit.changed
+  become: true
+
+- name: Pause for 10 seconds for container to come up
+  ansible.builtin.pause:
+    seconds: 10
+  when: gitea_db_systemd_unit.changed
+
+- name: Initialize the Gitea DB Scheme
+  block:
+    - name: Install database modification requirements
+      ansible.builtin.package:
+        name:
+          - mariadb-server
+          - python3-pymysql
+        state: present
+      become: true
+
+    - name: Define the database within the mariadb server
+      community.mysql.mysql_db:
+        name: gitea
+        state: present
+        login_host: 127.0.0.1
+        login_user: "{{ lookup('env', 'GITEA_DB_USERNAME') }}"
+        login_password: "{{ lookup('env', 'GITEA_DB_PASSWORD') }}"
+
 - name: Create directories for Gitea
   ansible.builtin.file:
     path: "/opt/gitea/gitea/conf"
@@ -21,11 +82,11 @@
     dest: /etc/systemd/system/gitea-podman.service
     owner: root
     group: root
-    mode: '0700'
+    mode: '0600'
   register: gitea_systemd_unit
   become: true
 
-- name: Start and enable Gitea service
+- name: Restart the gitea-podman.service if there has been a config change
   ansible.builtin.systemd:
     name: gitea-podman.service
     enabled: true
@@ -95,3 +156,15 @@
       become: true
       when: gitea_preinstall_conf.changed
       notify: Restart Gitea service
+
+- name: Ensure the gitea services are up and enabled
+  ansible.builtin.systemd:
+    name: "{{ services_gitea_unit }}"
+    enabled: true
+    state: started
+  become: true
+  loop:
+    - gitea-db-podman.service
+    - gitea-podman.service
+  loop_control:
+    loop_var: services_gitea_unit

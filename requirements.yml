@@ -1,0 +1,6 @@
+---
+# To install the roles and collections specified in the requirements.yml file, you
+# would use the following command:
+# ansible-galaxy install -r requirements.yml
+collections:
+  - name: community.general

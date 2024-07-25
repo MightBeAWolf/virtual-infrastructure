@@ -41,6 +41,7 @@ setup() {
 	source .venv/bin/activate
 	pip install --upgrade pip
 	pip install -r requirements.txt
+	ansible-galaxy install -r requirements.yml
 }
 
 # Function to run an ansible playbook
