@@ -1,8 +1,12 @@
 services_gitea_container_version: "latest"
 services_gitea_mariadb_version: "latest"
 services_gitea_volumes:
-  - /opt/gitea:/data
-  - /etc/timezone:/etc/timezone:ro
-  - /etc/localtime:/etc/localtime:ro
-services_gitea_mariadb_volumes:
-  - /var/gitea/db:/data
+  gitea:
+    /opt/gitea: /data
+    /home/git/.ssh: /data/git/.ssh
+    /etc/timezone: /etc/timezone:ro
+    /etc/localtime: /etc/localtime:ro
+  gitea_db:
+    /var/gitea/db: /data
+services_gitea_podman_uid_mappings:
+  git: {start: 20000, count: 65536}

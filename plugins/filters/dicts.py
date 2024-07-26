@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Dict, Any
 
 def filter_keys_of_subitems(old_dict, keep=None, remove=None, rename: List[str]=None ):
     result = {}
@@ -21,6 +21,14 @@ def flatten_to_subitem(old_dict, *subkeys):
         result[key] = {}
         for subkey in subkeys:
             result[key].update(old_subitem[subkey])
+    return result
+
+def flatten_dict_of_dict(dictionary: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+    """Flattens a dictionary of dictionaries, destroys the top-level dict's keys"""
+    result = {}
+    for _, sub_dict in dictionary.items():
+        for key, value in sub_dict.items():
+            result[key] = value
     return result
 
 def join_dicts_by_key(*original_dicts):
@@ -49,6 +57,7 @@ class FilterModule(object):
         return {
             'filter_keys_of_subitems': filter_keys_of_subitems,
             'flatten_to_subitem': flatten_to_subitem,
+            'flatten_dict_of_dict': flatten_dict_of_dict,
             'join_dicts_by_key': join_dicts_by_key,
             'this_item': this_item,
         }

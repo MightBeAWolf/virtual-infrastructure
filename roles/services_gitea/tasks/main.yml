@@ -3,8 +3,60 @@
     name:
       - podman
       - fuse-overlayfs
+      - acl
     state: present
   become: true
+
+- name: Create the git user's group
+  ansible.builtin.user:
+    name: git
+    system: true
+    state: present
+  become: true
+
+- name: Create the git user
+  ansible.builtin.user:
+    name: git
+    group: git
+    system: true
+    state: present
+    password_lock: true
+    password: '!' # Sets the password as a locked password
+    generate_ssh_key: true
+    ssh_key_file: .ssh/id_ed25519
+    ssh_key_type: ed25519
+  register: git_user
+  become: true
+
+- name: Ensure the container host can ssh into the container
+  ansible.posix.authorized_key:
+    user: git
+    state: present
+    key: "{{ git_user.ssh_public_key }}"
+  become: true
+
+- name: Create the gitea ssh command that will pass the ssh traffic
+  ansible.builtin.template:
+    src: gitea.j2
+    dest: /usr/local/bin/gitea
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Create directories for persistent data
+  ansible.builtin.file:
+    path: "{{ services_gitea_vol_src }}"
+    state: directory
+    owner: "{{ git_user.name }}"
+    group: "{{ git_user.group }}"
+    mode: '0750'
+  become: true
+  loop:
+    - /opt/gitea
+    - /var/gitea/db
+  loop_control:
+    loop_var: services_gitea_vol_src
 
 - name: Create the Gitea pod
   containers.podman.podman_pod:
@@ -12,17 +64,8 @@
     state: started
     ports:
       - "443:3000"
-      - "2222:2222"
+      - "127.0.0.1:2222:22"
       - "127.0.0.1:3306:3306"
-  become: true
-
-- name: Create directories for Gitea Database
-  ansible.builtin.file:
-    path: "/var/gitea/db"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
   become: true
 
 - name: Create Gitea Database systemd service file
@@ -67,15 +110,6 @@
         login_user: "{{ lookup('env', 'GITEA_DB_USERNAME') }}"
         login_password: "{{ lookup('env', 'GITEA_DB_PASSWORD') }}"
 
-- name: Create directories for Gitea
-  ansible.builtin.file:
-    path: "/opt/gitea/gitea/conf"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-  become: true
-
 - name: Create Gitea Podman systemd service file
   ansible.builtin.template:
     src: gitea-podman.service.j2
@@ -106,6 +140,8 @@
       ansible.builtin.stat:
         path: /opt/gitea/gitea/cert.pem
       register: cert_check
+      become: true
+      become_user: "{{ git_user.name }}"
 
     - name: Generate Gitea HTTPS Certificates
       containers.podman.podman_container_exec:
@@ -126,8 +162,8 @@
       ansible.builtin.template:
         src: app.ini.j2
         dest: /opt/gitea/gitea/conf/app.preinstall.ini
-        owner: 1000
-        group: 1000
+        owner: "{{ git_user.name }}"
+        group: "{{ git_user.group }}"
         mode: '0600'
       register: gitea_preinstall_conf
       become: true
@@ -137,8 +173,8 @@
         remote_src: true
         src: /opt/gitea/gitea/conf/app.preinstall.ini
         dest: /opt/gitea/gitea/conf/app.ini
-        owner: 1000
-        group: 1000
+        owner: "{{ git_user.name }}"
+        group: "{{ git_user.group }}"
         mode: '0600'
       notify: Restart Gitea service
       when: gitea_preinstall_conf.changed

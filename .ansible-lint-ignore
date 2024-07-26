@@ -2,3 +2,4 @@ roles/control_node/tasks/main.yml command-instead-of-module
 roles/deploy_k3s_vms/tasks/deploy_proxmox_cluster.yml no-handler
 roles/deploy_vms/tasks/main.yml no-handler
 roles/services_gitea/tasks/main.yml no-handler
+roles/services_gitea/tasks/main.yml no-changed-when

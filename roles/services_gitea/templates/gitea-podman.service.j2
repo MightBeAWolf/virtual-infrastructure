@@ -20,8 +20,10 @@ ExecStart=/usr/bin/podman run \
   --replace \
   --name=gitea \
   --pod=gitea-pod \
-  {% for volume in services_gitea_volumes %}
-  -v {{ volume }} \
+  --env='USER_UID={{ git_user.uid }}' \
+  --env='USER_GID={{ git_user.group }}' \
+  {% for src, dst in services_gitea_volumes.gitea.items() %}
+  -v "{{src}}:{{dst}}" \
   {% endfor %}
   docker.io/gitea/gitea:{{ services_gitea_container_version }}
 
