@@ -11,7 +11,7 @@ variable "proxmox_cluster_node" {
     type = string
 }
 
-variable "proxmox_template_id" {
+variable "id" {
     # Set from the ./run.sh
     type = string
 }
@@ -21,7 +21,7 @@ variable "preseed_file" {
   default = "template.preseed"
 }
 
-variable "vm_name" {
+variable "name" {
   type    = string
   default = "debian-12-base" 
 }
@@ -53,6 +53,30 @@ variable "guest_password" {
     sensitive = true
 }
 
+variable "desc" {
+  type = string 
+}
+
+variable "http_interface" {
+    # Specifies the interface to use for the web server
+    type = string
+}
+
+variable "tags" {
+  type = string
+}
+
+variable "disk" {
+  type = object({
+    storage = string
+    size    = string
+  })
+  default = {
+    storage = "local-lvm"
+    size    = "20G"
+  }
+}
+
 packer {
   required_plugins {
     name = {
@@ -70,14 +94,16 @@ source "proxmox-iso" "debian-12-base" {
  
     # (Optional) Skip TLS Verification
     insecure_skip_tls_verify = true
+
+    http_interface = "${var.http_interface}"
     
     # VM General Settings
     node = "${var.proxmox_cluster_node}"
     pool = "${var.pool}"
-    vm_id = "${var.proxmox_template_id}"
-    vm_name = "debian-12-base"
-    template_description = "Debian 12 base template"
-    tags = "debian_12;template;packer"
+    vm_id = "${var.id}"
+    vm_name = "${var.name}"
+    template_description = "${var.desc}"
+    tags = "${var.tags}"
 
     # VM OS Settings
     # (Option 1) Local ISO File
@@ -96,10 +122,10 @@ source "proxmox-iso" "debian-12-base" {
     scsi_controller = "virtio-scsi-pci"
 
     disks {
-        disk_size = "20G"
-        format = "raw"
-        storage_pool = "local-lvm"
+        disk_size    = var.disk.size
+        storage_pool = var.disk.storage
         type = "virtio"
+        format = "raw"
     }
 
     # VM CPU Settings
@@ -126,7 +152,7 @@ source "proxmox-iso" "debian-12-base" {
         "initrd=/install.amd/initrd.gz ",
         "auto=true ",
         "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/${var.preseed_file} ",
-        "hostname=${var.vm_name} ",
+        "hostname=${var.name} ",
         "domain=${var.domain} ",
         "interface=auto ",
         "vga=788 noprompt quiet --<enter>"

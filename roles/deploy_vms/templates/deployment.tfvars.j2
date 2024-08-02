@@ -1,0 +1,58 @@
+# Give the VM its name and id number.
+# NOTE that the id number must be unique to a cluster node and no other VM on
+# that node may use the same id number.
+name = "{{ inventory_hostname }}"
+id = "{{ guest_info.id }}"
+desc = "{{ guest_info.desc }}"
+
+
+### DEPLOY INFO ###
+# Specify the target and API url of the proxmox pve node we're deploying to.
+target_node = "{{ hostvars[target_host]['proxmox_node_id'] }}"
+pm_api_uri = "{{ hostvars[target_host]['api_uri'] }}"
+
+# Specifiy the name of the template to clone the VM from. This template must be
+# on the same node that we are deploying to.
+from_template = "{{ deploy_vms_template }}"
+
+### META SETTINGS ###
+# Specify whether or not to start the VM when the node is booted.
+start_vm_on_boot = {{ guest_info.start_on_boot | default(false) | string | lower }}
+# Give the VM tags to help with identification. Helpful tags may the linux 
+# distro.
+tags = "{{ guest_info.tags }}"
+# The resource pool to which the VM will be added.
+pool = "{{ guest_info.pool | default('') }}"
+
+### NETWORKING
+# Specify the ipv4 address of the VM we're deploying
+ipv4 = "{{ ansible_host }}"
+# Specify the gateway and CIDR mask of the network
+gateway = "{{ guest_info.gateway }}"
+cidr = "{{ guest_info.cidr }}"
+network = {
+    bridge = "{{ guest_info.network.bridge | default('vmbr0') }}"
+    model  = "{{ guest_info.network.model | default('virtio') }}"
+    tag    = {{ guest_info.network.tag | default('40') }}
+}
+
+### HARDWARE ###
+compute = {
+  # The number of CPU sockets to allocate to the VM.
+  sockets = {{ guest_info.compute.sockets | default('1') }}
+  # The number of CPU cores per CPU socket to allocate to the VM
+  cores   = {{ guest_info.compute.cores | default('1') }}
+  # The amount of memory to allocate to the VM in Megabytes.
+  memory  = {{ guest_info.compute.memory | default('2048') }}
+}
+disk = {
+  # Storage locations, "local", "local-lvm", "main-storage"
+  # Main storage is recommended.
+  storage = "{{ guest_info.disk.location | default('main-storage') }}"
+  # The size of the created disk. Accepts K for kibibytes, M for mebibytes, G
+  # for gibibytes, T for tibibytes. When only a number is provided gibibytes
+  # is assumed.
+  size    = "{{ guest_info.disk.size | default('20') }}"
+  # Whether the drive should be included when making backups.
+  backup  = {{ guest_info.disk.backup | default(true) | string | lower }}
+}

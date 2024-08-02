@@ -1,0 +1,15 @@
+---
+- name: dependencies | Fedora-40 | Enable Hashicorp RPM Repository
+  ansible.builtin.copy:
+    src: Fedora-40/hashicorp.repo
+    dest: /etc/yum.repos.d
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: dependencies | Fedora-40 | Install Terraform and Packer
+  ansible.builtin.dnf:
+    name: ['terraform', 'packer']
+    state: present
+  become: true

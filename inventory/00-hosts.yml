@@ -22,11 +22,18 @@ all:
           from_template: debian-12-base
           guest_info:
             id: 501
-            cidr: /24
-            gateway: 10.2.40.1
-            tags: debian_12,service,infrastructure_as_code
             desc: The virtualized Gitea host
+            tags: debian_12,service,infrastructure_as_code
             start_on_boot: true
+            gateway: 10.2.40.1
+            pool: infrastructure
+            cidr: /24
+            disk:
+              size: 64G
+            compute:
+              sockets: 2
+              memory: 4096
+
 
     # kubernetes:
     #   hosts:

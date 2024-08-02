@@ -15,7 +15,7 @@ d-i clock-setup/utc boolean false
 # set above to false if making a bootable USB to run on same system as Windows
 
 # Network Setup
-d-i netcfg/get_hostname string ${var.vm_name}
+d-i netcfg/get_hostname string ${var.name}
 d-i netcfg/get_domain string
 # https://bugs.launchpad.net/ubuntu/+source/netcfg/+bug/713385
 d-i netcfg/choose_interface select auto
@@ -54,13 +54,31 @@ popularity-contest popularity-contest/participate boolean false
 # Select the additional packages
 d-i pkgsel/include string sudo, unattended-upgrades, qemu-guest-agent, cloud-init, network-manager, sssd, libpam-sss, libnss-sss, sssd-tools, libsss-sudo, vim, podman, podman-compose, acl
 
-d-i partman-auto/method string lvm
-d-i partman-auto/choose_recipe select atomic
+# If not, you can put an entire recipe into the preconfiguration file in one
+# (logical) line. This example creates a small /boot partition, suitable
+# swap, and uses the rest of the space for the root partition:
+d-i partman-auto/expert_recipe string                         \
+      boot-root ::                                            \
+              500 50 500 ext4                                 \
+                      $primary{ } $bootable{ }                \
+                      method{ format } format{ }              \
+                      use_filesystem{ } filesystem{ ext4 }    \
+                      mountpoint{ /boot }                     \
+              .                                               \
+              64 512 300% linux-swap                          \
+                      $primary{ }                             \
+                      method{ swap } format{ }                \
+              .                                               \
+              500 10000 1000000000 ext4                       \
+                      $primary{ }                             \
+                      method{ format } format{ }              \
+                      use_filesystem{ } filesystem{ ext4 }    \
+                      mountpoint{ / }                         \
+              .                                               
 
-# You can define the amount of space that will be used for the LVM volume
-# group. It can either be a size with its unit (eg. 20 GB), a percentage of
-# free space or the 'max' keyword.
-d-i partman-auto-lvm/guided_size string max
+d-i partman-auto/method string regular
+d-i partman-auto/choose_recipe select boot-root
+
 
 # This makes partman automatically partition without confirmation, provided
 # that you told it what to do using one of the methods above.

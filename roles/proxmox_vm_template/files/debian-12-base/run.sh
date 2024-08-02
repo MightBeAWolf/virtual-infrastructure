@@ -55,7 +55,7 @@ get_unused_port(){
 packer_verify() {
   op run -- packer validate \
     -var "proxmox_cluster_node=${PROXMOX_CLUSTER_NODE:?}" \
-    -var "proxmox_template_id=${PROXMOX_TEMPLATE_ID:?}" \
+    -var "id=${PROXMOX_TEMPLATE_ID:?}" \
     "$@" \
     "${PACKER_TEMPLATE:?}"
 }
@@ -63,7 +63,7 @@ packer_verify() {
 packer_init() {
   op run -- packer init \
     -var "proxmox_cluster_node=${PROXMOX_CLUSTER_NODE:?}" \
-    -var "proxmox_template_id=${PROXMOX_TEMPLATE_ID:?}" \
+    -var "id=${PROXMOX_TEMPLATE_ID:?}" \
     "$@" \
     "${PACKER_TEMPLATE:?}"
 }
@@ -72,7 +72,7 @@ packer_init() {
 packer_build() {
   op run -- packer build \
       -var "proxmox_cluster_node=${PROXMOX_CLUSTER_NODE:?}" \
-      -var "proxmox_template_id=${PROXMOX_TEMPLATE_ID:?}" \
+      -var "id=${PROXMOX_TEMPLATE_ID:?}" \
       "$@" \
       "${PACKER_TEMPLATE:?}"
 }

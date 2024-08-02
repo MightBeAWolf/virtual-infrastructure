@@ -55,6 +55,7 @@
     templates:
       - name: debian-12-base
         id: 8000
+        desc: "Debian 12 Bookwork template"
   roles:
     - proxmox_vm_template
   tags: ['setup', 'packer', 'templates']

@@ -81,10 +81,18 @@
 - name: Restart the gitea-db-podman.service if there has been a config change
   ansible.builtin.systemd:
     name: gitea-db-podman.service
-    enabled: true
     state: restarted
     daemon_reload: true
   when: gitea_db_systemd_unit.changed
+  become: true
+
+# This should always be checked, where as the above restart is only needed
+# If the unit needs to be reloaded
+- name: Ensure the gitea-db-podman.service has been started
+  ansible.builtin.systemd:
+    name: gitea-db-podman.service
+    enabled: true
+    state: started
   become: true
 
 - name: Pause for 10 seconds for container to come up
@@ -110,6 +118,13 @@
         login_user: "{{ lookup('env', 'GITEA_DB_USERNAME') }}"
         login_password: "{{ lookup('env', 'GITEA_DB_PASSWORD') }}"
 
+    - name: Ensure that there is no mariadb service created during the install
+      ansible.builtin.systemd_service:
+        name: mariadb.service
+        enabled: false
+        state: stopped
+      become: true
+
 - name: Create Gitea Podman systemd service file
   ansible.builtin.template:
     src: gitea-podman.service.j2
@@ -127,6 +142,15 @@
     state: restarted
     daemon_reload: true
   when: gitea_systemd_unit.changed
+  become: true
+
+# This should always be checked, where as the above restart is only needed
+# If the unit needs to be reloaded
+- name: Ensure the gitea-podman.service has been started
+  ansible.builtin.systemd:
+    name: gitea-podman.service
+    enabled: true
+    state: started
   become: true
 
 - name: Pause for 15 seconds for container to come up
@@ -192,15 +216,3 @@
       become: true
       when: gitea_preinstall_conf.changed
       notify: Restart Gitea service
-
-- name: Ensure the gitea services are up and enabled
-  ansible.builtin.systemd:
-    name: "{{ services_gitea_unit }}"
-    enabled: true
-    state: started
-  become: true
-  loop:
-    - gitea-db-podman.service
-    - gitea-podman.service
-  loop_control:
-    loop_var: services_gitea_unit

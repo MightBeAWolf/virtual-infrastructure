@@ -7,6 +7,8 @@ services_gitea_volumes:
     /etc/timezone: /etc/timezone:ro
     /etc/localtime: /etc/localtime:ro
   gitea_db:
-    /var/gitea/db: /data
+    /var/gitea/db: /var/lib/mysql
+    /etc/timezone: /etc/timezone:ro
+    /etc/localtime: /etc/localtime:ro
 services_gitea_podman_uid_mappings:
   git: {start: 20000, count: 65536}

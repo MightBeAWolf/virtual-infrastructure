@@ -1,0 +1,30 @@
+# Give the VM its name and id number.
+# NOTE that the id number must be unique to a cluster node and no other VM on
+# that node may use the same id number.
+name = "{{ proxmox_vm_template_def.name }}"
+id = "{{ proxmox_vm_template_def.id }}"
+desc = "{{ proxmox_vm_template_def.desc }}"
+
+
+### DEPLOY INFO ###
+# Name of the network interface that Packer gets HTTPIP from. Defaults to the
+# first non loopback interface
+http_interface = "{{ proxmox_vm_template_web_server_interface | default(lookup('env', 'PROXMOX_VM_TEMPLATE_WEB_INTERFACE')) }}"
+
+### META SETTINGS ###
+# Give the VM tags to help with identification. Helpful tags may the linux 
+# distro.
+tags = "{{ proxmox_vm_template_def.tags | default('debian_12;template;packer') }}"
+# The resource pool to which the VM will be added.
+pool = "{{ proxmox_vm_template_def.pool | default('') }}"
+
+### HARDWARE ###
+disk = {
+  # Storage locations, "local", "local-lvm", "main-storage"
+  # Main storage is recommended.
+  storage = "{{ proxmox_vm_template_def.disk.location | default('main-storage') }}"
+  # The size of the created disk. Accepts K for kibibytes, M for mebibytes, G
+  # for gibibytes, T for tibibytes. When only a number is provided gibibytes
+  # is assumed.
+  size    = "{{ proxmox_vm_template_def.disk.size | default('20') }}"
+}

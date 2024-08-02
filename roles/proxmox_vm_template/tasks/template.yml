@@ -3,7 +3,7 @@
   ansible.builtin.uri:
     url: "https://{{ lookup('ansible.builtin.env', 'PROXMOX_API_HOSTNAME') }}\
       /api2/json/nodes/{{ proxmox_node_id }}/qemu/\
-      {{ proxmox_vm_template_def['id'] }}/config"
+      {{ proxmox_vm_template_def.id }}/config"
     headers:
       Authorization: "PVEAPIToken=\
         {{ lookup('ansible.builtin.env', 'PROXMOX_API_TOKEN_ID') }}\
@@ -19,50 +19,54 @@
 - name: template | Using a temporary directory, generate the proxmox template
   delegate_to: localhost
   when: "template_config.msg is regex('HTTP Error 500: .* does not exist$')"
+  vars:
+    build_dir: "{{ lookup('ansible.builtin.env', 'HOME') }}
+      /.local/state/packer/{{ role_path | basename }}
+      /{{ inventory_hostname }}/{{ proxmox_vm_template_def.name }}"
   block:
-    - name: template | Create temporary packer work directory
-      ansible.builtin.tempfile:
+    - name: template | Create local terraform project directory
+      ansible.builtin.file:
+        path: "{{ build_dir }}"
+        mode: '0700'
         state: directory
-        suffix: packer
-      register: tempdir
 
     - name: template | Sync the packer template definition files
       ansible.builtin.copy:
-        src: "{{ proxmox_vm_template_def['name'] }}/"
-        dest: "{{ tempdir.path }}"
+        src: "{{ proxmox_vm_template_def.name }}/"
+        dest: "{{ build_dir }}"
+        mode: 'preserve'
+
+    - name: template | Configure the deployment variables
+      ansible.builtin.template:
+        src: "deployment.tfvars.j2"
+        dest: "{{ build_dir }}/variables.hcl"
         mode: 'preserve'
 
     - name: template | Sync the proxmox secrets
       ansible.builtin.copy:
         src: "secrets.env"
-        dest: "{{ tempdir.path }}"
+        dest: "{{ build_dir }}"
         mode: 'preserve'
 
-    - name: template | Initialize Packer - {{ proxmox_vm_template_def['name'] }}
+    - name: template | Initialize Packer - {{ proxmox_vm_template_def.name }}
       ansible.builtin.command:
-        chdir: "{{ tempdir.path }}"
+        chdir: "{{ build_dir }}"
         argv:
           - "./run.sh"
           - "init"
           - "{{ proxmox_node_id }}"
-          - "{{ proxmox_vm_template_def['id'] }}"
+          - "{{ proxmox_vm_template_def.id }}"
       register: packer_init
       changed_when: packer_init.rc == 0
 
-    - name: template | Generate template with Packer - {{ proxmox_vm_template_def['name'] }}
+    - name: template | Generate template with Packer - {{ proxmox_vm_template_def.name }}
       ansible.builtin.command:
-        chdir: "{{ tempdir.path }}"
+        chdir: "{{ build_dir }}"
         argv:
           - "./run.sh"
           - "build"
           - "{{ proxmox_node_id }}"
-          - "{{ proxmox_vm_template_def['id'] }}"
+          - "{{ proxmox_vm_template_def.id }}"
+          - "-var-file=./variables.hcl"
       register: packer_generation
       changed_when: packer_generation.rc == 0
-
-  always:
-    - name: template | Clean up by deleting the temporary packer work directory
-      ansible.builtin.file:
-        path: "{{ tempdir.path }}"
-        state: absent
-      when: tempdir.path is defined

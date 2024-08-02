@@ -82,34 +82,47 @@ variable "tags" {
   type = string
 }
 
+variable "pool" {
+  type = string
+}
 
-variable "vm_resource_settings" {
-  description = "Resource settings for each VM"
+variable "disk" {
   type = object({
-    cores   = number
-    memory  = number
-    disk    = object({
-      storage = string
-      size    = number
-    })
-    network = object({
-      bridge = string
-      model  = string
-      tag = number
-    })
+    storage = string
+    size    = string
+    backup  = bool
   })
   default = {
-    cores   = 2
-    memory  = 2048
-    disk    = {
-      storage = "local-lvm"
-      size    = 20
-    }
-    network = {
-      bridge = "vmbr0"
-      model  = "virtio"
-      tag    = 40
-    }
+    storage = "local-lvm"
+    size    = "20G"
+    backup  = true
+  }
+}
+
+variable "network" {
+  type = object({
+    bridge = string
+    model  = string
+    tag = number
+  })
+  default = {
+    bridge = "vmbr0"
+    model  = "virtio"
+    tag    = 40
+  }
+}
+
+variable "compute" {
+  description = "Resource settings for each VM"
+  type = object({
+    sockets  = number
+    cores   = number
+    memory  = number
+  })
+  default = {
+    sockets = 1
+    cores   = 1
+    memory  = 512
   }
 }
 
@@ -139,34 +152,37 @@ resource "proxmox_vm_qemu" "guest_vms" {
   tags="${var.tags}"
   qemu_os = "l26"
   agent = 1
+  pool = "${var.pool}"
 
   onboot = "${var.start_vm_on_boot}"
 
   vmid = "${var.id}"
-  cores = var.vm_resource_settings.cores
-  memory = var.vm_resource_settings.memory
+  sockets = var.compute.sockets
+  cores = var.compute.cores
+  memory = var.compute.memory
 
   disks {
     ide{
       ide0{
         cloudinit{
-          storage = var.vm_resource_settings.disk.storage
+          storage = var.disk.storage
         }
       }
     }
     virtio {
       virtio0 {
         disk {
-          size    = var.vm_resource_settings.disk.size
-          storage = var.vm_resource_settings.disk.storage
+          size    = var.disk.size
+          storage = var.disk.storage
+          backup = var.disk.backup
         }
       }
     }
   }
 
   network {
-    bridge = var.vm_resource_settings.network.bridge
-    model = var.vm_resource_settings.network.model
+    bridge = var.network.bridge
+    model = var.network.model
   }
 
   # Specify cloud init settings

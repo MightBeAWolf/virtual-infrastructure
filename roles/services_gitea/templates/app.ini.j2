@@ -14,11 +14,11 @@ TEMP_PATH = /data/gitea/uploads
 
 [server]
 APP_DATA_PATH = /data/gitea
-DOMAIN = {{ ansible_host }}
-SSH_DOMAIN = {{ ansible_host }}
+DOMAIN = {{ inventory_hostname }}
+SSH_DOMAIN = {{ inventory_hostname }}
 PROTOCOL = https
 HTTP_PORT = 3000
-ROOT_URL = https://{{ ansible_host }}
+ROOT_URL = https://{{ inventory_hostname }}
 DISABLE_SSH = false
 SSH_PORT = 22
 SSH_LISTEN_PORT = 22
