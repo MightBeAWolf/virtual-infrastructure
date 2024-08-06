@@ -25,7 +25,10 @@ export ANSIBLE_FORCE_COLOR=True
 # Name of the network interface that Packer gets HTTPIP from. Without this the
 # interface can be chosen at semi-random leading to a failure for the deployed
 # VM template to run through its preseed file.
-export PROXMOX_VM_TEMPLATE_WEB_INTERFACE="$(ip route get 10.2.40.11 | awk '{print $3'})"
+export PROXMOX_VM_TEMPLATE_WEB_INTERFACE="$(
+  ip route get 10.2.40.11 \
+  | grep -Pom 1 '(?<=dev )\S+'
+)"
 
 # The first argument is the target, the rest are options for the specified target
 TARGET=$1
