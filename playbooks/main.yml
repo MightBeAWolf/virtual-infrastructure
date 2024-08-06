@@ -99,13 +99,7 @@
 ###############################################################################
 - name: Deploy the Gitea service
   hosts: gitea.local.silicontech.us
-  tasks:
-    - name: Import backup roles
-      ansible.builtin.import_role:
-        name: backup_source
-      tags: ['backups']
-
-    - name: Import Gitea service roles
-      ansible.builtin.import_role:
-        name: services_gitea
-      tags: ['services', 'gitea']
+  roles:
+    - backup_source
+    - services_gitea
+  tags: ['services', 'gitea', 'backups']
