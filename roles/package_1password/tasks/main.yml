@@ -1,0 +1,2 @@
+- name: Install 1Password
+  ansible.builtin.include_tasks: "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"

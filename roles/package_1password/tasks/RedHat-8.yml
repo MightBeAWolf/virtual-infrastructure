@@ -1,0 +1,20 @@
+- name: RedHat-8 | Import the 1Password public key
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://downloads.1password.com/linux/keys/1password.asc
+  become: true
+
+- name: RedHat-8 | Enable 1Password RPM Repo
+  ansible.builtin.copy:
+    src: 1password.rpm.repo
+    dest: /etc/yum.repos.d
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: RedHat-8 | Install 1Password CLI
+  ansible.builtin.dnf:
+    name: 1password-cli, 1password
+    state: present
+  become: true

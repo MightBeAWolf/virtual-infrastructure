@@ -1,0 +1,19 @@
+---
+- name: Debian-12 | Enable 1Password repository
+  ansible.builtin.script: Debian-12/add-1password-repo.sh
+  args:
+    creates: /etc/apt/sources.list.d/1password.list
+  become: true
+  register: package_1password_repo
+
+- name: Debian-12 | Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+  when: package_1password_repo.changed
+  become: true
+
+- name: Debian-12 | Install 1Password CLI
+  ansible.builtin.apt:
+    name: 1password-cli
+    state: present
+  become: true

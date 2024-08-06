@@ -3,3 +3,4 @@ roles/deploy_k3s_vms/tasks/deploy_proxmox_cluster.yml no-handler
 roles/deploy_vms/tasks/main.yml no-handler
 roles/services_gitea/tasks/main.yml no-handler
 roles/services_gitea/tasks/main.yml no-changed-when
+roles/package_1password/tasks/Debian-12.yml no-handler
