@@ -1,6 +1,7 @@
 - name: dependencies | Debian-12 | Install Packages
   ansible.builtin.apt:
     name:
+      - git
       - jq
       - tcl
       - expect

@@ -1,6 +1,7 @@
 - name: dependencies | Fedora-40 | Install packages
   ansible.builtin.dnf:
     name:
+      - git
       - jq
       - tcl
       - expect

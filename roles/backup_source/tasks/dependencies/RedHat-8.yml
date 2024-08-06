@@ -1,6 +1,7 @@
 - name: dependencies | RedHat-8 | Install Packages
   ansible.builtin.dnf:
     name:
+      - git
       - jq
       - tcl
       - expect
