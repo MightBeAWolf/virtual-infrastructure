@@ -1,0 +1,12 @@
+# This file was generated with Ansible
+[Unit]
+Description=Trigger a backup every minute for the kit %i, if it hasn't last completed within the last 30 seconds
+
+[Timer]
+Unit=backup@%i.service
+OnCalendar=minutely
+OnUnitInactiveSec=30 minutes
+AccuracySec=10 seconds
+
+[Install]
+WantedBy=timers.target

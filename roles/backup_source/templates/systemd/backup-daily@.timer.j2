@@ -1,0 +1,13 @@
+# This file was generated with Ansible
+[Unit]
+Description=Trigger a daily backup using the kit %i, if it hasn't last completed within the last 12 hours
+
+[Timer]
+Unit=backup@%i.service
+OnCalendar=daily
+OnUnitInactiveSec=12 hours
+AccuracySec=6 hours
+RandomizedDelaySec=6 hours
+
+[Install]
+WantedBy=timers.target

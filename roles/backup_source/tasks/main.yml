@@ -59,3 +59,36 @@
         group: backupsys
         mode: '0750'
       become: true
+
+- name: Install the backup policy kit management framework
+  block:
+    - name: Allow cloning from repositories with self signed SSL
+      community.general.git_config:
+        name: http.sslVerify
+        scope: global
+        value: false
+      become: true
+
+    - name: Clone the backup utility repository # noqa: latest
+      ansible.builtin.git:
+        repo: https://gitea.sti.com/STI/backup-config.git
+        dest: /backups
+        depth: 1
+      become: true
+
+    - name: Install the Systemd components
+      ansible.builtin.template:
+        src: "{{ backup_source_systemd_template }}"
+        dest: "/etc/systemd/system/{{ backup_source_systemd_template \
+          | basename \
+          | regex_replace('.j2', '') }}"
+        owner: root
+        group: root
+        mode: '0600'
+      with_fileglob:
+        - "templates/systemd/*.j2"
+      loop_control:
+        loop_var: backup_source_systemd_template
+      notify:
+        - Perform Systemd daemon reload
+      become: true
