@@ -33,7 +33,7 @@
     - name: Install Restic
       ansible.builtin.script: install-restic.sh
       args:
-        creates: ~backupsys/bin/restic
+        creates: "{{ backupsys_user_info.home }}/bin/restic"
       become: true
 
     - name: Define restic's executable permissions
@@ -48,7 +48,7 @@
   delegate_to: "{{ lookup('env', 'BACKUP_SERVER_IPV4') }}"
   ansible.posix.authorized_key:
     user: backupsys
-    key: backupsys_user_info.ssh_public_key
+    key: "{{ backupsys_user_info.ssh_public_key }}"
     key_options: "command=\"internal-sftp\",\
       no-agent-forwarding,\
       no-port-forwarding,\
