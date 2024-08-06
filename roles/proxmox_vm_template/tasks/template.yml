@@ -20,11 +20,11 @@
   delegate_to: localhost
   when: "template_config.msg is regex('HTTP Error 500: .* does not exist$')"
   vars:
-    build_dir: "{{ lookup('ansible.builtin.env', 'HOME') }}
-      /.local/state/packer/{{ role_path | basename }}
+    build_dir: "{{ lookup('ansible.builtin.env', 'HOME') }}\
+      /.local/state/packer/{{ role_path | basename }}\
       /{{ inventory_hostname }}/{{ proxmox_vm_template_def.name }}"
   block:
-    - name: template | Create local terraform project directory
+    - name: template | Create local packer project directory
       ansible.builtin.file:
         path: "{{ build_dir }}"
         mode: '0700'
