@@ -1,0 +1,7 @@
+---
+- name: Install dependencies
+  block:
+    - name: Install package dependencies
+      ansible.builtin.include_tasks: "dependencies/\
+        {{ ansible_distribution }}\
+        -{{ ansible_distribution_major_version }}.yml"

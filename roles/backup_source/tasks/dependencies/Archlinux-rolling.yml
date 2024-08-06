@@ -1,0 +1,8 @@
+- name: dependencies | Archlinux-rolling | Install packages
+  ansible.general.pacman:
+    name:
+      - jq
+      - tcl
+      - expect
+    state: present
+  become: true

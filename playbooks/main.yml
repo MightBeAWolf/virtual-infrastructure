@@ -99,7 +99,7 @@
 ###############################################################################
 - name: Deploy the Gitea service
   hosts: gitea.local.silicontech.us
-  gather_facts: false
   roles:
     - services_gitea
+    - backup_source
   tags: ['services', 'gitea']
