@@ -7,17 +7,33 @@
         -{{ ansible_distribution_major_version }}.yml"
 
 - name: Backupsys user setup
-  ansible.builtin.user:
-    name: backupsys
-    create_home: true
-    local: false
-    system: true
-    generate_ssh_key: true
-    ssh_key_type: ed25519
-    ssh_key_file: ~backupsys/.ssh/id_ed25519
-    ssh_key_passphrase: "{{ lookup('env', 'BACKUPSYS_SSH_PASSPHRASE') }}"
-  become: true
-  register: backupsys_user_info
+  block:
+    - name: Enable the bacupsys user
+      ansible.builtin.user:
+        name: backupsys
+        create_home: true
+        local: false
+        system: true
+        generate_ssh_key: true
+        ssh_key_type: ed25519
+        ssh_key_file: ~backupsys/.ssh/id_ed25519
+        ssh_key_passphrase: "{{ lookup('env', 'BACKUPSYS_SSH_PASSPHRASE') }}"
+      become: true
+      register: backupsys_user_info
+
+    - name: Authorized the Backupsys user to upload to the backup server
+      delegate_to: "{{ lookup('env', 'BACKUP_SERVER_IPV4') }}"
+      ansible.posix.authorized_key:
+        user: backupsys
+        key: "{{ backupsys_user_info.ssh_public_key }}"
+        key_options: "command=\"internal-sftp\",\
+          no-agent-forwarding,\
+          no-port-forwarding,\
+          no-pty,\
+          no-user-rc,\
+          no-X11-forwarding"
+        exclusive: false
+      become: true
 
 - name: Install Restic
   block:
@@ -43,17 +59,3 @@
         group: backupsys
         mode: '0750'
       become: true
-
-- name: Authorized the Backupsys user to upload to the backup server
-  delegate_to: "{{ lookup('env', 'BACKUP_SERVER_IPV4') }}"
-  ansible.posix.authorized_key:
-    user: backupsys
-    key: "{{ backupsys_user_info.ssh_public_key }}"
-    key_options: "command=\"internal-sftp\",\
-      no-agent-forwarding,\
-      no-port-forwarding,\
-      no-pty,\
-      no-user-rc,\
-      no-X11-forwarding"
-    exclusive: false
-  become: true
