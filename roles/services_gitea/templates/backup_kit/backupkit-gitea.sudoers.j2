@@ -1,0 +1,10 @@
+backupsys ALL=(root) NOPASSWD: /usr/bin/systemctl stop gitea-podman.service
+backupsys ALL=(root) NOPASSWD: /usr/bin/systemctl start gitea-podman.service
+backupsys ALL=(git) NOPASSWD: /usr/bin/mkdir -p /opt/gitea/dump
+backupsys ALL=(git) NOPASSWD: /usr/bin/rm -rf /opt/gitea/dump
+backupsys ALL=(git) NOPASSWD: /usr/bin/rm /opt/gitea/dump/dump.zip
+backupsys ALL=(git) NOPASSWD: /usr/bin/unzip -d /opt/gitea/dump /opt/gitea/dump/dump.zip
+backupsys ALL=(root) NOPASSWD: /usr/bin/podman commit gitea gitea-dump
+backupsys ALL=(root) NOPASSWD: /usr/bin/podman rm gitea-dump
+backupsys ALL=(root) NOPASSWD: /usr/bin/podman rmi gitea-dump
+backupsys ALL=(root) NOPASSWD: /usr/bin/podman run --rm --pod\=gitea-pod -u git --env\=USER_UID\={{ git_user.uid }} --env\=USER_GID\={{ git_user.group }}{% for src, dst in services_gitea_volumes.gitea.items() %} -v {{src}}\:{{dst | regex_replace(':', '\\:') }}{% endfor %} localhost/gitea-dump /usr/local/bin/gitea dump -f /data/dump/dump.zip

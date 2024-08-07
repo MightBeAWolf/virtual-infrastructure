@@ -216,3 +216,49 @@
       become: true
       when: gitea_preinstall_conf.changed
       notify: Restart Gitea service
+
+- name: Define Gitea Backup Policy Kit
+  block:
+    - name: Create a the backup kit directory
+      ansible.builtin.file:
+        path: /backups/kits/{{ services_gitea_backup_kit.name }}
+        state: directory
+        owner: backupsys
+        group: backupsys
+        mode: '0700'
+      become: true
+
+    - name: Create a symbolic link to the base script
+      ansible.builtin.file:
+        src: ../../scripts/base-backup.sh
+        dest: /backups/kits/{{ services_gitea_backup_kit.name }}/base-backup.sh
+        owner: backupsys
+        group: backupsys
+        state: link
+      become: true
+
+    - name: Create the gitea service specific backup script
+      ansible.builtin.template:
+        src: backup_kit/main.sh.j2
+        dest: /backups/kits/{{ services_gitea_backup_kit.name }}/main.sh
+        owner: backupsys
+        group: backupsys
+        mode: '0700'
+      become: true
+
+    - name: Provide the backupsys privilages over the container
+      ansible.builtin.template:
+        src: backup_kit/backupkit-gitea.sudoers.j2
+        dest: "/etc/sudoers.d/backupkit-{{ services_gitea_backup_kit.name }}"
+        owner: root
+        group: root
+        mode: '0600'
+        validate: /usr/sbin/visudo -cf %s
+      become: true
+
+    - name: Start the backup timer
+      ansible.builtin.systemd_service:
+        name: "backup-{{ services_gitea_backup_kit.freq }}@{{ services_gitea_backup_kit.name }}.timer"
+        state: started
+        enabled: true
+      become: true

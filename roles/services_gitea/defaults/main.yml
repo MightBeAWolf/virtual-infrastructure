@@ -12,3 +12,9 @@ services_gitea_volumes:
     /etc/localtime: /etc/localtime:ro
 services_gitea_podman_uid_mappings:
   git: {start: 20000, count: 65536}
+
+services_gitea_backup_kit:
+  name: gitea-data
+  server: "sftp:backupsys@10.3.1.3"
+  # Options: minutely, hourly, daily, weekly, monthly
+  freq: daily
