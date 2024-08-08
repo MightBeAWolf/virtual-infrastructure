@@ -52,7 +52,7 @@ d-i pkgsel/upgrade select full-upgrade
 popularity-contest popularity-contest/participate boolean false
 
 # Select the additional packages
-d-i pkgsel/include string sudo, unattended-upgrades, qemu-guest-agent, cloud-init, network-manager, sssd, libpam-sss, libnss-sss, sssd-tools, libsss-sudo, vim, podman, podman-compose, acl, curl, git
+d-i pkgsel/include string sudo, unattended-upgrades, qemu-guest-agent, cloud-init, network-manager, sssd, libpam-sss, libnss-sss, sssd-tools, libsss-sudo, vim, podman, podman-compose, acl, curl, git, unzip
 
 # If not, you can put an entire recipe into the preconfiguration file in one
 # (logical) line. This example creates a small /boot partition, suitable

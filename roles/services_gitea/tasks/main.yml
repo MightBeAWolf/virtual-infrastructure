@@ -4,6 +4,7 @@
       - podman
       - fuse-overlayfs
       - acl
+      - unzip # Used when backing up gitea
     state: present
   become: true
 
