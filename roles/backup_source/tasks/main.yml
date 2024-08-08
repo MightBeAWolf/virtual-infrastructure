@@ -35,6 +35,14 @@
         exclusive: false
       become: true
 
+    - name: Add the backup server's fingerprint to the known hosts
+      ansible.builtin.known_hosts:
+        key: "{{ lookup('env', 'BACKUP_SERVER_FINGERPRINT') }}"
+        name: "{{ lookup('env', 'BACKUP_SERVER_IPV4') }}"
+        path: ~backupsys/.ssh/known_hosts
+      become_user: backupsys
+      become: true
+
 - name: Install Restic
   block:
     - name: Create Backupsys Binary Directory
