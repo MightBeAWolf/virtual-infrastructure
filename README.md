@@ -59,7 +59,6 @@ The following credentials need to be created and managed in 1password
 - Adjust the secrets.env to match your 1Password item information. set the following variabled
   - PROXMOX_API_TOKEN_ID should map to the `username` in the 1password item.
   - PROXMOX_API_SECRET should map to the `credential` in the 1password item.
-  - PROXMOX_API_HOSTNAME should map to the `hostname` in the 1password item.
 
 The credentials can be tested with the command:
 ```bash

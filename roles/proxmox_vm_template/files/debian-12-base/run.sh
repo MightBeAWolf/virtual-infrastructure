@@ -13,16 +13,9 @@ if [[ -z "${PROXMOX_API_SECRET}" ]]; then
   echo -e "\e[91mSee the README.md for more information!\e[39m" >&2
   exit 1
 fi
-if [[ -z "${PROXMOX_API_HOSTNAME}" ]]; then
-  echo -e "\e[91mMissing the environment secret PROXMOX_API_HOSTNAME!\e[39m" >&2
-  echo -e "\e[91mThis should be defined for you personally in secrets.env\e[39m" >&2
-  echo -e "\e[91mSee the README.md for more information!\e[39m" >&2
-  exit 1
-fi
 
 export PROXMOX_USERNAME="${PROXMOX_API_TOKEN_ID}"
 export PROXMOX_TOKEN="${PROXMOX_API_SECRET}"
-export PKR_VAR_proxmox_cluster_host="${PROXMOX_API_HOSTNAME}"
 
 
 export PKR_VAR_guest_username="${PROXMOX_VM_TEMPLATE_USER}"

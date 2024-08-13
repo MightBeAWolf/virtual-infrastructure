@@ -1,7 +1,7 @@
 # Debian 12 Template
 # ---
 
-variable "proxmox_cluster_host" {
+variable "proxmox_cluster_api_uri" {
     # Set from the ./run.sh
     type = string
 }
@@ -90,7 +90,7 @@ packer {
 # Resource Definiation for the VM Template
 source "proxmox-iso" "debian-12-base" {
     # Proxmox host settings
-    proxmox_url = "https://${var.proxmox_cluster_host}/api2/json"
+    proxmox_url = var.proxmox_cluster_api_uri
  
     # (Optional) Skip TLS Verification
     insecure_skip_tls_verify = true

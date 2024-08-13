@@ -7,7 +7,7 @@
     group: root
     mode: '0644'
   notify:
-    - restart ssh
+    - Restart SSH
   become: true
 
 - name: Ensure rpcbind is disabled and stopped

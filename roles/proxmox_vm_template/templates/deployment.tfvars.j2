@@ -7,6 +7,8 @@ desc = "{{ proxmox_vm_template_def.desc }}"
 
 
 ### DEPLOY INFO ###
+# Where should it be deployed to
+proxmox_cluster_api_uri = "{{ api_uri }}"
 # Name of the network interface that Packer gets HTTPIP from. Defaults to the
 # first non loopback interface
 http_interface = "{{ proxmox_vm_template_web_server_interface | default(lookup('env', 'PROXMOX_VM_TEMPLATE_WEB_INTERFACE')) }}"

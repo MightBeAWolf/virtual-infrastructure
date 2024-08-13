@@ -7,6 +7,10 @@ all:
           # Note the typo of 'inte' is reflective of the name on proxmox.
           proxmox_node_id: inte-nuc-13-01
           api_uri: https://intel-nuc-13-01.sti.com:8006/api2/json
+          templates:
+            - name: debian-12-base
+              id: 8000
+              desc: "Debian 12 Bookwork template"
         intel-nuc-13-02.sti.com:
           proxmox_node_id: intel-nuc-13-02
           api_uri: https://intel-nuc-13-02.sti.com:8006/api2/json
@@ -31,8 +35,8 @@ all:
             disk:
               size: 64G
             compute:
-              sockets: 2
-              memory: 4096
+              sockets: 4
+              memory: 8192
 
 
     # kubernetes:

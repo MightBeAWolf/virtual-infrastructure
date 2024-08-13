@@ -1,8 +1,7 @@
 ---
 - name: template | Get Template Configuration
   ansible.builtin.uri:
-    url: "https://{{ lookup('ansible.builtin.env', 'PROXMOX_API_HOSTNAME') }}\
-      /api2/json/nodes/{{ proxmox_node_id }}/qemu/\
+    url: "{{ api_uri }}/nodes/{{ proxmox_node_id }}/qemu/\
       {{ proxmox_vm_template_def.id }}/config"
     headers:
       Authorization: "PVEAPIToken=\
