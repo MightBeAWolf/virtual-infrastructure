@@ -24,7 +24,7 @@ pool = "{{ proxmox_vm_template_def.pool | default('') }}"
 disk = {
   # Storage locations, "local", "local-lvm", "main-storage"
   # Main storage is recommended.
-  storage = "{{ proxmox_vm_template_def.disk.location | default('main-storage') }}"
+  storage = "{{ proxmox_vm_template_def.disk.location | default('shared-proxmox') }}"
   # The size of the created disk. Accepts K for kibibytes, M for mebibytes, G
   # for gibibytes, T for tibibytes. When only a number is provided gibibytes
   # is assumed.

@@ -110,9 +110,8 @@ source "proxmox-iso" "debian-12-base" {
     # iso_file = "local:iso/ubuntu-20.04.2-live-server-amd64.iso"
     # - or -
     # (Option 2) Download ISO
-    iso_url = "https://cdimage.debian.org/debian-cd/12.6.0/amd64/iso-cd/debian-12.6.0-amd64-netinst.iso"
-    iso_checksum = "sha256:ade3a4acc465f59ca2496344aab72455945f3277a52afc5a2cae88cdc370fa12"
-    iso_storage_pool = "local"
+    iso_file = "shared-proxmox:iso/debian-12.6.0-amd64-netinst.iso"
+    iso_checksum = "none"
     unmount_iso = true
 
     # VM System Settings
@@ -144,7 +143,7 @@ source "proxmox-iso" "debian-12-base" {
 
     # VM Cloud-Init Settings
     cloud_init = true
-    cloud_init_storage_pool = "local-lvm"
+    cloud_init_storage_pool = var.disk.storage
 
     boot_command = [
         "<wait><wait><wait><esc><wait><wait><wait>",
@@ -175,7 +174,10 @@ source "proxmox-iso" "debian-12-base" {
     # ssh_private_key_file = "~/.ssh/id_ed25519"
 
     # Raise the timeout, when installation takes longer
-    ssh_timeout = "20m"
+    # NOTE: Installing a template to a shared storage (hosted on the network)
+    # can take a long time. Yet this is required so that the template can be
+    # used on all nodes sharing that storage
+    ssh_timeout = "180m"
 }
 
 # Build Definition to create the VM Template
