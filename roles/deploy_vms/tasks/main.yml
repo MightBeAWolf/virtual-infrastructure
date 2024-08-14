@@ -42,6 +42,21 @@
       register: terraform_apply
       changed_when: "'Apply complete! Resources: 0 added, 0 changed, 0 destroyed.' not in terraform_apply.stdout"
 
+    - name: Sleep for 45 seconds while the machine comes up
+      ansible.builtin.wait_for:
+        timeout: 45
+      delegate_to: localhost
+      when: terraform_apply.changed
+
+    - name: Add the deployed server's fingerprint known hosts
+      ansible.builtin.known_hosts:
+        key: "{{ lookup('pipe', 'ssh-keyscan -t ed25519 {{ ansible_host }}') }}"
+        name: "{{ ansible_host }}"
+        path: ~/.ssh/known_hosts
+      delegate_to: localhost
+      connection: local
+      when: terraform_apply.changed
+
 - name: Add Ansible control node's user public SSH key to a host
   remote_user: "{{ lookup('env', 'PROXMOX_VM_TEMPLATE_USER') }}"
   block:
