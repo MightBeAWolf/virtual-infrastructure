@@ -38,6 +38,24 @@ all:
               sockets: 4
               memory: 8192
 
+        snipeit.local.silicontech.us:
+          ansible_host: 10.2.41.6
+          target_host: intel-nuc-13-02.sti.com
+          from_template: debian-12-base
+          guest_info:
+            id: 502
+            desc: The virtualized Snipe-IT asset tracking service
+            tags: debian_12,service,infrastructure_as_code
+            start_on_boot: true
+            gateway: 10.2.40.1
+            pool: infrastructure
+            cidr: /24
+            disk:
+              size: 32G
+            compute:
+              sockets: 2
+              memory: 2048
+
 
     # kubernetes:
     #   hosts:
