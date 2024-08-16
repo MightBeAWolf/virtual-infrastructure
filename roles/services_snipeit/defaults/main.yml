@@ -1,0 +1,45 @@
+services_snipeit_pod:
+  name: snipeit_pod
+  ports:
+    - "443:443"
+    - "127.0.0.1:3306:3306"
+  containers:
+    snipeit:
+      image_version: "latest"
+      volumes:
+        - name: snipeit_data
+          target: /var/lib/snipeit
+        - src: /etc/timezone
+          target: /etc/timezone:ro
+        - src: /etc/localtime
+          target: /etc/localtime:ro
+    snipeit_db:
+      image_version: "latest"
+      volumes:
+        - name: snipeit_db
+          target: /var/lib/mysql
+        - src: /etc/timezone
+          target: /etc/timezone:ro
+        - src: /etc/localtime
+          target: /etc/localtime:ro
+
+services_snipeit_database:
+  name: snipeit
+
+services_snipeit_config:
+  timezone: America/Denver
+  locale: en-US
+  login_max_attempts: 5
+  login_lockout_duration: 300
+  login_autocomplete: false
+  secure_cookies: true
+  api_token_expiration_years: 40
+
+services_snipeit_backup_kit:
+  name: snipeit_data
+  server: "sftp:backupsys@10.3.1.3"
+  # Options: minutely, hourly, daily, weekly, monthly
+  freq: daily
+
+services_snipeit_podman_uid_mappings:
+  snipeit: {start: 20000, count: 65536}

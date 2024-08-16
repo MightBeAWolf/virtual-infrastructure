@@ -1,0 +1,13 @@
+services_snipeit_main_volume: "{{ services_snipeit_pod.containers.snipeit.volumes \
+        | selectattr('name', 'defined') \
+        | map(attribute='name') \
+        | first }}"
+
+services_snipeit_named_volumes: "{{ services_snipeit_pod.containers \
+        | dict2items \
+        | map(attribute='value.volumes') \
+        | flatten \
+        | selectattr('name', 'defined') }}"
+
+services_snipeit_main_storage: "/var/lib/containers/storage/volumes/\
+      {{ services_snipeit_main_volume }}/_data"

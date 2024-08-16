@@ -1,0 +1,249 @@
+---
+- name: Ensure dependencies are installed
+  ansible.builtin.package:
+    name:
+      - podman
+      - fuse-overlayfs
+      - acl
+      - unzip # Used when backing up snipeit
+    state: present
+  become: true
+
+- name: Create the snipeit user's group
+  ansible.builtin.user:
+    name: snipeit
+    system: true
+    state: present
+  become: true
+
+- name: Create the snipeit user
+  ansible.builtin.user:
+    name: snipeit
+    group: snipeit
+    system: true
+    state: present
+    password_lock: true
+    password: '!' # Sets the password as a locked password
+    generate_ssh_key: true
+    ssh_key_file: .ssh/id_ed25519
+    ssh_key_type: ed25519
+  register: snipeit_user
+  become: true
+
+- name: Ensure the container host can ssh into the container
+  ansible.posix.authorized_key:
+    user: snipeit
+    state: present
+    key: "{{ snipeit_user.ssh_public_key }}"
+  become: true
+
+- name: Create the Podman Pods
+  block:
+    - name: Create the SnipeIT pod
+      containers.podman.podman_pod:
+        name: "{{ services_snipeit_pod.name }}"
+        ports: "{{ services_snipeit_pod.ports }}"
+        state: started
+      become: true
+
+    - name: Create the SnipeIT named volumes
+      containers.podman.podman_volume:
+        name: "{{ services_snipeit_named_volume.name }}"
+        state: present
+      become: true
+      loop: "{{ services_snipeit_named_volumes }}"
+      loop_control:
+        loop_var: services_snipeit_named_volume
+
+- name: Create SnipeIT Database systemd service file
+  ansible.builtin.template:
+    src: snipeit_db-podman.service.j2
+    dest: /etc/systemd/system/snipeit_db-podman.service
+    owner: root
+    group: root
+    mode: '0600'
+  register: snipeit_db_systemd_unit
+  become: true
+
+- name: Restart the snipeit_db-podman.service if there has been a config change
+  ansible.builtin.systemd:
+    name: snipeit_db-podman.service
+    state: restarted
+    daemon_reload: true
+  when: snipeit_db_systemd_unit.changed
+  become: true
+
+# This should always be checked, where as the above restart is only needed
+# If the unit needs to be reloaded
+- name: Ensure the snipeit_db-podman.service has been started
+  ansible.builtin.systemd:
+    name: snipeit_db-podman.service
+    enabled: true
+    state: started
+  become: true
+
+- name: Pause for 10 seconds for container to come up
+  ansible.builtin.pause:
+    seconds: 10
+  when: snipeit_db_systemd_unit.changed
+
+- name: Initialize the SnipeIT DB Scheme
+  block:
+    - name: Install database modification requirements
+      ansible.builtin.package:
+        name:
+          - mariadb-server
+          - python3-pymysql
+        state: present
+      become: true
+
+    - name: Define the database within the mariadb server
+      community.mysql.mysql_db:
+        name: "{{ services_snipeit_database.name }}"
+        state: present
+        login_host: 127.0.0.1
+        login_user: root
+        login_password: "{{ lookup('env', 'SNIPEIT_DB_PASSWORD') }}"
+
+    - name: Define the mariadb user
+      community.mysql.mysql_user:
+        login_host: 127.0.0.1
+        login_user: root
+        login_password: "{{ lookup('env', 'SNIPEIT_DB_PASSWORD') }}"
+        name: "{{ lookup('env', 'SNIPEIT_DB_USERNAME') }}"
+        password: "{{ lookup('env', 'SNIPEIT_DB_PASSWORD') }}"
+        host: 127.0.0.1
+        priv: "{{ services_snipeit_database.name }}.*:ALL"
+        state: present
+
+    - name: Ensure that there is no mariadb service created during the install
+      ansible.builtin.systemd_service:
+        name: mariadb.service
+        enabled: false
+        state: stopped
+      become: true
+
+- name: Create SnipeIT Configuration
+  ansible.builtin.template:
+    src: snipeit.env.j2
+    dest: "{{ services_snipeit_main_storage }}/snipeit.env"
+    owner: "{{ snipeit_user.name }}"
+    group: "{{ snipeit_user.group }}"
+    mode: '0600'
+  register: snipeit_config
+  become: true
+
+
+- name: Create SnipeIT Podman systemd service file
+  ansible.builtin.template:
+    src: snipeit_podman.service.j2
+    dest: /etc/systemd/system/snipeit_podman.service
+    owner: root
+    group: root
+    mode: '0600'
+  register: snipeit_systemd_unit
+  become: true
+
+- name: Restart the snipeit_podman.service if there has been a config change
+  ansible.builtin.systemd:
+    name: snipeit_podman.service
+    enabled: true
+    state: restarted
+    daemon_reload: true
+  when: snipeit_systemd_unit.changed or snipeit_config.changed
+  become: true
+
+# This should always be checked, where as the above restart is only needed
+# If the unit needs to be reloaded
+- name: Ensure the snipeit_podman.service has been started
+  ansible.builtin.systemd:
+    name: snipeit_podman.service
+    enabled: true
+    state: started
+  become: true
+
+- name: Pause for 15 seconds for container to come up
+  ansible.builtin.pause:
+    seconds: 15
+  when: snipeit_systemd_unit.changed
+
+- name: Configure Snipe-IT SSL Certificate and Key
+  block:
+    - name: Create SSL Certificate Directory
+      ansible.builtin.file:
+        state: directory
+        path: "{{ services_snipeit_main_storage }}/ssl"
+        owner: snipeit
+        group: snipeit
+        mode: '0600'
+      become: true
+
+    - name: Create private key (RSA, 4096 bits)
+      community.crypto.openssl_privatekey:
+        path: "{{ services_snipeit_main_storage }}/ssl/snipeit-ssl.key"
+        owner: snipeit
+        group: snipeit
+        mode: '0600'
+      become: true
+      register: ssl_key
+
+    - name: Create certificate signing request (CSR) for self-signed certificate
+      community.crypto.openssl_csr_pipe:
+        privatekey_path: "{{ services_snipeit_main_storage }}/ssl/snipeit-ssl.key"
+        common_name: '{{ inventory_hostname }}'
+        organization_name: Silicon Technologies Inc
+        subject_alt_name:
+          - "DNS:{{ ansible_host }}"
+      register: csr
+      changed_when: ssl_key.changed
+      notify: Restart SnipeIT service
+      become: true
+
+    - name: Create self-signed certificate from CSR
+      community.crypto.x509_certificate:
+        path: "{{ services_snipeit_main_storage }}/ssl/snipeit-ssl.crt"
+        csr_content: "{{ csr.csr }}"
+        privatekey_path: "{{ services_snipeit_main_storage }}/ssl/snipeit-ssl.key"
+        provider: selfsigned
+        owner: snipeit
+        group: snipeit
+        mode: '0600'
+      notify: Restart SnipeIT service
+      become: true
+
+
+- name: Define SnipeIT Backup Policy Kit
+  block:
+    - name: Create a the backup kit directory
+      ansible.builtin.file:
+        path: /backups/kits/{{ services_snipeit_backup_kit.name }}
+        state: directory
+        owner: backupsys
+        group: backupsys
+        mode: '0700'
+      become: true
+
+    - name: Create a symbolic link to the base script
+      ansible.builtin.file:
+        src: ../../scripts/base-backup.sh
+        dest: /backups/kits/{{ services_snipeit_backup_kit.name }}/base-backup.sh
+        owner: backupsys
+        group: backupsys
+        state: link
+      become: true
+
+    - name: Create the snipeit service specific backup script
+      ansible.builtin.template:
+        src: backup_kit/main.sh.j2
+        dest: /backups/kits/{{ services_snipeit_backup_kit.name }}/main.sh
+        owner: backupsys
+        group: backupsys
+        mode: '0700'
+      become: true
+
+    - name: Start the backup timer
+      ansible.builtin.systemd_service:
+        name: "backup-{{ services_snipeit_backup_kit.freq }}@{{ services_snipeit_backup_kit.name }}.timer"
+        state: started
+        enabled: true
+      become: true

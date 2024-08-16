@@ -1,0 +1,6 @@
+---
+- name: Restart SnipeIT service
+  ansible.builtin.systemd:
+    name: snipeit_podman.service
+    state: restarted
+  become: true

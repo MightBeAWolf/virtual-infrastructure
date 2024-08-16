@@ -98,3 +98,13 @@
     - backup_source
     - services_gitea
   tags: ['services', 'gitea', 'backups']
+
+###############################################################################
+# Deploy the Snipe IT services
+###############################################################################
+- name: Deploy the Snipe IT service
+  hosts: snipeit.local.silicontech.us
+  roles:
+    - backup_source
+    - services_snipeit
+  tags: ['services', 'snipeit', 'backups']
