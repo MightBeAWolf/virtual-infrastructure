@@ -1,11 +1,58 @@
 ---
-- name: Debian-12 | Enable 1Password APT repo
+- name: Debian-12 | Download 1Password GPG key
+  block:
+    - name: Debian-12 | Download 1Password asc key
+      ansible.builtin.get_url:
+        url: https://downloads.1password.com/linux/keys/1password.asc
+        dest: /usr/share/keyrings/1password-archive-keyring.asc
+        mode: '0644'
+      become: true
+
+    - name: Debian-12 | Install debsig GPG key
+      ansible.builtin.command:
+        cmd: "gpg --dearmor \
+          --output /usr/share/keyrings/1password-archive-keyring.gpg \
+          /usr/share/keyrings/1password-archive-keyring.asc"
+        creates: /usr/share/keyrings/1password-archive-keyring.gpg
+      become: true
+
+- name: Debian-12 | Add debsig-verify policy
+  block:
+    - name: Debian-12 | Create policy directory
+      ansible.builtin.file:
+        path: /etc/debsig/policies/AC2D62742012EA22/
+        state: directory
+        mode: '0755'
+      become: true
+
+    - name: Debian-12 | Download and install debsig policy
+      ansible.builtin.get_url:
+        url: https://downloads.1password.com/linux/debian/debsig/1password.pol
+        dest: /etc/debsig/policies/AC2D62742012EA22/1password.pol
+        mode: '0644'
+      become: true
+
+    - name: Debian-12 | Create keyring directory
+      ansible.builtin.file:
+        path: /usr/share/debsig/keyrings/AC2D62742012EA22/
+        state: directory
+        mode: '0755'
+      become: true
+
+    - name: Debian-12 | Install debsig GPG key
+      ansible.builtin.command:
+        cmd: "gpg --dearmor \
+          --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg \
+          /usr/share/keyrings/1password-archive-keyring.gpg"
+        creates: /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
+      become: true
+
+- name: Debian-12 | Add 1Password APT repository
   ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 \
-      signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] \
-      https://downloads.1password.com/linux/debian/amd64 \
-      stable main"
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/amd64 stable main"
+    filename: "/etc/apt/sources.list.d/1password"
     state: present
+    update_cache: true
   become: true
 
 - name: Debian-12 | Install 1Password CLI
