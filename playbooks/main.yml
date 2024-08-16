@@ -67,12 +67,20 @@
   tags: ['setup', 'terraform', 'vms']
 
 ###############################################################################
+# Ensure all virtual machines can be used as backup sources
+###############################################################################
+- name: Deploy backup sources
+  hosts: virtual_machines
+  roles:
+    - backup_source
+  tags: ['backups']
+
+###############################################################################
 # Deploy the gitea services
 ###############################################################################
 - name: Deploy the Gitea service
   hosts: gitea.local.silicontech.us
   roles:
-    - backup_source
     - services_gitea
   tags: ['services', 'gitea', 'backups']
 
@@ -82,6 +90,5 @@
 - name: Deploy the Snipe IT service
   hosts: snipeit.local.silicontech.us
   roles:
-    - backup_source
     - services_snipeit
   tags: ['services', 'snipeit', 'backups']
