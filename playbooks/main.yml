@@ -56,7 +56,7 @@
   tags: ['setup', 'packer', 'templates']
 
 ###############################################################################
-# Deploy the kubernetes cluster VMs using k3s
+# Deploy the virtual machines as defined in the inventory
 ###############################################################################
 - name: Deploy Virtual Machines
   hosts: virtual_machines
@@ -65,29 +65,6 @@
   roles:
     - deploy_vms
   tags: ['setup', 'terraform', 'vms']
-
-###############################################################################
-# Deploy the kubernetes cluster VMs using k3s
-###############################################################################
-# - name: Deploy K3S Cluster VM Nodes
-#   hosts: proxmox
-#   become: false
-#   gather_facts: false
-#   roles:
-#     - deploy_k3s_vms
-#   tags: ['setup', 'terraform', 'kubernetes', 'k3s']
-
-# ###############################################################################
-# # Deploy the kubernetes cluster services to the k3s VMs
-# ###############################################################################
-# - name: Enable K3S Cluster
-#   hosts: kubernetes
-#   become: false
-#   gather_facts: false
-#   roles:
-#     - firewalls_ufw
-#     - enable_k3s_cluster
-#   tags: ['setup', 'kubernetes', 'k3s']
 
 ###############################################################################
 # Deploy the gitea services

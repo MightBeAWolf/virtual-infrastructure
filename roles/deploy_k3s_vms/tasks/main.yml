@@ -1,3 +1,0 @@
----
-- name: Deploy K3S Cluster VMs
-  ansible.builtin.include_tasks: 'deploy_proxmox_cluster.yml'

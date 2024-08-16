@@ -53,28 +53,3 @@ all:
             compute:
               sockets: 2
               memory: 2048
-
-
-    # kubernetes:
-    #   hosts:
-    #     k3s-01.local.silicontech.us:
-    #       ansible_host: 10.2.41.2
-    #       target_host: inte-nuc-13-01.sti.com
-    #       guest_info:
-    #         id: 401
-    #         cidr: /24
-    #         gateway: 10.2.40.1
-    #     k3s-02.local.silicontech.us:
-    #       ansible_host: 10.2.41.3
-    #       target_host: intel-nuc-13-02.sti.com
-    #       guest_info:
-    #         id: 401
-    #         cidr: /24
-    #         gateway: 10.2.40.1
-    #     k3s-03.local.silicontech.us:
-    #       ansible_host: 10.2.41.4
-    #       target_host: intel-nuc-13-03.sti.com
-    #       guest_info:
-    #         id: 401
-    #         cidr: /24
-    #         gateway: 10.2.40.1
