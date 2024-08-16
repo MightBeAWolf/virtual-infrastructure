@@ -64,6 +64,7 @@ variable "ipv4" {
 
 variable "cidr" {
   type = string 
+  default = "/24"
 }
 
 variable "gateway" {

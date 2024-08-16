@@ -31,7 +31,6 @@ all:
             start_on_boot: true
             gateway: 10.2.40.1
             pool: infrastructure
-            cidr: /24
             disk:
               size: 64G
             compute:
@@ -49,7 +48,6 @@ all:
             start_on_boot: true
             gateway: 10.2.40.1
             pool: infrastructure
-            cidr: /24
             disk:
               size: 32G
             compute:

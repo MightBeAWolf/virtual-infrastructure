@@ -29,7 +29,7 @@ pool = "{{ guest_info.pool | default('') }}"
 ipv4 = "{{ ansible_host }}"
 # Specify the gateway and CIDR mask of the network
 gateway = "{{ guest_info.gateway }}"
-cidr = "{{ guest_info.cidr }}"
+cidr = "{{ guest_info.cidr | default('/24') }}"
 network = {
     bridge = "{{ guest_info.network.bridge | default('vmbr0') }}"
     model  = "{{ guest_info.network.model | default('virtio') }}"
