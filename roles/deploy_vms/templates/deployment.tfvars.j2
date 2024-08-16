@@ -13,11 +13,11 @@ pm_api_uri = "{{ hostvars[target_host]['api_uri'] }}"
 
 # Specifiy the name of the template to clone the VM from. This template must be
 # on the same node that we are deploying to.
-from_template = "{{ deploy_vms_template }}"
+from_template = "{{ deploy_vms_template | default('debian-12-base') }}"
 
 ### META SETTINGS ###
 # Specify whether or not to start the VM when the node is booted.
-start_vm_on_boot = {{ guest_info.start_on_boot | default(false) | string | lower }}
+start_vm_on_boot = {{ guest_info.start_on_boot | default(true) | string | lower }}
 # Give the VM tags to help with identification. Helpful tags may the linux 
 # distro.
 tags = "{{ guest_info.tags }}"
