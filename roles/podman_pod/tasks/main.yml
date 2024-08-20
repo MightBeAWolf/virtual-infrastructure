@@ -1,0 +1,73 @@
+---
+- name: List pod configuration
+  ansible.builtin.debug:
+    msg: "{{ podman_pod }}"
+
+- name: Ensure dependencies are installed
+  ansible.builtin.package:
+    name:
+      - podman
+      - fuse-overlayfs
+      - acl
+    state: present
+  become: true
+
+- name: Create the Pod
+  block:
+    - name: Create the Podman Pod
+      containers.podman.podman_pod:
+        name: "{{ podman_pod.name }}"
+        ports: "{{ podman_pod.ports }}"
+        state: started
+      become: true
+
+    - name: Create the Pod's named volumes
+      containers.podman.podman_volume:
+        name: "{{ podman_pod_named_volume.name }}"
+        state: present
+      become: true
+      loop: "{{ podman_pod_named_volumes }}"
+      loop_control:
+        loop_var: podman_pod_named_volume
+
+- name: Setup the individual containers
+  ansible.builtin.include_tasks: container.yml
+  loop: "{{ podman_pod.containers }}"
+  loop_control:
+    loop_var: podman_pod_container
+
+- name: Define the Volume Backup Policy Kit
+  block:
+    - name: Create a the backup kit directory
+      ansible.builtin.file:
+        path: /backups/kits/{{ inventory_hostname }}
+        state: directory
+        owner: backupsys
+        group: backupsys
+        mode: '0700'
+      become: true
+
+    - name: Create a symbolic link to the base script
+      ansible.builtin.file:
+        src: ../../scripts/base-backup.sh
+        dest: /backups/kits/{{ inventory_hostname }}/base-backup.sh
+        owner: backupsys
+        group: backupsys
+        state: link
+      become: true
+
+    - name: Create the pod's backup script
+      ansible.builtin.template:
+        src: backup_kit/main.sh.j2
+        dest: /backups/kits/{{ inventory_hostname }}/main.sh
+        owner: backupsys
+        group: backupsys
+        mode: '0700'
+      become: true
+
+    - name: Start the backup timer
+      ansible.builtin.systemd_service:
+        name: "backup-{{ podman_pod.backup.freq | default(podman_pod_default_backup_freq) }}@{{ inventory_hostname }}.timer"
+        state: started
+        enabled: true
+      become: true

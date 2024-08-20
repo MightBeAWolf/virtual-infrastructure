@@ -1,0 +1,47 @@
+[Unit]
+Description=The Systemd unit file for the {{ podman_pod_container.name }} container
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=%t/containers
+
+[Service]
+Environment=PODMAN_SYSTEMD_UNIT=%n
+Restart=on-failure
+TimeoutStopSec=70
+ExecStartPre=/bin/rm \
+  -f %t/%n.ctr-id
+ExecStart=/usr/bin/podman run \
+  --cidfile=%t/%n.ctr-id \
+  --cgroups=no-conmon \
+  --rm \
+  --sdnotify=conmon \
+  -d \
+  --replace \
+  --name={{ podman_pod_container.name }} \
+  --pod={{ podman_pod.name }} \
+  {% for volume in podman_pod_container.volumes %}
+  -v "{{ volume.src | default(volume.name) }}:{{ volume.target }}" \
+  {% endfor %}
+  {% for key, value in podman_pod_container.envs | default({}) | dict2items %}
+  --env='{{ key }}={{ value }}' \
+  {% endfor %}
+  {% for path in podman_pod_container.env_files | default([]) %}
+  --env-file={{  path }} \
+  {% endfor %}
+  --env='{{ podman_env_uid_key }}={{ container_user.uid }}' \
+  --env='{{ podman_env_gid_key }}={{ container_user.group }}' \
+  {{ podman_pod_container.image_url }}:{{ podman_pod_container.image_version }}
+
+ExecStop=/usr/bin/podman stop \
+  --ignore -t 10 \
+  --cidfile=%t/%n.ctr-id
+ExecStopPost=/usr/bin/podman rm \
+  -f \
+  --ignore -t 10 \
+  --cidfile=%t/%n.ctr-id
+Type=notify
+NotifyAccess=all
+
+[Install]
+WantedBy=default.target
+

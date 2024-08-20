@@ -1,0 +1,11 @@
+podman_pod:
+  name: "{{ podman_pod_name | default('deployed_pod') }}"
+  ports: "{{ lookup('community.general.merge_variables', '_container_ports', pattern_type='suffix') }}"
+  containers: "{{ lookup('community.general.merge_variables', '_container_spec', pattern_type='suffix') }}"
+
+podman_pod_named_volumes: "{{ podman_pod.containers \
+  | map(attribute='volumes') \
+  | flatten \
+  | selectattr('name', 'defined') }}"
+
+podman_pod_storage: "/var/lib/containers/storage/volumes"

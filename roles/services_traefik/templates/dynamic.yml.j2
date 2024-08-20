@@ -1,0 +1,34 @@
+http:
+  routers:
+
+{% if (services_traefik_config.dashboard_enabled | default(false)) %}
+    dashboard:
+      entryPoints:
+        - websecure
+      rule: "Host(`{{ inventory_hostname }}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      service: api@internal
+      tls: {}
+{% endif %}
+
+{% for route in services_traefik_collected_routes %}
+    {{ route.name }}_router:
+      entryPoints:
+        - "websecure"
+      rule: Host(`{{ route.domain }}`)
+      service: {{ route.name }}_service
+      tls: {}
+
+{% endfor %}
+
+  services:
+{% for route in services_traefik_collected_routes %}
+    {{ route.name }}_service:
+      loadBalancer:
+        servers:
+          - url: "{{ route.url }}"
+{% if (route.insecure_skip_verify | default(false)) %}
+      serversTransport:
+        insecureSkipVerify: true
+{% endif %}
+{% endfor %}
+

@@ -1,0 +1,74 @@
+- name: Create {{ service_traefik_container_name }} Configuration
+  ansible.builtin.template:
+    src: "{{ services_traefik_config_file.src }}"
+    dest: "{{ services_traefik_config_file.dest }}"
+    owner: "{{ service_traefik_container_name }}"
+    group: "{{ service_traefik_container_name }}"
+    mode: '0600'
+  loop:
+    - src: "traefik.yml.j2"
+      dest: "{{ services_traefik_main_storage }}/traefik.yml"
+    - src: "dynamic.yml.j2"
+      dest: "{{ services_traefik_main_storage }}/dynamic.yml"
+  loop_control:
+    loop_var: services_traefik_config_file
+  register: configs
+  notify: Restart the container podman.service
+  become: true
+
+- name: Configure {{ service_traefik_container_name }} SSL Certificate and Key
+  block:
+    - name: Create SSL Certificate Directory
+      ansible.builtin.file:
+        state: directory
+        path: "{{ services_traefik_main_storage }}/ssl"
+        owner: "{{ service_traefik_container_name }}"
+        group: "{{ service_traefik_container_name }}"
+        mode: '0700'
+      become: true
+
+    - name: Create private key (RSA, 4096 bits)
+      community.crypto.openssl_privatekey:
+        path: "{{ services_traefik_main_storage }}/ssl/ssl.key"
+        owner: "{{ service_traefik_container_name }}"
+        group: "{{ service_traefik_container_name }}"
+        mode: '0600'
+      become: true
+      register: ssl_key
+
+    - name: Create certificate signing request (CSR) for self-signed certificate
+      community.crypto.openssl_csr_pipe:
+        privatekey_path: "{{ services_traefik_main_storage }}/ssl/ssl.key"
+        common_name: '{{ inventory_hostname }}'
+        organization_name: Silicon Technologies Inc
+        subject_alt_name:
+          - "DNS:{{ ansible_host }}"
+      register: csr
+      changed_when: ssl_key.changed
+      notify: Restart the container podman.service
+      become: true
+
+    - name: Create self-signed certificate from CSR
+      community.crypto.x509_certificate:
+        path: "{{ services_traefik_main_storage }}/ssl/ssl.crt"
+        csr_content: "{{ csr.csr }}"
+        privatekey_path: "{{ services_traefik_main_storage }}/ssl/ssl.key"
+        provider: selfsigned
+        owner: "{{ service_traefik_container_name }}"
+        group: "{{ service_traefik_container_name }}"
+        mode: '0600'
+      notify: Restart the container podman.service
+      become: true
+
+- name: "Ensure the {{ service_traefik_container_name }}_podman.service has been started"
+  ansible.builtin.systemd:
+    name: "{{ service_traefik_container_name }}_podman.service"
+    enabled: true
+    state: started
+  register: enable_systemd_service
+  become: true
+
+- name: Pause for 10 seconds for container to come up
+  ansible.builtin.pause:
+    seconds: 10
+  when: enable_systemd_service.changed
