@@ -1,7 +1,7 @@
 ---
 - name: List pod configuration
   ansible.builtin.debug:
-    msg: "{{ podman_pod }}"
+    msg: "{{ podman_pod_spec }}"
 
 - name: Ensure dependencies are installed
   ansible.builtin.package:
@@ -16,8 +16,8 @@
   block:
     - name: Create the Podman Pod
       containers.podman.podman_pod:
-        name: "{{ podman_pod.name }}"
-        ports: "{{ podman_pod.ports }}"
+        name: "{{ podman_pod_spec.name }}"
+        ports: "{{ podman_pod_spec.ports }}"
         state: started
       become: true
 
@@ -32,7 +32,7 @@
 
 - name: Setup the individual containers
   ansible.builtin.include_tasks: container.yml
-  loop: "{{ podman_pod.containers }}"
+  loop: "{{ podman_pod_spec.containers }}"
   loop_control:
     loop_var: podman_pod_container
 
@@ -47,13 +47,17 @@
         mode: '0700'
       become: true
 
-    - name: Create a symbolic link to the base script
-      ansible.builtin.file:
-        src: ../../scripts/base-backup.sh
-        dest: /backups/kits/{{ inventory_hostname }}/base-backup.sh
+    - name: Create the backup scripts from backup_kit
+      ansible.builtin.copy:
+        src: "{{ podman_pod_backup_script }}"
+        dest: "/backups/kits/{{ inventory_hostname }}/{{ podman_pod_backup_script | basename }}"
         owner: backupsys
         group: backupsys
-        state: link
+        mode: '0700'
+      with_fileglob:
+        - "backup_kit/*.sh"
+      loop_control:
+        loop_var: podman_pod_backup_script
       become: true
 
     - name: Create the pod's backup script
@@ -67,7 +71,7 @@
 
     - name: Start the backup timer
       ansible.builtin.systemd_service:
-        name: "backup-{{ podman_pod.backup.freq | default(podman_pod_default_backup_freq) }}@{{ inventory_hostname }}.timer"
+        name: "backup-{{ podman_pod_spec.backup.freq | default(podman_pod_default_backup_freq) }}@{{ inventory_hostname }}.timer"
         state: started
         enabled: true
       become: true

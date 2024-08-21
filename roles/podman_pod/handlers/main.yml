@@ -1,8 +1,0 @@
-- name: Restart the container podman.service
-  ansible.builtin.systemd:
-    name: "{{ podman_pod_container.name }}_podman.service"
-    state: restarted
-    daemon_reload: true
-  become: true
-
-

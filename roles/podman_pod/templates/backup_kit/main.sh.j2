@@ -33,8 +33,8 @@
 ###############################################################################################
 ### Configure the Restic options
 # Define where our backup will be stored
-REMOTE_REPO_NAME='{{ podman_pod.name }}'
-REPOSITORY="{{ podman_pod.backup.server | default(podman_pod_default_backup_server) }}:data/${REMOTE_REPO_NAME:?}"
+REMOTE_REPO_NAME='{{ podman_pod_spec.name }}'
+REPOSITORY="{{ podman_pod_spec.backup.server | default(podman_pod_default_backup_server) }}:data/${REMOTE_REPO_NAME:?}"
 
 
 # Define a delay specifying how long  the process should wait after the pre/post
@@ -43,13 +43,31 @@ POST_START_DELAY=5
 POST_STOP_DELAY=15
 
 
-# SOURCE_PATH="{{ podman_pod_storage }}"
+SOURCE_PATHS=("{{ podman_pod_storage }}")
 
 # Uncomment to only execute a dry run (Don't actually backup)
 # DRY_RUN=('--dry-run')
 
 # Array of exclusion patterns
-EXCLUDE_POLICIES=()
+EXCLUDE_POLICIES=(
+    # Temporary Files and Directories
+    "--exclude=/tmp/*"
+    "--exclude=*/temp/*"
+    "--exclude=*/cache/*"
+    "--exclude=*.tmp"
+    "--exclude=*.temp"
+
+    # System and Runtime Files
+    "--exclude=*.pid"
+    "--exclude=*.lock"
+    "--exclude=*.cdslck.*"
+
+    # Backup Files
+    "--exclude=*.log"
+    "--exclude=*.bak"
+    "--exclude=*.old"
+    "--exclude=*.-"
+)
 
 # Retention policy arguments for 'restic forget'
 # It should be noted that while this policy defines the retention time period,
@@ -99,12 +117,11 @@ OP_REFERENCE_SSH_PASSPHRASE="op://Backups/Onsite Backupsys SSH Passphrase/passwo
 # Path info
 KIT_DIR="$(realpath "${BASH_SOURCE[0]}" | xargs -I{} dirname {})"
 
-# Execute the backup mechanism
-# source "${KIT_DIR:?}/base-backup.sh"
-
 # Execute the backup for individual containers if present
-{% for container in podman_pod.containers %}
+{% for container in podman_pod_spec.containers %}
 if [[ -e "${KIT_DIR:?}/{{ container.name }}_backup.sh" ]]; then
   source "${KIT_DIR:?}/{{ container.name }}_backup.sh"
 fi
 {% endfor %}
+
+source "${KIT_DIR:?}/base_backup.sh"

@@ -1,17 +1,17 @@
-service_traefik_container_name: traefik
+services_traefik_container_name: traefik
 
-service_traefik_container_ports:
+services_traefik_container_ports:
   - "80:80"
   - "443:443"
 
-services_traefik_main_storage: "{{ podman_pod_storage }}/{{ service_traefik_container_name }}/_data"
+services_traefik_main_storage: "{{ podman_pod_storage }}/{{ services_traefik_container_name }}/_data"
 
-service_traefik_container_spec:
-  - name: "{{ service_traefik_container_name }}"
+services_traefik_container_spec:
+  - name: "{{ services_traefik_container_name }}"
     image_url: docker.io/traefik
     image_version: "latest"
     volumes:
-      - name: "{{ service_traefik_container_name }}"
+      - name: "{{ services_traefik_container_name }}"
         target: /etc/traefik
       - src: /var/run/podman/podman.sock
         target: /var/run/docker.sock:z

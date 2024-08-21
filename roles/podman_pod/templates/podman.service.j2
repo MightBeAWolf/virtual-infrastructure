@@ -1,7 +1,17 @@
 [Unit]
+
 Description=The Systemd unit file for the {{ podman_pod_container.name }} container
+
+{% if 'systemd' in podman_pod_container %}
+Wants=network-online.target {{ podman_pod_container.systemd.wants | default([]) | join(' ') }}
+After=network-online.target {{ podman_pod_container.systemd.after | default([]) | join(' ') }}
+{% if podman_pod_container.systemd.requires %}
+Requires={{ podman_pod_container.systemd.requires | join(' ') }}
+{% endif %}
+{% else %}
 Wants=network-online.target
 After=network-online.target
+{% endif %}
 RequiresMountsFor=%t/containers
 
 [Service]
@@ -18,18 +28,18 @@ ExecStart=/usr/bin/podman run \
   -d \
   --replace \
   --name={{ podman_pod_container.name }} \
-  --pod={{ podman_pod.name }} \
-  {% for volume in podman_pod_container.volumes %}
+  --pod={{ podman_pod_spec.name }} \
+{% for volume in podman_pod_container.volumes %}
   -v "{{ volume.src | default(volume.name) }}:{{ volume.target }}" \
-  {% endfor %}
-  {% for key, value in podman_pod_container.envs | default({}) | dict2items %}
-  --env='{{ key }}={{ value }}' \
-  {% endfor %}
-  {% for path in podman_pod_container.env_files | default([]) %}
+{% endfor %}
+{% for env in podman_pod_container.envs | default({}) | dict2items %}
+  --env='{{ env.key }}={{ env.value }}' \
+{% endfor %}
+{% for path in podman_pod_container.env_files | default([]) %}
   --env-file={{  path }} \
-  {% endfor %}
-  --env='{{ podman_env_uid_key }}={{ container_user.uid }}' \
-  --env='{{ podman_env_gid_key }}={{ container_user.group }}' \
+{% endfor %}
+  --env='{{ podman_pod_contaienr.uid_key | default('UID') }}={{ container_user.uid }}' \
+  --env='{{ podman_pod_contaienr.uid_key | default('GID') }}={{ container_user.group }}' \
   {{ podman_pod_container.image_url }}:{{ podman_pod_container.image_version }}
 
 ExecStop=/usr/bin/podman stop \

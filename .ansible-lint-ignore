@@ -5,3 +5,5 @@ roles/services_gitea/tasks/main.yml no-handler
 roles/services_gitea/tasks/main.yml no-changed-when
 roles/package_1password/tasks/Debian-12.yml no-handler
 roles/services_snipeit/tasks/main.yml no-handler
+roles/podman_pod/tasks/container.yml no-handler
+roles/podman_pod/vars/main.yml var-naming

@@ -1,4 +1,2 @@
 podman_pod_default_backup_server: "sftp:backupsys@10.3.1.3"
 podman_pod_default_backup_freq: daily
-podman_env_uid_key: USER_UID
-podman_env_gid_key: USER_GID

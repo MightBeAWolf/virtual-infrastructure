@@ -1,12 +1,12 @@
 ---
-- name: "Create the {{ podman_pod_container.name }} container user's group"
+- name: container | "Create the container user's group | {{ podman_pod_container.name }}"
   ansible.builtin.user:
     name: "{{ podman_pod_container.name }}"
     system: true
     state: present
   become: true
 
-- name: "Create the {{ podman_pod_container.name }} container user"
+- name: container | "Create the container user | {{ podman_pod_container.name }}"
   ansible.builtin.user:
     name: "{{ podman_pod_container.name }}"
     group: "{{ podman_pod_container.name }}"
@@ -20,28 +20,28 @@
   register: container_user
   become: true
 
-- name: "Ensure the {{ podman_pod_container.name }} container host can ssh into the container"
+- name: container | "Ensure the container host can ssh into the container | {{ podman_pod_container.name }}"
   ansible.posix.authorized_key:
     user: "{{ container_user.name }}"
     state: present
     key: "{{ container_user.ssh_public_key }}"
   become: true
 
-- name: "Create the {{ podman_pod_container.name }} container's systemd service file"
+- name: container | "Create the container's systemd service file | {{ podman_pod_container.name }}"
   ansible.builtin.template:
     src: podman.service.j2
     dest: /etc/systemd/system/{{ podman_pod_container.name }}_podman.service
     owner: root
     group: root
     mode: '0600'
-  notify: Restart the container podman.service
   register: podman_pod_container_systemd_unit_file
   become: true
 
-- name: Reload the Systemd Daemons
+- name: container | Reload the Systemd Daemons
   ansible.builtin.systemd:
     name: "{{ podman_pod_container.name }}_podman.service"
+    state: restarted
+    enable: true
     daemon_reload: true
   become: true
   when: podman_pod_container_systemd_unit_file.changed
-
