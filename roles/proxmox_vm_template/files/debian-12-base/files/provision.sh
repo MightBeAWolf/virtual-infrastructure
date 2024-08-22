@@ -16,7 +16,7 @@ id_provider = ldap
 autofs_provider = ldap
 auth_provider = ldap
 chpass_provider = ldap
-ldap_uri = ldap://ldap.sti.com
+ldap_uri = ldaps://ldap.local.silicontech.us
 ldap_search_base = dc=sti,dc=local
 ldap_tls_reqcert = never
 HEREDOC
@@ -26,7 +26,7 @@ sudo chmod 0600 /etc/sssd/sssd.conf
 # See ldap.conf(5) for details
 # This file should be world readable but not world writable.
 BASE dc=sti,dc=local
-URI ldap://ldap.sti.com
+URI ldaps://ldap.local.silicontech.us
 TLS_REQCERT never
 TLS_CACERTDIR /etc/openldap/cacerts
 HEREDOC
