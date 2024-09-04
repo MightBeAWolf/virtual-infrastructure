@@ -13,49 +13,6 @@
   register: configs
   become: true
 
-- name: Configure snipeit SSL Certificate and Key
-  block:
-    - name: Create SSL Certificate Directory
-      ansible.builtin.file:
-        state: directory
-        path: "{{ services_snipeit_main_storage }}/ssl"
-        owner: "{{ services_snipeit_container_name }}"
-        group: "{{ services_snipeit_container_name }}"
-        mode: '0700'
-      become: true
-
-    - name: Create private key (RSA, 4096 bits)
-      community.crypto.openssl_privatekey:
-        path: "{{ services_snipeit_main_storage }}/ssl/snipeit-ssl.key"
-        owner: "{{ services_snipeit_container_name }}"
-        group: "{{ services_snipeit_container_name }}"
-        mode: '0600'
-      become: true
-      register: ssl_key
-
-    - name: Create certificate signing request (CSR) for self-signed certificate
-      community.crypto.openssl_csr_pipe:
-        privatekey_path: "{{ services_snipeit_main_storage }}/ssl/snipeit-ssl.key"
-        common_name: '{{ inventory_hostname }}'
-        organization_name: Silicon Technologies Inc
-        subject_alt_name:
-          - "DNS:{{ ansible_host }}"
-      register: csr
-      changed_when: ssl_key.changed
-      become: true
-
-    - name: Create self-signed certificate from CSR
-      community.crypto.x509_certificate:
-        path: "{{ services_snipeit_main_storage }}/ssl/snipeit-ssl.crt"
-        csr_content: "{{ csr.csr }}"
-        privatekey_path: "{{ services_snipeit_main_storage }}/ssl/snipeit-ssl.key"
-        provider: selfsigned
-        owner: "{{ services_snipeit_container_name }}"
-        group: "{{ services_snipeit_container_name }}"
-        mode: '0600'
-      register: sign_cert
-      become: true
-
 - name: "Ensure the snipeit services have been started"
   ansible.builtin.systemd:
     name: "{{ services_snipeit_service }}"

@@ -75,6 +75,16 @@
     - backup_source
   tags: ['backups']
 
+
+###############################################################################
+# Deploy the OpenLDAP service
+###############################################################################
+- name: Deploy the OpenLDAP service
+  hosts: ldap.dev.local.silicontech.us
+  roles:
+    - services_openldap
+  tags: ['services', 'openldap', 'ldap', 'backups']
+
 ###############################################################################
 # Deploy the gitea services
 ###############################################################################

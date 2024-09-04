@@ -1,0 +1,40 @@
+- name: Create SSL Certificate Directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ self_signed_ssl_certificate_dir }}"
+    owner: "{{ self_signed_ssl_certificate_owner }}"
+    group: "{{ self_signed_ssl_certificate_group }}"
+    mode: '0700'
+  become: true
+
+- name: Create private key (RSA, 4096 bits)
+  community.crypto.openssl_privatekey:
+    path: "{{ self_signed_ssl_certificate_dir }}/{{ self_signed_ssl_key_file }}"
+    owner: "{{ self_signed_ssl_certificate_owner }}"
+    group: "{{ self_signed_ssl_certificate_group }}"
+    mode: '0600'
+  become: true
+  register: ssl_key
+
+- name: Create certificate signing request (CSR) for self-signed certificate
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{ ssl_key.filename }}"
+    common_name: '{{ inventory_hostname }}'
+    organization_name: Silicon Technologies Inc
+    subject_alt_name:
+      - "DNS:{{ ansible_host }}"
+  register: csr
+  changed_when: ssl_key.changed
+  become: true
+
+- name: Create self-signed certificate from CSR
+  community.crypto.x509_certificate:
+    path: "{{ self_signed_ssl_certificate_dir }}/{{ self_signed_ssl_certificate_file }}"
+    csr_content: "{{ csr.csr }}"
+    privatekey_path: "{{ ssl_key.filename }}"
+    provider: selfsigned
+    owner: "{{ self_signed_ssl_certificate_owner }}"
+    group: "{{ self_signed_ssl_certificate_group }}"
+    mode: '0600'
+  register: sign_cert
+  become: true

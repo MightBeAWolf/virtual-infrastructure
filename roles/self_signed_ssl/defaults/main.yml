@@ -1,0 +1,6 @@
+
+self_signed_ssl_certificate_owner: root
+self_signed_ssl_certificate_group: root
+self_signed_ssl_certificate_dir: /etc/ssl/certs
+self_signed_ssl_key_file: ssl.key
+self_signed_ssl_certificate_file: ssl.crt
