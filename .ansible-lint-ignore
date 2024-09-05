@@ -7,3 +7,4 @@ roles/package_1password/tasks/Debian-12.yml no-handler
 roles/services_snipeit/tasks/main.yml no-handler
 roles/podman_pod/tasks/container.yml no-handler
 roles/podman_pod/vars/main.yml var-naming
+roles/podman_pod/tasks/build_image.yml no-handler

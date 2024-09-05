@@ -33,7 +33,7 @@
 ###############################################################################################
 ### Configure the Restic options
 # Define where our backup will be stored
-REMOTE_REPO_NAME='{{ podman_pod_spec.name }}'
+REMOTE_REPO_NAME=$(hostname -f)
 REPOSITORY="{{ podman_pod_spec.backup.server | default(podman_pod_default_backup_server) }}:data/${REMOTE_REPO_NAME:?}"
 
 

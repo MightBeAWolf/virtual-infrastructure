@@ -1,0 +1,118 @@
+#
+# See slapd.conf(5) for details on configuration options.
+# This file should NOT be world readable.
+#
+include		/etc/openldap/schema/core.schema
+include		/etc/openldap/schema/cosine.schema
+include		/etc/openldap/schema/inetorgperson.schema
+include	 	/etc/openldap/schema/nis.schema
+
+# Define global ACLs to disable default read access.
+
+#######################################################################
+# Add TLS/SSL information
+#######################################################################
+TLSCertificateFile /etc/openldap/certs/ldap_server.crt
+TLSCertificateKeyFile /etc/openldap/certs/ldap_server.key
+# Only required if using a CA-signed certificate
+# TLSCACertificateFile /etc/openldap/certs/ldap_server.crt
+
+# Do not enable referrals until AFTER you have a working directory
+# service AND an understanding of referrals.
+#referral	ldap://root.openldap.org
+
+# Load dynamic backend modules:
+modulepath	/usr/lib/openldap
+moduleload	back_mdb.so
+# moduleload	back_ldap.so
+
+#######################################################################
+# Access Controls
+#######################################################################
+# This ACL gives incoming connections the ability to read the rootDSE.
+# It is very important to allow this, as incoming clients may need to
+# obtain information from the base level (such as your supported SASL
+# Mechs). The ".base" portion of the ACL restricts clients to querying
+# only the top level
+access to dn.base=""
+	by * read
+
+# Define the global access
+# - The ldap_admin role is given write access to everything
+# - Users are given the ability to login to the ldap system and provided access
+#   to read their own information. Note that without this, users will not be
+#   able to login and bind their ldap session to themselves, not even to then
+#   obtain access through their assigned roles.
+access to *
+        by dn="cn=ldapdm,{{ services_openldap_config.base_dn }}" manage
+        by group.exact="cn=ldap_admin,ou=Roles,{{ services_openldap_config.base_dn }}" write
+        by group.exact="cn=ldap_user_admin,ou=Roles,{{ services_openldap_config.base_dn }}" read
+        by self read
+        by anonymous auth
+        by * break
+
+# Restrict who can access passwords. This effectively hides passwords from the
+# ldap_read_access role. Explicitly, this allows:
+# - The sssd user to read, authenticate, and write passwords
+# - The ldap_admin and ldap_user_admin to manage user passwords
+# - Users to change their own password
+# - Unauthenticated users to authenticate
+access to attrs=userPassword
+        by dn="cn=sssd,{{ services_openldap_config.base_dn }}" write
+        by group.exact="cn=ldap_admin,ou=Roles,{{ services_openldap_config.base_dn }}" write
+        by group.exact="cn=ldap_user_admin,ou=Roles,{{ services_openldap_config.base_dn }}" write
+        by self write
+        by anonymous auth
+
+# Provides read access to to the the base level (lower levels are included below)
+access to dn.base="{{ services_openldap_config.base_dn }}"
+        by group.exact="cn=ldap_read_access,ou=Roles,{{ services_openldap_config.base_dn }}" read
+        by * break
+
+
+# Allow ldap_user_admins to manage users and groups, and the ldap_read_access to
+# read them (excluding their passwords)
+access to dn.subtree="ou=People,{{ services_openldap_config.base_dn }}"
+        by group.exact="cn=ldap_user_admin,ou=Roles,{{ services_openldap_config.base_dn }}" write
+        by group.exact="cn=ldap_read_access,ou=Roles,{{ services_openldap_config.base_dn }}" read
+        by * break
+access to dn.subtree="ou=Groups,{{ services_openldap_config.base_dn }}"
+        by group.exact="cn=ldap_user_admin,ou=Roles,{{ services_openldap_config.base_dn }}" write
+        by group.exact="cn=ldap_read_access,ou=Roles,{{ services_openldap_config.base_dn }}" read
+        by * break
+
+
+#######################################################################
+# config database definitions
+#######################################################################
+database config
+# Uncomment the rootpw line to allow binding as the cn=config
+# rootdn so that temporary modifications to the configuration can be made
+# while slapd is running. They will not persist across a restart.
+# rootpw secret
+
+#######################################################################
+# MDB database definitions
+#######################################################################
+
+database	mdb
+maxsize		1073741824
+suffix		"{{ services_openldap_config.base_dn }}"
+rootdn		"{{ lookup('env', 'OPENLDAP_ROOT_DN') }}"
+# Cleartext passwords, especially for the rootdn, should
+# be avoid.  See slappasswd(8) and slapd.conf(5) for details.
+# Use of strong authentication encouraged.
+rootpw		{{ lookup('env', 'OPENLDAP_ROOT_DN_HASHED_PASSWORD') }}
+# The database directory MUST exist prior to running slapd AND 
+# should only be accessible by the slapd and slap tools.
+# Mode 700 recommended.
+directory	/var/lib/openldap/openldap-data
+# Indices to maintain
+index	objectClass	eq
+
+#######################################################################
+# monitor database definitions
+#######################################################################
+database monitor
+
+

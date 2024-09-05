@@ -1,3 +1,5 @@
+podman_pod_build_images: "{{ lookup('community.general.merge_variables', '_podman_build_images', pattern_type='suffix') }}"
+
 podman_pod_spec:
   name: "{{ podman_pod_name | default('deployed_pod') }}"
   ports: "{{ lookup('community.general.merge_variables', '_container_ports', pattern_type='suffix') }}"

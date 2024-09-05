@@ -1,4 +1,3 @@
-
 self_signed_ssl_certificate_owner: root
 self_signed_ssl_certificate_group: root
 self_signed_ssl_certificate_dir: /etc/ssl/certs

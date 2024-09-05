@@ -1,0 +1,20 @@
+services_openldap_container_name: openldap
+
+services_openldap_container_ports:
+  # - "389:389" # ldap://
+  - "636:636" # ldaps
+
+services_openldap_podman_build_images:
+  - name: "{{ services_openldap_container_name }}"
+    container_file_content: "{{ lookup('file', 'openldap.containerfile') }}"
+
+services_openldap_main_storage: "{{ podman_pod_storage }}/{{ services_openldap_container_name }}/_data"
+
+services_openldap_container_spec:
+  - name: "{{ services_openldap_container_name }}"
+    image_url: "localhost/{{ services_openldap_container_name }}"
+    volumes:
+      - name: "{{ services_openldap_container_name }}"
+        target: /etc/openldap
+      - name: "{{ services_openldap_container_name }}_db"
+        target: /var/lib/openldap/openldap-data

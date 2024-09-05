@@ -1,6 +1,8 @@
 ---
 dependencies:
   - role: podman_pod
+    vars:
+      podman_pod_name: "{{ services_snipeit_container_name }}_pod"
   - role: self_signed_ssl
     vars:
       self_signed_ssl_certificate_owner: "{{ services_snipeit_container_name }}"

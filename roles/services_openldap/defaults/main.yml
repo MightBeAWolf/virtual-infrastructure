@@ -1,0 +1,2 @@
+services_openldap_config:
+  base_dn: dc=sti,dc=local

@@ -1,4 +1,10 @@
 ---
+- name: Build any provided containers
+  ansible.builtin.include_tasks: build_image.yml
+  loop: "{{ podman_pod_build_images if podman_pod_build_images != '' else [] }}"
+  loop_control:
+    loop_var: podman_pod_image_spec
+
 - name: List pod configuration
   ansible.builtin.debug:
     msg: "{{ podman_pod_spec }}"
@@ -40,7 +46,7 @@
   block:
     - name: Create a the backup kit directory
       ansible.builtin.file:
-        path: /backups/kits/{{ inventory_hostname }}
+        path: /backups/kits/{{ podman_pod_spec.name }}
         state: directory
         owner: backupsys
         group: backupsys
@@ -50,7 +56,7 @@
     - name: Create the backup scripts from backup_kit
       ansible.builtin.copy:
         src: "{{ podman_pod_backup_script }}"
-        dest: "/backups/kits/{{ inventory_hostname }}/{{ podman_pod_backup_script | basename }}"
+        dest: "/backups/kits/{{ podman_pod_spec.name }}/{{ podman_pod_backup_script | basename }}"
         owner: backupsys
         group: backupsys
         mode: '0700'
@@ -63,7 +69,7 @@
     - name: Create the pod's backup script
       ansible.builtin.template:
         src: backup_kit/main.sh.j2
-        dest: /backups/kits/{{ inventory_hostname }}/main.sh
+        dest: /backups/kits/{{ podman_pod_spec.name }}/main.sh
         owner: backupsys
         group: backupsys
         mode: '0700'
@@ -71,7 +77,8 @@
 
     - name: Start the backup timer
       ansible.builtin.systemd_service:
-        name: "backup-{{ podman_pod_spec.backup.freq | default(podman_pod_default_backup_freq) }}@{{ inventory_hostname }}.timer"
+        name: "backup-{{ podman_pod_spec.backup.freq | default(podman_pod_default_backup_freq) }}@{{ podman_pod_spec.name }}.timer"
         state: started
         enabled: true
+      when: podman_pod_spec.backup is not defined or (podman_pod_spec.backup is defined and podman_pod_spec.backup.freq != 'never')
       become: true

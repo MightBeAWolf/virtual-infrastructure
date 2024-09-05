@@ -6,3 +6,4 @@ services_snipeit_config:
   login_autocomplete: false
   secure_cookies: true
   api_token_expiration_years: 40
+  allow_data_purge: false

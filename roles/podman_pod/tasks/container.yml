@@ -38,10 +38,10 @@
   become: true
 
 - name: container | Reload the Systemd Daemons
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ podman_pod_container.name }}_podman.service"
     state: restarted
-    enable: true
+    enabled: true
     daemon_reload: true
   become: true
-  when: podman_pod_container_systemd_unit_file.changed
+  when: podman_pod_container_systemd_unit_file.changed or (container_image is defined and container_image.changed)
