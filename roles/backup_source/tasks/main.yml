@@ -7,6 +7,9 @@
         -{{ ansible_distribution_major_version }}.yml"
 
 - name: Backupsys user setup
+  # Ignore errors so that even if the backups fail to setup we can still deploy
+  # services
+  ignore_errors: true
   block:
     - name: Enable the bacupsys user
       ansible.builtin.user:
@@ -33,6 +36,7 @@
           no-user-rc,\
           no-X11-forwarding"
         exclusive: false
+      ignore_errors: true
       become: true
 
     - name: Add the backup server's fingerprint to the known hosts

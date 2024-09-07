@@ -1,0 +1,4 @@
+ldap_client_expiration_days: 4
+ldap_client_server: ldaps://ldap.local.silicontech.us
+ldap_client_base_dn: dc=sti,dc=local
+ldap_client_access_condition: (&(objectClass=posixAccount)(uidNumber>=1000))

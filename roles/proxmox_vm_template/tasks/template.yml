@@ -29,11 +29,20 @@
         mode: '0700'
         state: directory
 
-    - name: template | Sync the packer template definition files
+    - name: template | Sync the packer definition files
       ansible.builtin.copy:
         src: "{{ proxmox_vm_template_def.name }}/"
         dest: "{{ build_dir }}"
         mode: 'preserve'
+
+    - name: template | Sync the packer template definition files
+      ansible.builtin.template:
+        src: "{{ proxmox_vm_template_config_file }}"
+        dest: "{{ build_dir }}/files/{{ proxmox_vm_template_config_file | basename | regex_replace('\\.j2$') }}"
+        mode: '0700'
+      with_fileglob: "{{ role_path }}/templates/{{ proxmox_vm_template_def.name }}/*.j2"
+      loop_control:
+        loop_var: proxmox_vm_template_config_file
 
     - name: template | Configure the deployment variables
       ansible.builtin.template:

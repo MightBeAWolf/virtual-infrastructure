@@ -56,7 +56,7 @@ all:
             gateway: 10.2.40.1
             pool: infrastructure
 
-        ldap.dev.local.silicontech.us:
+        ldap.dev.silicontech.us:
           ansible_host: 10.2.41.8
           target_host: intel-nuc-13-03.sti.com
           guest_info:

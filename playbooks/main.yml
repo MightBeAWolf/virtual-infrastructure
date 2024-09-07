@@ -67,23 +67,25 @@
   tags: ['setup', 'terraform', 'vms']
 
 ###############################################################################
-# Ensure all virtual machines can be used as backup sources
+# Deploy the virtual machine configurations
 ###############################################################################
-- name: Deploy backup sources
+- name: Deploy Virtual Machine's Configurations
   hosts: virtual_machines
+  become: false
   roles:
+    - ldap_client
     - backup_source
-  tags: ['backups']
-
+  tags: ['setup', 'terraform', 'vms']
 
 ###############################################################################
 # Deploy the OpenLDAP service
 ###############################################################################
 - name: Deploy the OpenLDAP service
-  hosts: ldap.dev.local.silicontech.us
+  hosts: ldap.local.silicontech.us
   roles:
     - services_openldap
   tags: ['services', 'openldap', 'ldap', 'backups']
+  ignore_errors: true
 
 ###############################################################################
 # Deploy the gitea services

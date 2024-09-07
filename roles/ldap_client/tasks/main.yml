@@ -1,0 +1,47 @@
+- name: Install LDAP Dependencies
+  ansible.builtin.package:
+    name: "{{ ldap_client_packages[ansible_distribution ~ '-' ~ ansible_distribution_major_version] }}"
+    state: present
+  become: true
+  ignore_errors: true
+  when: (ansible_distribution ~ '-' ~ ansible_distribution_major_version) in ldap_client_packages
+
+- name: Check sssd directory permissions
+  ansible.builtin.file:
+    path: /etc/sssd
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+  become: true
+  notify: Restart sssd
+
+- name: Configure SSS
+  ansible.builtin.template:
+    src: sssd.conf.j2
+    dest: /etc/sssd/sssd.conf
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+  notify: Restart sssd
+
+- name: Configure nsswitch.conf
+  ansible.builtin.template:
+    src: nsswitch.conf.j2
+    dest: /etc/nsswitch.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: Restart sssd
+
+- name: Ensure services enabled and started
+  ansible.builtin.systemd_service:
+    name: "{{ ldap_client_systemd_service }}"
+    enabled: true
+    state: started
+  become: true
+  loop: "{{ ldap_client_services[ansible_distribution ~ '-' ~ ansible_distribution_major_version] }}"
+  loop_control:
+    loop_var: ldap_client_systemd_service

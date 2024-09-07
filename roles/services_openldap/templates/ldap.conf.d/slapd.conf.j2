@@ -76,7 +76,7 @@ access to dn.subtree="ou=People,{{ services_openldap_config.base_dn }}"
         by group.exact="cn=ldap_user_admin,ou=Roles,{{ services_openldap_config.base_dn }}" write
         by group.exact="cn=ldap_read_access,ou=Roles,{{ services_openldap_config.base_dn }}" read
         by * break
-access to dn.subtree="ou=Groups,{{ services_openldap_config.base_dn }}"
+access to dn.subtree="ou=Group,{{ services_openldap_config.base_dn }}"
         by group.exact="cn=ldap_user_admin,ou=Roles,{{ services_openldap_config.base_dn }}" write
         by group.exact="cn=ldap_read_access,ou=Roles,{{ services_openldap_config.base_dn }}" read
         by * break

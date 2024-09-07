@@ -1,10 +1,12 @@
+roles/backup_source/tasks/main.yml ignore-errors
 roles/control_node/tasks/main.yml command-instead-of-module
 roles/deploy_k3s_vms/tasks/deploy_proxmox_cluster.yml no-handler
 roles/deploy_vms/tasks/main.yml no-handler
-roles/services_gitea/tasks/main.yml no-handler
-roles/services_gitea/tasks/main.yml no-changed-when
+roles/ldap_client/tasks/main.yml ignore-errors
 roles/package_1password/tasks/Debian-12.yml no-handler
-roles/services_snipeit/tasks/main.yml no-handler
+roles/podman_pod/tasks/build_image.yml no-handler
 roles/podman_pod/tasks/container.yml no-handler
 roles/podman_pod/vars/main.yml var-naming
-roles/podman_pod/tasks/build_image.yml no-handler
+roles/services_gitea/tasks/main.yml no-changed-when
+roles/services_gitea/tasks/main.yml no-handler
+roles/services_snipeit/tasks/main.yml no-handler

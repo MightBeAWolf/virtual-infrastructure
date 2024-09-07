@@ -1,0 +1,99 @@
+# Generated with the organizational Ansible virtual-infrastructure project.
+# Do not modify by hand!
+[sssd]
+services = nss, pam, autofs
+config_file_version = 2
+domains = production,development
+
+[nss]
+override_shell = /bin/bash
+
+[pam]
+{% if ldap_client_expiration_days is defined and ldap_client_expiration_days >= 0 %}
+offline_credentials_expiration = {{ ldap_client_expiration_days }}
+offline_failed_login_attempts = {{ ldap_client_offline_login_attempts | default('6') }}
+offline_failed_login_delay = {{ ldap_client_offline_failed_login_timeout | default('5') }}
+{% endif %}
+
+##############################################################################
+##############################################################################
+[domain/production]
+id_provider = ldap
+auth_provider = ldap
+chpass_provider = ldap
+autofs_provider = ldap
+ldap_uri = ldaps://ldap.local.silicontech.us
+ldap_search_base = dc=sti,dc=local
+ldap_default_bind_dn = {{ lookup('env', 'OPENLDAP_SSSD_DN') }}
+ldap_default_authtok = {{ lookup('env', 'OPENLDAP_SSSD_DN_PASSWORD') }}
+ldap_user_search_base = ou=People,dc=sti,dc=local
+ldap_group_search_base = ou=Group,dc=sti,dc=local
+
+# SSL/TLS settings (if using)
+# ldap_id_use_start_tls = true
+# ldap_tls_reqcert = demand
+ldap_tls_reqcert = never
+# ldap_tls_cacert = /etc/sssd/ca.crt
+
+# Timeout and Cache Settings
+{% if ldap_client_expiration_days is defined and ldap_client_expiration_days >= 0 %}
+cache_credentials = true
+account_cache_expiration = {{ ldap_client_expiration_days | default('6') }}
+{% else %}
+cache_credentials = false
+{% endif %}
+
+# Attribute mappings (adjust according to your schema if necessary)
+ldap_user_name = uid
+ldap_user_uid_number = uidNumber
+ldap_user_gid_number = gidNumber
+ldap_user_home_directory = homeDirectory
+ldap_user_shell = loginShell
+ldap_group_name = cn
+ldap_group_member = memberUid
+
+# Access Control
+access_provider = ldap
+ldap_access_filter = {{ ldap_client_access_condition | default('(&(objectClass=posixAccount)(uidNumber>=1000))') }}
+
+##############################################################################
+##############################################################################
+[domain/development]
+id_provider = ldap
+auth_provider = ldap
+chpass_provider = ldap
+autofs_provider = ldap
+ldap_uri = ldaps://ldap.dev.silicontech.us
+ldap_search_base = dc=sti,dc=local
+ldap_default_bind_dn = {{ lookup('env', 'OPENLDAP_SSSD_DN') }}
+ldap_default_authtok = {{ lookup('env', 'OPENLDAP_SSSD_DN_PASSWORD') }}
+ldap_user_search_base = ou=People,dc=sti,dc=local
+ldap_group_search_base = ou=Group,dc=sti,dc=local
+
+# SSL/TLS settings (if using)
+# ldap_id_use_start_tls = true
+# ldap_tls_reqcert = demand
+ldap_tls_reqcert = never
+# ldap_tls_cacert = /etc/sssd/ca.crt
+
+# Timeout and Cache Settings
+{% if ldap_client_expiration_days is defined and ldap_client_expiration_days >= 0 %}
+cache_credentials = true
+account_cache_expiration = {{ ldap_client_expiration_days | default('6') }}
+{% else %}
+cache_credentials = false
+{% endif %}
+
+# Attribute mappings (adjust according to your schema if necessary)
+ldap_user_name = uid
+ldap_user_uid_number = uidNumber
+ldap_user_gid_number = gidNumber
+ldap_user_home_directory = homeDirectory
+ldap_user_shell = loginShell
+ldap_group_name = cn
+ldap_group_member = memberUid
+
+# Access Control
+access_provider = ldap
+ldap_access_filter = {{ ldap_client_access_condition | default('(&(objectClass=posixAccount)(uidNumber>=1000))') }}
+
