@@ -12,4 +12,14 @@
 #TIMELIMIT	15
 #DEREF		never
 
+#######################################################################
+# Sudo Config
+#######################################################################
+# verbose sudoers matching from ldap
+#sudoers_debug 2
+# Must be set or sudo will ignore LDAP; may be specified multiple times.
+sudoers_base   ou=SUDOers,{{ services_openldap_config.base_dn }}
+# Enable support for time-based entries in sudoers.
+sudoers_timed yes
+
 

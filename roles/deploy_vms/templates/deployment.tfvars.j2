@@ -46,9 +46,9 @@ compute = {
   memory  = {{ guest_info.compute.memory | default('2048') }}
 }
 disk = {
-  # Storage locations, "local", "local-lvm", "main-storage"
+  # Storage locations, "local", "local-lvm", "local"
   # Main storage is recommended.
-  storage = "{{ guest_info.disk.location | default('main-storage') }}"
+  storage = "{{ guest_info.disk.location | default('local-lvm') }}"
   # The size of the created disk. Accepts K for kibibytes, M for mebibytes, G
   # for gibibytes, T for tibibytes. When only a number is provided gibibytes
   # is assumed.

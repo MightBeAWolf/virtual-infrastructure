@@ -110,7 +110,7 @@ source "proxmox-iso" "debian-12-base" {
     # iso_file = "local:iso/ubuntu-20.04.2-live-server-amd64.iso"
     # - or -
     # (Option 2) Download ISO
-    iso_file = "shared-proxmox:iso/debian-12.6.0-amd64-netinst.iso"
+    iso_file = "wolftrack-nas:iso/debian-12.7.0-amd64-netinst.iso"
     iso_checksum = "none"
     unmount_iso = true
 

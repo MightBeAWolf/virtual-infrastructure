@@ -1,7 +1,7 @@
 ---
 - name: "build_image | Build the image | {{ podman_pod_image_spec.name }}"
   vars:
-    build_dir: "{{ lookup('ansible.builtin.env', 'HOME') }}\
+    build_dir: "{{ ansible_env.HOME }}\
       /.local/state/podman/{{ podman_pod_image_spec.name }}"
   block:
     - name: "build_image | Create the build directory {{ podman_pod_image_spec.name }}"
@@ -17,6 +17,16 @@
         mode: '0700'
       register: container_file
 
+    - name: "build_image | Copy other build files | {{ podman_pod_image_spec.name }}"
+      ansible.builtin.copy:
+        src: "{{ build_image_other_file }}"
+        dest: "{{ build_dir }}/{{ build_image_other_file | basename }}"
+        mode: '0700'
+      loop: "{{ podman_pod_build_files }}"
+      loop_control:
+        loop_var: build_image_other_file
+      register: other_container_files
+
     - name: "build_image | Build the image in the create build directory {{ podman_pod_image_spec.name }}"
       containers.podman.podman_image:
         name: "{{ podman_pod_image_spec.name }}"
@@ -25,5 +35,5 @@
           file: "{{ podman_pod_image_spec.name }}.containerfile"
         force: true
       become: true
-      when: container_file.changed
+      when: container_file.changed or other_container_files.changed
       register: container_image

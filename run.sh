@@ -20,7 +20,7 @@ export ANSIBLE_FORCE_COLOR=True
 # interface can be chosen at semi-random leading to a failure for the deployed
 # VM template to run through its preseed file.
 export PROXMOX_VM_TEMPLATE_WEB_INTERFACE="$(
-  ip route get 10.2.40.11 \
+  ip route get 192.168.40.2 \
   | grep -Pom 1 '(?<=dev )\S+'
 )"
 

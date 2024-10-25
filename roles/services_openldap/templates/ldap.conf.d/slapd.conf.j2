@@ -6,6 +6,7 @@ include		/etc/openldap/schema/core.schema
 include		/etc/openldap/schema/cosine.schema
 include		/etc/openldap/schema/inetorgperson.schema
 include	 	/etc/openldap/schema/nis.schema
+include   /etc/openldap/schema/sudo.schema
 
 # Define global ACLs to disable default read access.
 
@@ -45,8 +46,8 @@ access to dn.base=""
 #   obtain access through their assigned roles.
 access to *
         by dn="cn=ldapdm,{{ services_openldap_config.base_dn }}" manage
-        by group.exact="cn=ldap_admin,ou=Roles,{{ services_openldap_config.base_dn }}" write
-        by group.exact="cn=ldap_user_admin,ou=Roles,{{ services_openldap_config.base_dn }}" read
+        by group.exact="cn=ldap_admin,ou=role,{{ services_openldap_config.base_dn }}" write
+        by group.exact="cn=ldap_user_admin,ou=role,{{ services_openldap_config.base_dn }}" read
         by self read
         by anonymous auth
         by * break
@@ -58,27 +59,31 @@ access to *
 # - Users to change their own password
 # - Unauthenticated users to authenticate
 access to attrs=userPassword
-        by dn="cn=sssd,{{ services_openldap_config.base_dn }}" write
-        by group.exact="cn=ldap_admin,ou=Roles,{{ services_openldap_config.base_dn }}" write
-        by group.exact="cn=ldap_user_admin,ou=Roles,{{ services_openldap_config.base_dn }}" write
+        by dn="{{ lookup('env', 'OPENLDAP_SSSD_DN') }}" write
+        by group.exact="cn=ldap_admin,ou=role,{{ services_openldap_config.base_dn }}" write
+        by group.exact="cn=ldap_user_admin,ou=role,{{ services_openldap_config.base_dn }}" write
         by self write
         by anonymous auth
 
 # Provides read access to to the the base level (lower levels are included below)
 access to dn.base="{{ services_openldap_config.base_dn }}"
-        by group.exact="cn=ldap_read_access,ou=Roles,{{ services_openldap_config.base_dn }}" read
+        by group.exact="cn=ldap_read_access,ou=role,{{ services_openldap_config.base_dn }}" read
         by * break
 
 
 # Allow ldap_user_admins to manage users and groups, and the ldap_read_access to
 # read them (excluding their passwords)
-access to dn.subtree="ou=People,{{ services_openldap_config.base_dn }}"
-        by group.exact="cn=ldap_user_admin,ou=Roles,{{ services_openldap_config.base_dn }}" write
-        by group.exact="cn=ldap_read_access,ou=Roles,{{ services_openldap_config.base_dn }}" read
+access to dn.subtree="ou=people,{{ services_openldap_config.base_dn }}"
+        by group.exact="cn=ldap_user_admin,ou=role,{{ services_openldap_config.base_dn }}" write
+        by group.exact="cn=ldap_read_access,ou=role,{{ services_openldap_config.base_dn }}" read
         by * break
-access to dn.subtree="ou=Group,{{ services_openldap_config.base_dn }}"
-        by group.exact="cn=ldap_user_admin,ou=Roles,{{ services_openldap_config.base_dn }}" write
-        by group.exact="cn=ldap_read_access,ou=Roles,{{ services_openldap_config.base_dn }}" read
+access to dn.subtree="ou=groups,{{ services_openldap_config.base_dn }}"
+        by group.exact="cn=ldap_user_admin,ou=role,{{ services_openldap_config.base_dn }}" write
+        by group.exact="cn=ldap_read_access,ou=role,{{ services_openldap_config.base_dn }}" read
+        by * break
+access to dn.subtree="ou=SUDOers,{{ services_openldap_config.base_dn }}"
+        by group.exact="cn=ldap_user_admin,ou=role,{{ services_openldap_config.base_dn }}" write
+        by group.exact="cn=ldap_read_access,ou=role,{{ services_openldap_config.base_dn }}" read
         by * break
 
 

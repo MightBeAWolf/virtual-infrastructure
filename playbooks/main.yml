@@ -27,6 +27,7 @@
   roles:
     - common
     - control_node
+    - ldap_client
   tags: ['setup', 'packer', 'local', 'terraform', 'control_node']
   connection: local
 
@@ -40,6 +41,7 @@
   gather_facts: false
   roles:
     - proxmox_node_host
+    - ssh
   tags: ['setup', 'control_node']
 
 ###############################################################################
@@ -66,13 +68,14 @@
     - deploy_vms
   tags: ['setup', 'terraform', 'vms']
 
-###############################################################################
-# Deploy the virtual machine configurations
-###############################################################################
+# ###############################################################################
+# # Deploy the virtual machine configurations
+# ###############################################################################
 - name: Deploy Virtual Machine's Configurations
   hosts: virtual_machines
   become: false
   roles:
+    - ssh
     - ldap_client
     - backup_source
   tags: ['setup', 'terraform', 'vms']
@@ -81,26 +84,17 @@
 # Deploy the OpenLDAP service
 ###############################################################################
 - name: Deploy the OpenLDAP service
-  hosts: ldap.local.silicontech.us
+  hosts: ldap.local.wolfbox.dev
   roles:
     - services_openldap
   tags: ['services', 'openldap', 'ldap', 'backups']
   ignore_errors: true
 
-###############################################################################
-# Deploy the gitea services
-###############################################################################
-- name: Deploy the Gitea service
-  hosts: gitea.local.silicontech.us
-  roles:
-    - services_gitea
-  tags: ['services', 'gitea', 'backups']
-
-###############################################################################
-# Deploy the Snipe IT services
-###############################################################################
-- name: Deploy the Snipe IT service
-  hosts: snipeit.local.silicontech.us
-  roles:
-    - services_snipeit
-  tags: ['services', 'snipeit', 'backups']
+# ###############################################################################
+# # Deploy the gitea services
+# ###############################################################################
+# - name: Deploy the Gitea service
+#   hosts: gitea.local.wolfbox.dev
+#   roles:
+#     - services_gitea
+#   tags: ['services', 'gitea', 'backups']

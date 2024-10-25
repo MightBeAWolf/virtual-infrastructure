@@ -10,8 +10,8 @@ if [[ ! -f "/home/$USER/.ssh/id_ed25519.pub" ]]; then
   exit 1
 fi
 export TF_VAR_ssh_pub_key="$(cat /home/$USER/.ssh/id_ed25519.pub)"
-export TF_VAR_node_user="op://I.T./Proxmox Cluster Template User/username"
-export TF_VAR_node_user_password="op://I.T./Proxmox Cluster Template User/password"
+export TF_VAR_node_user="op://Local Cluster/Proxmox Cluster Template User/username"
+export TF_VAR_node_user_password="op://Local Cluster/Proxmox Cluster Template User/password"
 
 # The first argument is the target, the rest are options for terraform
 TARGET=$1

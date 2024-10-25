@@ -22,49 +22,14 @@ id_provider = ldap
 auth_provider = ldap
 chpass_provider = ldap
 autofs_provider = ldap
-ldap_uri = ldaps://ldap.local.silicontech.us
-ldap_search_base = dc=sti,dc=local
+sudo_provider = ldap
+ldap_uri = ldaps://ldap.local.wolfbox.dev
+ldap_search_base = dc=wolfbox,dc=dev
 ldap_default_bind_dn = {{ lookup('env', 'OPENLDAP_SSSD_DN') }}
 ldap_default_authtok = {{ lookup('env', 'OPENLDAP_SSSD_DN_PASSWORD') }}
-ldap_user_search_base = ou=People,dc=sti,dc=local
-ldap_group_search_base = ou=Group,dc=sti,dc=local
-
-# SSL/TLS settings (if using)
-# ldap_id_use_start_tls = true
-# ldap_tls_reqcert = demand
-ldap_tls_reqcert = never
-# ldap_tls_cacert = /etc/sssd/ca.crt
-
-# Timeout and Cache Settings
-cache_credentials = true
-account_cache_expiration = 4
-
-# Attribute mappings (adjust according to your schema if necessary)
-ldap_user_name = uid
-ldap_user_uid_number = uidNumber
-ldap_user_gid_number = gidNumber
-ldap_user_home_directory = homeDirectory
-ldap_user_shell = loginShell
-ldap_group_name = cn
-ldap_group_member = memberUid
-
-# Access Control
-access_provider = ldap
-ldap_access_filter = (&(objectClass=posixAccount)(uidNumber>=1000))
-
-##############################################################################
-##############################################################################
-[domain/development]
-id_provider = ldap
-auth_provider = ldap
-chpass_provider = ldap
-autofs_provider = ldap
-ldap_uri = ldaps://ldap.dev.silicontech.us
-ldap_search_base = dc=sti,dc=local
-ldap_default_bind_dn = {{ lookup('env', 'OPENLDAP_SSSD_DN') }}
-ldap_default_authtok = {{ lookup('env', 'OPENLDAP_SSSD_DN_PASSWORD') }}
-ldap_user_search_base = ou=People,dc=sti,dc=local
-ldap_group_search_base = ou=Group,dc=sti,dc=local
+ldap_user_search_base = ou=people,dc=wolfbox,dc=dev
+ldap_group_search_base = ou=group,dc=wolfbox,dc=dev
+ldap_sudo_search_base = ou=SUDOers,dc=wolfbox,dc=dev
 
 # SSL/TLS settings (if using)
 # ldap_id_use_start_tls = true

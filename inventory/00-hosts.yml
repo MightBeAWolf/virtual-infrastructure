@@ -3,65 +3,23 @@ all:
   children:
     proxmox:
       hosts:
-        intel-nuc-13-01.sti.com:
+        pve.local.wolfbox.dev:
           # Note the typo of 'inte' is reflective of the name on proxmox.
-          proxmox_node_id: inte-nuc-13-01
-          api_uri: https://intel-nuc-13-01.sti.com:8006/api2/json
+          proxmox_node_id: pve
+          api_uri: https://pve.local.wolfbox.dev:8006/api2/json
           templates:
             - name: debian-12-base
               id: 8000
               desc: "Debian 12 Bookwork template"
-        intel-nuc-13-02.sti.com:
-          proxmox_node_id: intel-nuc-13-02
-          api_uri: https://intel-nuc-13-02.sti.com:8006/api2/json
-        intel-nuc-13-03.sti.com:
-          proxmox_node_id: intel-nuc-13-03
-          api_uri: https://intel-nuc-13-03.sti.com:8006/api2/json
 
     virtual_machines:
       hosts:
-        gitea.local.silicontech.us:
-          ansible_host: 10.2.41.5
-          target_host: intel-nuc-13-01.sti.com
-          from_template: debian-12-base
+        ldap.local.wolfbox.dev:
+          ansible_host: 192.168.41.7
+          ansible_user: cluster
+          target_host: pve.local.wolfbox.dev
           guest_info:
             id: 501
-            desc: The virtualized Gitea host
-            tags: debian_12,service,infrastructure_as_code
-            gateway: 10.2.40.1
-            pool: infrastructure
-            disk:
-              size: 64G
-            compute:
-              sockets: 4
-              memory: 8192
-
-        snipeit.local.silicontech.us:
-          ansible_host: 10.2.41.6
-          target_host: intel-nuc-13-02.sti.com
-          guest_info:
-            id: 502
-            desc: The virtualized Snipe-IT asset tracking service
-            tags: debian_12,service,infrastructure_as_code
-            gateway: 10.2.40.1
-            pool: infrastructure
-
-        ldap.local.silicontech.us:
-          ansible_host: 10.2.41.7
-          target_host: intel-nuc-13-03.sti.com
-          guest_info:
-            id: 503
             desc: The OpenLDAP Host
             tags: debian_12,service,infrastructure_as_code
-            gateway: 10.2.40.1
-            pool: infrastructure
-
-        ldap.dev.silicontech.us:
-          ansible_host: 10.2.41.8
-          target_host: intel-nuc-13-03.sti.com
-          guest_info:
-            id: 504
-            desc: The OpenLDAP Development VM Host
-            tags: debian_12,service,infrastructure_as_code
-            gateway: 10.2.40.1
-            pool: infrastructure
+            gateway: 192.168.40.21

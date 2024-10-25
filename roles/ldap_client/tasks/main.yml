@@ -1,12 +1,22 @@
-- name: Install LDAP Dependencies
+- name: Check if the LDAP credentials are set and not empty
+  ansible.builtin.assert:
+    that:
+      - lookup('env', 'OPENLDAP_SSSD_DN')
+      - lookup('env', 'OPENLDAP_SSSD_DN_PASSWORD')
+      - lookup('env', 'OPENLDAP_SSSD_DN') | length > 0
+      - lookup('env', 'OPENLDAP_SSSD_DN_PASSWORD') | length > 0
+    fail_msg: "The client SSSD LDAP credentials are not set in the environment.
+      Did you use the ./run.sh wrapper?"
+
+- name: ldap_client | Install LDAP Dependencies
   ansible.builtin.package:
     name: "{{ ldap_client_packages[ansible_distribution ~ '-' ~ ansible_distribution_major_version] }}"
     state: present
   become: true
-  ignore_errors: true
+  ignore_errors: yes
   when: (ansible_distribution ~ '-' ~ ansible_distribution_major_version) in ldap_client_packages
 
-- name: Check sssd directory permissions
+- name: ldap_client | Check sssd directory permissions
   ansible.builtin.file:
     path: /etc/sssd
     state: directory
@@ -14,9 +24,11 @@
     group: root
     mode: '0700'
   become: true
-  notify: Restart sssd
+  # Ensure that the ldap credentials have been set
+  when: lookup('env', 'OPENLDAP_SSSD_DN') | length > 0
+  notify: ldap_client | Restart sssd
 
-- name: Configure SSS
+- name: ldap_client | Configure SSS
   ansible.builtin.template:
     src: sssd.conf.j2
     dest: /etc/sssd/sssd.conf
@@ -24,9 +36,9 @@
     group: root
     mode: '0600'
   become: true
-  notify: Restart sssd
+  notify: ldap_client | Restart sssd
 
-- name: Configure nsswitch.conf
+- name: ldap_client | Configure nsswitch.conf
   ansible.builtin.template:
     src: nsswitch.conf.j2
     dest: /etc/nsswitch.conf
@@ -34,9 +46,9 @@
     group: root
     mode: '0644'
   become: true
-  notify: Restart sssd
+  notify: ldap_client | Restart sssd
 
-- name: Ensure services enabled and started
+- name: ldap_client | Ensure services enabled and started
   ansible.builtin.systemd_service:
     name: "{{ ldap_client_systemd_service }}"
     enabled: true
@@ -45,3 +57,18 @@
   loop: "{{ ldap_client_services[ansible_distribution ~ '-' ~ ansible_distribution_major_version] }}"
   loop_control:
     loop_var: ldap_client_systemd_service
+
+- name: ldap_client | Configure authselect to use sssd authentication
+  block:
+    - name: ldap_client | Check if authselect profile is already set to sssd
+      command: authselect current
+      register: authselect_status
+      changed_when: false
+      failed_when: authselect_status.rc not in [0, 2]
+      become: true
+
+    - name: ldap_client | Apply authselect profile with sssd and compatible features if not already configured
+      command: authselect select -bf {{ ldap_client_authselect_profiles | join(' ') }}
+      when: "'Profile ID: sssd' not in authselect_status.stdout"
+      become: true
+

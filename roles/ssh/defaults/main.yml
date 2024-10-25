@@ -1,0 +1,36 @@
+---
+# If you want to change the port on a SELinux system, you have to tell
+# SELinux about this change.
+# semanage port -a -t ssh_port_t -p tcp #PORTNUMBER
+sshd_port: 22
+
+# Enable or disable if root can be access through ssh. This should be no, unless
+# there is a very good reason.
+sshd_permit_root_login: "no"
+
+# Change the methods of authentication.
+sshd_password_authentication: "yes"
+sshd_pubkey_authentication: "yes"
+sshd_challenge_response_authentication: "no"
+
+# Will whitelist users allowed to ssh into a host.
+# If empty, all users are allowed.
+sshd_allowed_users: []
+
+# Reduce the attach surface of SSH.
+sshd_x11_forwarding: "no"
+sshd_agent_forwarding: "no"
+sshd_tcp_forwarding: "no"
+
+# Set this to 'yes' to enable PAM authentication, account processing,
+# and session processing. If this is enabled, PAM authentication will
+# be allowed through the ChallengeResponseAuthentication and
+# PasswordAuthentication.  Depending on your PAM configuration,
+# PAM authentication via ChallengeResponseAuthentication may bypass
+# the setting of "PermitRootLogin without-password".
+# If you just want the PAM account and session checks to run without
+# PAM authentication, then enable this but set PasswordAuthentication
+# and ChallengeResponseAuthentication to 'no'.
+# WARNING: 'UsePAM no' is not supported in RHEL and may cause several
+# problems.
+sshd_use_pam: "yes"

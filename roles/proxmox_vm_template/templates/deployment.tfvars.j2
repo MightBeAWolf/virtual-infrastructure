@@ -22,9 +22,9 @@ pool = "{{ proxmox_vm_template_def.pool | default('') }}"
 
 ### HARDWARE ###
 disk = {
-  # Storage locations, "local", "local-lvm", "main-storage"
+  # Storage locations, "local", "local-lvm", "local"
   # Main storage is recommended.
-  storage = "{{ proxmox_vm_template_def.disk.location | default('shared-proxmox') }}"
+  storage = "{{ proxmox_vm_template_def.disk.location | default('wolftrack-nas') }}"
   # The size of the created disk. Accepts K for kibibytes, M for mebibytes, G
   # for gibibytes, T for tibibytes. When only a number is provided gibibytes
   # is assumed.

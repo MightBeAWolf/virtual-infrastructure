@@ -83,7 +83,7 @@
 
     - name: Clone the backup utility repository # noqa: latest
       ansible.builtin.git:
-        repo: https://gitea.sti.com/STI/backup-config.git
+        repo: https://gitea.local.wolfbox.dev/STI/backup-config.git
         dest: /backups
         depth: 1
       become: true

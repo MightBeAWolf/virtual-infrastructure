@@ -1,9 +1,0 @@
-services_snipeit_config:
-  timezone: America/Denver
-  locale: en-US
-  login_max_attempts: 5
-  login_lockout_duration: 300
-  login_autocomplete: false
-  secure_cookies: true
-  api_token_expiration_years: 40
-  allow_data_purge: false

@@ -28,6 +28,7 @@ ldap_client_packages:
     - sssd-ldap
     - openldap-clients
     - oddjob-mkhomedir
+    - sssd-tools
 
   Debian-12:
     - sssd

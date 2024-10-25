@@ -11,6 +11,16 @@
   register: configs
   become: true
 
+- name: Create sudo schema
+  ansible.builtin.copy:
+    src: "sudo.schema"
+    dest: "{{ services_openldap_main_storage }}/schema/sudo.schema"
+    owner: "root"
+    group: "root"
+    mode: '0444'
+  register: schema
+  become: true
+
 - name: "Ensure the openldap services have been started"
   ansible.builtin.systemd:
     name: "{{ services_openldap_service }}"
@@ -21,7 +31,7 @@
   loop_control:
     loop_var: services_openldap_service
   register: enable_systemd_service
-  when: not (configs.changed or ssl_key.changed or sign_cert.changed)
+  when: not (configs.changed or schema.changed or ssl_key.changed or sign_cert.changed)
   become: true
 
 - name: "Restart the openldap services"
@@ -34,7 +44,7 @@
   loop_control:
     loop_var: services_openldap_service
   register: restart_systemd_service
-  when: configs.changed or ssl_key.changed or sign_cert.changed
+  when: configs.changed or schema.changed or ssl_key.changed or sign_cert.changed
   become: true
 
 - name: Pause for 10 seconds for container to come up

@@ -55,7 +55,7 @@ The following credentials need to be created and managed in 1password
 - Copy the secret into a new 1Password API Credential
   - A `username` field should be present that includes the token id in the format <user>@pam!ansible
   - A `credential` field should be present storing the token secret
-  - A `hostname` field should be present storing the FQDN `intel-nuc-13-01.sti.com:8006`
+  - A `hostname` field should be present storing the FQDN `intel-nuc-13-01.local.wolfbox.dev:8006`
 - Adjust the secrets.env to match your 1Password item information. set the following variabled
   - PROXMOX_API_TOKEN_ID should map to the `username` in the 1password item.
   - PROXMOX_API_SECRET should map to the `credential` in the 1password item.
