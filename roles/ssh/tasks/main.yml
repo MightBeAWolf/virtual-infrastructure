@@ -7,11 +7,11 @@
     owner: root
     group: root
     mode: '0600'
-  notify: restart sshd
-  become: yes
+  notify: Restart sshd
+  become: true
 
 - name: Ensure sshd is enabled
   ansible.builtin.service:
     name: sshd
-    enabled: yes
-  become: yes
+    enabled: true
+  become: true

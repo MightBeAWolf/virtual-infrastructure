@@ -19,12 +19,12 @@
 
     - name: "build_image | Copy other build files | {{ podman_pod_image_spec.name }}"
       ansible.builtin.copy:
-        src: "{{ build_image_other_file }}"
-        dest: "{{ build_dir }}/{{ build_image_other_file | basename }}"
+        src: "{{ podman_pod_build_image_other_file }}"
+        dest: "{{ build_dir }}/{{ podman_pod_build_image_other_file | basename }}"
         mode: '0700'
       loop: "{{ podman_pod_build_files }}"
       loop_control:
-        loop_var: build_image_other_file
+        loop_var: podman_pod_build_image_other_file
       register: other_container_files
 
     - name: "build_image | Build the image in the create build directory {{ podman_pod_image_spec.name }}"

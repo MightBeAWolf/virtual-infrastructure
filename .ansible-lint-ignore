@@ -10,3 +10,4 @@ roles/podman_pod/vars/main.yml var-naming
 roles/services_gitea/tasks/main.yml no-changed-when
 roles/services_gitea/tasks/main.yml no-handler
 roles/services_snipeit/tasks/main.yml no-handler
+roles/ldap_client/tasks/post-processing/Fedora-40.yml no-changed-when

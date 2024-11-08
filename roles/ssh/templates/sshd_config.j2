@@ -16,7 +16,7 @@ Protocol 2
 # SELinux about this change.
 # semanage port -a -t ssh_port_t -p tcp #PORTNUMBER
 #
-Port {{ sshd_port }}
+Port {{ ssh_port }}
 #AddressFamily any
 #ListenAddress 0.0.0.0
 #ListenAddress ::
@@ -42,12 +42,12 @@ SyslogFacility AUTHPRIV
 # Authentication:
 
 #LoginGraceTime 2m
-PermitRootLogin {{ sshd_permit_root_login }}
+PermitRootLogin {{ ssh_permit_root_login }}
 #StrictModes yes
 #MaxAuthTries 6
 #MaxSessions 10
 
-PubkeyAuthentication {{ sshd_pubkey_authentication }}
+PubkeyAuthentication {{ ssh_pubkey_authentication }}
 
 # The default is to check both .ssh/authorized_keys and .ssh/authorized_keys2
 # but this is overridden so installations will only check .ssh/authorized_keys
@@ -67,12 +67,12 @@ AuthorizedKeysFile	.ssh/authorized_keys
 #IgnoreRhosts yes
 
 # To disable tunneled clear text passwords, change to no here!
-PasswordAuthentication {{ sshd_password_authentication }}
+PasswordAuthentication {{ ssh_password_authentication }}
 #PermitEmptyPasswords no
 
 # Change to no to disable s/key passwords
 #ChallengeResponseAuthentication yes
-ChallengeResponseAuthentication {{ sshd_challenge_response_authentication }}
+ChallengeResponseAuthentication {{ ssh_challenge_response_authentication }}
 
 # Kerberos options
 #KerberosAuthentication no
@@ -99,13 +99,13 @@ GSSAPICleanupCredentials no
 # and ChallengeResponseAuthentication to 'no'.
 # WARNING: 'UsePAM no' is not supported in RHEL and may cause several
 # problems.
-UsePAM {{ sshd_use_pam }}
+UsePAM {{ ssh_use_pam }}
 
-AllowAgentForwarding {{ sshd_agent_forwarding }}
-AllowTcpForwarding {{ sshd_tcp_forwarding }}
+AllowAgentForwarding {{ ssh_agent_forwarding }}
+AllowTcpForwarding {{ ssh_tcp_forwarding }}
 #GatewayPorts no
 
-X11Forwarding {{ sshd_x11_forwarding }}
+X11Forwarding {{ ssh_x11_forwarding }}
 #X11DisplayOffset 10
 #X11UseLocalhost yes
 #PermitTTY yes
@@ -140,8 +140,8 @@ AcceptEnv XMODIFIERS
 Subsystem	sftp	/usr/libexec/openssh/sftp-server
 
 # Allow specific users
-{% if sshd_allowed_users is defined and sshd_allowed_users|length > 0 %}
-AllowUsers {{ sshd_allowed_users|join(' ') }}
+{% if ssh_allowed_users is defined and ssh_allowed_users|length > 0 %}
+AllowUsers {{ ssh_allowed_users|join(' ') }}
 {% else %}
 #AllowUsers
 {% endif %}
@@ -154,4 +154,4 @@ AllowUsers {{ sshd_allowed_users|join(' ') }}
 #	ForceCommand cvs server
 
 # Include the additional configurations unique to a machine
-Include /etc/ssh/sshd_config.d/*.conf
+Include /etc/ssh/ssh_config.d/*.conf

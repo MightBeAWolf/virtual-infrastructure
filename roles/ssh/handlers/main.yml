@@ -1,8 +1,7 @@
 ---
 # handlers file for ssh
-- name: restart sshd
+- name: Restart sshd
   ansible.builtin.service:
     name: sshd
     state: restarted
-  become: yes
-
+  become: true

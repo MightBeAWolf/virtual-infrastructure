@@ -8,15 +8,15 @@
     fail_msg: "The client SSSD LDAP credentials are not set in the environment.
       Did you use the ./run.sh wrapper?"
 
-- name: ldap_client | Install LDAP Dependencies
+- name: Install LDAP Dependencies
   ansible.builtin.package:
     name: "{{ ldap_client_packages[ansible_distribution ~ '-' ~ ansible_distribution_major_version] }}"
     state: present
   become: true
-  ignore_errors: yes
+  ignore_errors: true
   when: (ansible_distribution ~ '-' ~ ansible_distribution_major_version) in ldap_client_packages
 
-- name: ldap_client | Check sssd directory permissions
+- name: Check sssd directory permissions
   ansible.builtin.file:
     path: /etc/sssd
     state: directory
@@ -26,9 +26,9 @@
   become: true
   # Ensure that the ldap credentials have been set
   when: lookup('env', 'OPENLDAP_SSSD_DN') | length > 0
-  notify: ldap_client | Restart sssd
+  notify: Restart sssd
 
-- name: ldap_client | Configure SSS
+- name: Configure SSS
   ansible.builtin.template:
     src: sssd.conf.j2
     dest: /etc/sssd/sssd.conf
@@ -36,9 +36,9 @@
     group: root
     mode: '0600'
   become: true
-  notify: ldap_client | Restart sssd
+  notify: Restart sssd
 
-- name: ldap_client | Configure nsswitch.conf
+- name: Configure nsswitch.conf
   ansible.builtin.template:
     src: nsswitch.conf.j2
     dest: /etc/nsswitch.conf
@@ -46,9 +46,9 @@
     group: root
     mode: '0644'
   become: true
-  notify: ldap_client | Restart sssd
+  notify: Restart sssd
 
-- name: ldap_client | Ensure services enabled and started
+- name: Ensure services enabled and started
   ansible.builtin.systemd_service:
     name: "{{ ldap_client_systemd_service }}"
     enabled: true
@@ -58,7 +58,6 @@
   loop_control:
     loop_var: ldap_client_systemd_service
 
-- name: ldap_client | Execute post-processing for distro
+- name: Execute post-processing for distro
   ansible.builtin.include_tasks: "post-processing/{{ ansible_distribution }}\
     -{{ ansible_distribution_major_version }}.yml"
-  
