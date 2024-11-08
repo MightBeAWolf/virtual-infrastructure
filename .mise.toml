@@ -1,0 +1,12 @@
+[tools]
+python = "3.13"
+node = "latest"
+"npm:ansible-language-server" = "latest"
+
+[env]
+_.python.venv = {path = ".venv", create = true }
+
+[tasks.lint]
+run = """
+.githooks/pre-commit
+"""
