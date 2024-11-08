@@ -66,15 +66,15 @@
 
     - name: Ensure the deploy user has a .ssh directory
       ansible.builtin.file:
-        path: "/home/{{ lookup('env', 'USER') }}/.ssh"
+        path: "/home/{{ ansible_user | default(lookup('env', 'USER')) }}/.ssh"
         state: directory
         mode: '0700'
-        owner: "{{ lookup('env', 'USER') }}"
-        group: "{{ lookup('env', 'USER') }}"
+        owner: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+        group: "{{ ansible_user | default(lookup('env', 'USER')) }}"
       become: true
 
     - name: Add control node's user public SSH key to authorized_keys
       ansible.posix.authorized_key:
-        user: "{{ lookup('env', 'USER') }}"
+        user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
         key: "{{ lookup('env', 'SSH_PUB_KEY') }}"
       become: true

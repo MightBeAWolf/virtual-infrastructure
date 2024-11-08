@@ -30,6 +30,13 @@ ldap_client_packages:
     - oddjob-mkhomedir
     - sssd-tools
 
+  Fedora-41:
+    - sssd
+    - sssd-ldap
+    - openldap-clients
+    - oddjob-mkhomedir
+    - sssd-tools
+
   Debian-12:
     - sssd
     - oddjob-mkhomedir
@@ -53,6 +60,10 @@ ldap_client_services:
     - sssd
 
   Fedora-40:
+    - sssd
+    - oddjobd
+
+  Fedora-41:
     - sssd
     - oddjobd
 

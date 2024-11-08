@@ -1,0 +1,14 @@
+- name: ldap_client | Configure authselect to use sssd authentication
+  block:
+    - name: ldap_client | Check if authselect profile is already set to sssd
+      command: authselect current
+      register: authselect_status
+      changed_when: false
+      failed_when: authselect_status.rc not in [0, 2]
+      become: true
+
+    - name: ldap_client | Apply authselect profile with sssd and compatible features if not already configured
+      command: authselect select -bf {{ ldap_client_authselect_profiles | join(' ') }}
+      when: "'Profile ID: sssd' not in authselect_status.stdout"
+      become: true
+
