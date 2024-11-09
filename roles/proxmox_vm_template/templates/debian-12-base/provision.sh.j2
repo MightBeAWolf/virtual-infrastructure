@@ -3,9 +3,9 @@
 # Generated with the organizational Ansible virtual-infrastructure project.
 # Do not modify by hand!
 [sssd]
-services = nss, pam, autofs
+services = nss, pam, autofs, sudo
 config_file_version = 2
-domains = production,development
+domains = production
 
 [nss]
 override_shell = /bin/bash
@@ -28,7 +28,7 @@ ldap_search_base = dc=wolfbox,dc=dev
 ldap_default_bind_dn = {{ lookup('env', 'OPENLDAP_SSSD_DN') }}
 ldap_default_authtok = {{ lookup('env', 'OPENLDAP_SSSD_DN_PASSWORD') }}
 ldap_user_search_base = ou=people,dc=wolfbox,dc=dev
-ldap_group_search_base = ou=group,dc=wolfbox,dc=dev
+ldap_group_search_base = ou=groups,dc=wolfbox,dc=dev
 ldap_sudo_search_base = ou=SUDOers,dc=wolfbox,dc=dev
 
 # SSL/TLS settings (if using)
@@ -59,6 +59,8 @@ sudo chmod 0600 /etc/sssd/sssd.conf
 
 # Configure nsswitch
 (cat | sudo tee /etc/nsswitch.conf > /dev/null) << 'HEREDOC'
+# Generated with the organizational Ansible virtual-infrastructure project.
+# Do not modify by hand!
 passwd:     files sss systemd
 shadow:     files sss systemd
 group:      files [SUCCESS=merge] sss [SUCCESS=merge] systemd
@@ -103,12 +105,6 @@ session	optional	pam_sss.so
 session required	pam_mkhomedir.so skel=/etc/skel/ umask=0022
 session	optional	pam_systemd.so 
 # end of pam-auth-update confi
-HEREDOC
-
-(cat | sudo tee /etc/sudoers.d/admin > /dev/null) << 'HEREDOC'
-# Add the admin group to sudo
-#Enable admin users to use sudo
-%admin	ALL=(ALL)	ALL
 HEREDOC
 
 # Setup auto logout for IDLE shells
