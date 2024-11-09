@@ -4,7 +4,11 @@ node = "latest"
 "npm:ansible-language-server" = "latest"
 
 [env]
+ANSIBLE_FORCE_COLOR = "True"
 _.python.venv = {path = ".venv", create = true }
+
+[tasks.playbook]
+run = ['./run.sh ansible-playbook -K ']
 
 [tasks.lint]
 run = """

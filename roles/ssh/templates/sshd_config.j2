@@ -154,4 +154,4 @@ AllowUsers {{ ssh_allowed_users|join(' ') }}
 #	ForceCommand cvs server
 
 # Include the additional configurations unique to a machine
-Include /etc/ssh/ssh_config.d/*.conf
+Include /etc/ssh/sshd_config.d/*.conf

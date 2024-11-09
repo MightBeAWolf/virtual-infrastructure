@@ -30,7 +30,7 @@ shift # Remove the first argument, leaving any additional arguments
 
 get_latest_python() {
   compgen -c python \
-    | egrep 'python[0-9\.]*$' \
+    | grep -E 'python[0-9\.]*$' \
     | sort -uV \
     | tail -n 1
 }

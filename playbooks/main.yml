@@ -41,7 +41,6 @@
   gather_facts: false
   roles:
     - proxmox_node_host
-    - ssh
   tags: ['setup', 'control_node']
 
 ###############################################################################
@@ -77,7 +76,7 @@
   roles:
     - ssh
     - ldap_client
-    - backup_source
+    # - backup_source
   tags: ['setup', 'terraform', 'vms']
 
 ###############################################################################

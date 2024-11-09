@@ -16,12 +16,17 @@
   ignore_errors: true
   when: (ansible_distribution ~ '-' ~ ansible_distribution_major_version) in ldap_client_packages
 
+- name: Get SSSD Service Info
+  ansible.builtin.systemd_service:
+    name: sssd
+  register: sssd_info
+
 - name: Check sssd directory permissions
   ansible.builtin.file:
     path: /etc/sssd
     state: directory
-    owner: root
-    group: root
+    owner: "{{ sssd_info.status.UID if sssd_info.status.UID != '[not set]' else 'root' }}"
+    group: "{{ sssd_info.status.GID if sssd_info.status.GID != '[not set]' else 'root' }}"
     mode: '0700'
   become: true
   # Ensure that the ldap credentials have been set
@@ -32,8 +37,8 @@
   ansible.builtin.template:
     src: sssd.conf.j2
     dest: /etc/sssd/sssd.conf
-    owner: root
-    group: root
+    owner: "{{ sssd_info.status.UID if sssd_info.status.UID != '[not set]' else 'root' }}"
+    group: "{{ sssd_info.status.GID if sssd_info.status.GID != '[not set]' else 'root' }}"
     mode: '0600'
   become: true
   notify: Restart sssd
