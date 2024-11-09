@@ -10,6 +10,9 @@ _.python.venv = {path = ".venv", create = true }
 [tasks.playbook]
 run = ['./run.sh ansible-playbook -K ']
 
+[tasks.deploy-keys]
+run = ['./run.sh ansible-playbook -k playbooks/deploy_ssh_keys.yml ']
+
 [tasks.lint]
 run = """
 .githooks/pre-commit
