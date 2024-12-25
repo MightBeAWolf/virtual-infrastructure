@@ -78,3 +78,36 @@
         user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
         key: "{{ lookup('env', 'SSH_PUB_KEY') }}"
       become: true
+
+- name: Configure Proxmox Firewall
+  delegate_to: "{{ target_host }}"
+  when: "'firewall' in guest_info"
+  block:
+    - name: Ensure firewall dir exists
+      ansible.builtin.file:
+        path: "/etc/pve/firewall"
+        owner: root
+        group: www-data
+        mode: "0640"
+        state: directory
+      become: true
+
+    - name: Ensure the existence of the firewall configuration file for the VM
+      ansible.builtin.file:
+        path: "/etc/pve/firewall/{{ guest_info.id }}.fw"
+        state: touch
+        owner: root
+        group: www-data
+        mode: '0640'
+        modification_time: preserve
+        access_time: preserve
+      become: true
+
+    - name: Render and copy firewall config
+      ansible.builtin.template:
+        src: "firewall_rules.fw.j2"
+        dest: "/etc/pve/firewall/{{ guest_info.id }}.fw"
+        owner: root
+        group: www-data
+        mode: '0640'
+      become: true

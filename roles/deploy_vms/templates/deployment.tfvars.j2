@@ -31,9 +31,10 @@ ipv4 = "{{ ansible_host }}"
 gateway = "{{ guest_info.gateway }}"
 cidr = "{{ guest_info.cidr | default('/24') }}"
 network = {
-    bridge = "{{ guest_info.network.bridge | default('vmbr0') }}"
-    model  = "{{ guest_info.network.model | default('virtio') }}"
-    tag    = {{ guest_info.network.tag | default('40') }}
+    bridge   = "{{ guest_info.network.bridge | default('vmbr0') }}"
+    model    = "{{ guest_info.network.model | default('virtio') }}"
+    tag      = {{ guest_info.network.tag | default(0) }}
+    firewall = {{ guest_info.network.firewall | default(true) | string | lower }}
 }
 
 ### HARDWARE ###

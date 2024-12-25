@@ -105,11 +105,13 @@ variable "network" {
     bridge = string
     model  = string
     tag = number
+    firewall = bool
   })
   default = {
     bridge = "vmbr0"
     model  = "virtio"
-    tag    = 40
+    tag    = 0
+    firewall = true
   }
 }
 
@@ -184,6 +186,8 @@ resource "proxmox_vm_qemu" "guest_vms" {
   network {
     bridge = var.network.bridge
     model = var.network.model
+    tag = var.network.tag
+    firewall = var.network.firewall
   }
 
   # Specify cloud init settings

@@ -1,0 +1,9 @@
+[OPTIONS]
+{% for key,value in guest_info.firewall.options.items() %}
+{{ key }}: {{ value }}
+{% endfor %}
+
+[RULES]
+{% for rule in guest_info.firewall.rules %}
+{{ rule }}
+{% endfor %}

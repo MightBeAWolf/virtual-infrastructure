@@ -89,6 +89,16 @@
   tags: ['services', 'openldap', 'ldap', 'backups']
   ignore_errors: true
 
+###############################################################################
+# Deploy the arr services
+###############################################################################
+- name: Deploy the Arr service
+  hosts: arr.local.wolfbox.dev
+  roles:
+    - private_internet_access
+  tags: ['services', 'arr', 'pia']
+  ignore_errors: true
+
 # ###############################################################################
 # # Deploy the gitea services
 # ###############################################################################

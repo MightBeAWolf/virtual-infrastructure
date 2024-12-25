@@ -1,0 +1,144 @@
+- name: Ensure the proxmox pia-vpn IPSet is defined
+  delegate_to: "{{ target_host }}"
+  ansible.builtin.blockinfile:
+    path: /etc/pve/firewall/cluster.fw
+    marker: "# {mark} PIA VPN ADDRESSES - Managed by Ansible"
+    insertafter: '^\[IPSET pia-vpn\]'
+    block: "{{ private_internet_access_servers }}"
+    backup: true
+    create: true
+    mode: '0640'
+    owner: root
+    group: www-data
+  become: true
+
+- name: Check if piactl is already installed
+  ansible.builtin.stat:
+    path: "{{ private_internet_access_bin_path }}"
+  register: piactl_stat
+
+- name: Setup the piauser
+  block:
+    - name: Create a system user for PIA installation
+      ansible.builtin.user:
+        name: piauser
+        password: '!'
+        password_lock: true
+        system: true
+        create_home: false
+        shell: /bin/false
+      register: user_creation
+      become: true
+
+    - name: Ensure sudoers.d directory exists (usually does by default)
+      ansible.builtin.file:
+        path: /etc/sudoers.d
+        state: directory
+        mode: '0750'
+      become: true
+
+- name: Download/Transfer/Execute pia installer
+  when: not piactl_stat.stat.exists
+  block:
+    - name: Add passwordless sudo entry for piauser for the installer
+      ansible.builtin.lineinfile:
+        path: "/etc/sudoers.d/{{ user_creation.name }}"
+        create: true
+        mode: '0440'
+        line: "{{ user_creation.name }} ALL=(root) NOPASSWD: ALL"
+        validate: '/usr/sbin/visudo -cf %s'
+      become: true
+
+    - name: Download PIA installer on control node
+      ansible.builtin.get_url:
+        url: "{{ private_internet_access_installer_url }}"
+        dest: "{{ private_internet_access_installer_local_path }}"
+        mode: '0770'
+      delegate_to: localhost
+      run_once: true
+
+    - name: Transfer PIA installer to remote host
+      ansible.builtin.copy:
+        src: "{{ private_internet_access_installer_local_path }}"
+        dest: "{{ private_internet_access_installer_remote_path }}"
+        mode: "0755"
+
+    - name: Install PIA using the installer
+      become: true
+      become_user: "{{ user_creation.name }}"
+      become_flags: '-E'
+      ansible.builtin.command:
+        argv:
+          - "{{ private_internet_access_installer_remote_path }}"
+          - "--accept"
+
+    - name: Remove PIA installer from remote host if used
+      ansible.builtin.file:
+        path: "{{ private_internet_access_installer_remote_path }}"
+        state: absent
+
+- name: Remove user privilages after installation
+  ansible.builtin.file:
+    state: absent
+    path: "/etc/sudoers.d/{{ user_creation.name }}"
+  become: true
+
+- name: Login to VPN
+  block:
+    - name: Check PIA login state
+      ansible.builtin.command:
+        argv:
+          - "/bin/bash"
+          - "-c"
+          - "piactl -u dump daemon-account | jq '.loggedIn'"
+      register: login_check
+      changed_when: false
+
+    - name: Create credentials file if login required
+      ansible.builtin.copy:
+        dest: "/tmp/pia_creds.txt"
+        mode: "0600"
+        content: |
+          {{ lookup('env', 'PRIVATE_INTERNET_ACCESS_USERNAME') }}
+          {{ lookup('env', 'PRIVATE_INTERNET_ACCESS_PASSWORD') }}
+      when: login_check.stdout.strip() != "true"
+
+    - name: Login with creds if login was required
+      ansible.builtin.command:
+        argv:
+          - "piactl"
+          - "login"
+          - "-t"
+          - "300"
+          - "/tmp/pia_creds.txt"
+      when: login_check.stdout.strip() != "true"
+
+  always:
+    - name: Remove temporary creds file
+      ansible.builtin.file:
+        path: "/tmp/pia_creds.txt"
+        state: absent
+
+- name: Set PIA VPN settings
+  pia_settings:
+    settings: "{{ private_internet_access_settings }}"
+
+- name: Connect to VPN
+  block:
+    - name: Check PIA connection state
+      ansible.builtin.command:
+        argv:
+          - "piactl"
+          - "get"
+          - "connectionstate"
+      register: connection_check
+      changed_when: false
+
+    - name: Enable PIA background and attempt connect if disconnected
+      ansible.builtin.command:
+        argv:
+          - "/bin/bash"
+          - "-c"
+          - "piactl background enable && piactl -t 300 connect"
+      register: connect_attempt
+      when: connection_check.stdout.strip() == "Disconnected"

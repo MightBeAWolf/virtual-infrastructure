@@ -23,7 +23,7 @@ auth_provider = ldap
 chpass_provider = ldap
 autofs_provider = ldap
 sudo_provider = ldap
-ldap_uri = ldaps://ldap.local.wolfbox.dev
+ldap_uri = ldaps://{{ hostvars['ldap.local.wolfbox.dev'].ansible_host }}
 ldap_search_base = dc=wolfbox,dc=dev
 ldap_default_bind_dn = {{ lookup('env', 'OPENLDAP_SSSD_DN') }}
 ldap_default_authtok = {{ lookup('env', 'OPENLDAP_SSSD_DN_PASSWORD') }}

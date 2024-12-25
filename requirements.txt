@@ -2,3 +2,6 @@ ansible
 ansible-lint
 
 ruff-lsp
+
+proxmoxer
+requests

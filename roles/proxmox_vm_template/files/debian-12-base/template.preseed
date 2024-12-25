@@ -52,7 +52,11 @@ d-i pkgsel/upgrade select full-upgrade
 popularity-contest popularity-contest/participate boolean false
 
 # Select the additional packages
-d-i pkgsel/include string sudo, unattended-upgrades, qemu-guest-agent, cloud-init, network-manager, sssd, oddjob-mkhomedir, libpam-sss, libnss-sss, sssd-tools, libsss-sudo, vim, podman, podman-compose, acl, curl, git, unzip
+d-i pkgsel/include string sudo, unattended-upgrades, qemu-guest-agent, \
+cloud-init, network-manager, sssd, oddjob-mkhomedir, libpam-sss, libnss-sss, \
+sssd-tools, libsss-sudo, vim, podman, podman-compose, acl, curl, git, unzip, \
+libxkbcommon-x11-0, libnl-3-200, libnl-route-3-200, iptables, psmisc, jq, \
+spice-vdagent
 
 # If not, you can put an entire recipe into the preconfiguration file in one
 # (logical) line. This example creates a small /boot partition, suitable
@@ -98,6 +102,7 @@ d-i preseed/late_command string \
 in-target sh -c 'echo "${var.guest_username} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${var.guest_username} && chmod 0440 /etc/sudoers.d/${var.guest_username}' ; \
 in-target systemctl enable cloud-init.service ; \
 in-target systemctl enable unattended-upgrades.service ; \
+in-target systemctl enable spice-vdagent ; \
 in-target systemctl enable NetworkManager.service
 
 
