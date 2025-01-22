@@ -35,6 +35,11 @@ all:
             tags: debian_12,service,infrastructure_as_code
             gateway: 192.168.40.21
             cidr: /21
+            compute:
+              cores: 2
+              memory: 12288
+            disk:
+              size: 30G
             firewall:
               options:
                 enable: 1
@@ -50,8 +55,19 @@ all:
                   -log nolog \
                   # Allow connections to the Pirvate Internet Access Servers"
                 - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
+                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 8080 -log nolog # Qbittorrent"
+                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 6881 -log nolog # Qbittorrent"
+                - "IN ACCEPT -source +dc/home-lab -p udp -dport 6881 -log nolog # Qbittorrent"
+                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 9696 -log nolog # Prowlarr"
+                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 7878 -log nolog # Radarr"
+                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 8989 -log nolog # Sonarr"
+                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 8787 -log nolog # Readarr"
+                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 5055 -log nolog # Overseerr"
+                - "OUT ACCEPT -dest +dc/home-lab -p tcp -dport 32400 -log nolog # Overseerr to Plex"
                 - "OUT DNS(DROP) -log nolog # Disable logging invalid DNS queires"
                 - "OUT ACCEPT -p tcp -dport 1337 -log nolog \
                   # Private Internet Access - Wireguard Connection"
                 - "OUT ACCEPT -p udp -dport 1337 -log nolog \
                   # Private Internet Access - Wireguard Connection"
+                - "OUT ACCEPT -dest +dc/home-lab -p tcp -dport 2049 -log nolog
+                  # Allow NFS mounts"

@@ -20,9 +20,11 @@
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ ssl_key.filename }}"
     common_name: '{{ inventory_hostname }}'
-    organization_name: Silicon Technologies Inc
+    organization_name: Wolfbox
     subject_alt_name:
+      - "DNS:{{ inventory_hostname }}"
       - "DNS:{{ ansible_host }}"
+      - "DNS:*.{{ inventory_hostname }}"
   register: csr
   changed_when: ssl_key.changed
   become: true

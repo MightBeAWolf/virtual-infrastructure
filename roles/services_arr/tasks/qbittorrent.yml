@@ -1,0 +1,22 @@
+---
+- name: Ensure that the Qbittorrent config directory exists
+  ansible.builtin.file:
+    path: "{{ podman_pod_storage }}/qbittorrent/_data/qBittorrent"
+    owner: "qbittorrent"
+    group: "qbittorrent"
+    mode: '0755'
+    state: directory
+  become: true
+
+- name: Create Qbittorrent Configuration
+  ansible.builtin.template:
+    src: "{{ services_arr_config_file }}"
+    dest: "{{ podman_pod_storage }}/qbittorrent/_data/qBittorrent/{{ services_arr_config_file | basename | regex_replace('\\.j2$') }}"
+    owner: "qbittorrent"
+    group: "qbittorrent"
+    mode: '0644'
+  with_fileglob: "{{ role_path }}/templates/qBittorrent/*.j2"
+  loop_control:
+    loop_var: services_arr_config_file
+  register: qbittorrent_configs
+  become: true

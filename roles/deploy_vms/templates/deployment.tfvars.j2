@@ -33,7 +33,7 @@ cidr = "{{ guest_info.cidr | default('/24') }}"
 network = {
     bridge   = "{{ guest_info.network.bridge | default('vmbr0') }}"
     model    = "{{ guest_info.network.model | default('virtio') }}"
-    tag      = {{ guest_info.network.tag | default(0) }}
+    tag      = {{ guest_info.network.tag | default(-1) }}
     firewall = {{ guest_info.network.firewall | default(true) | string | lower }}
 }
 

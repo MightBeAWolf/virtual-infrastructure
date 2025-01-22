@@ -9,7 +9,6 @@ private_internet_access_settings:
   automaticTransport: true
   automationEnabled: false
   blockIPv6: true
-  splitTunnelEnabled: false
   connectOnLaunch: true
   connectOnWake: true
   defaultRoute: true
@@ -20,6 +19,10 @@ private_internet_access_settings:
   method: "wireguard"
   protocol: "udp"
   updateChannel: "release"
+  splitTunnelEnabled: true
+  bypassSubnets: 
+    - mode: exclude
+      subnet: 192.168.2.1/24
 
 private_internet_access_servers: |
 

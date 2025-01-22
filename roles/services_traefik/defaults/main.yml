@@ -1,3 +1,0 @@
-services_traefik_config:
-  dashboard_enabled: true
-  force_https: true

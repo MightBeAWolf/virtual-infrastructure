@@ -1,0 +1,72 @@
+services_arr_container_name: arr
+
+services_arr_container_ports:
+  - "8080:8080"         # Qbittorrent
+  - "6881:6881"         # Qbittorrent
+  - "6881:6881/udp"     # Qbittorrent
+  - "9696:9696"         # Prowlarr
+  - "7878:7878"         # Radarr
+  - "8989:8989"         # Sonarr
+  - "8787:8787"         # Readarr
+  - "5055:5055"         # Overseerr
+
+services_arr_container_spec:
+  - name: "qbittorrent"
+    image_url: "lscr.io/linuxserver/qbittorrent"
+    uid_key: PUID
+    gid_key: PGID
+    envs:
+      TZ: America/Los_Angeles
+      WEBUI_PORT: 8080
+    volumes:
+      - name: "qbittorrent"
+        target: /config
+      - name: "fileserver"
+        remote: 192.168.40.24:/volume1/Data/Shared
+        target: /data
+
+  - name: "prowlarr"
+    image_url: "lscr.io/linuxserver/prowlarr"
+    uid_key: PUID
+    gid_key: PGID
+    envs:
+      TZ: America/Los_Angeles
+    volumes:
+      - name: "prowlarr"
+        target: /config
+
+  - name: "radarr"
+    image_url: "lscr.io/linuxserver/radarr"
+    uid_key: PUID
+    gid_key: PGID
+    envs:
+      TZ: America/Los_Angeles
+    volumes:
+      - name: "radarr_config"
+        target: /config
+      - name: "fileserver"
+        remote: 192.168.40.24:/volume1/Data/Shared
+        target: /data
+
+  - name: "sonarr"
+    image_url: "lscr.io/linuxserver/sonarr"
+    uid_key: PUID
+    gid_key: PGID
+    envs:
+      TZ: America/Los_Angeles
+    volumes:
+      - name: "sonarr_config"
+        target: /config
+      - name: "fileserver"
+        remote: 192.168.40.24:/volume1/Data/Shared
+        target: /data
+
+  - name: "overseerr"
+    image_url: "lscr.io/linuxserver/overseerr"
+    uid_key: PUID
+    gid_key: PGID
+    envs:
+      TZ: America/Los_Angeles
+    volumes:
+      - name: "overseerr"
+        target: /config

@@ -32,9 +32,28 @@
         name: "{{ podman_pod_named_volume.name }}"
         state: present
       become: true
-      loop: "{{ podman_pod_named_volumes }}"
+      loop: "{{ podman_pod_named_volumes | rejectattr('remote', 'defined') }}"
       loop_control:
         loop_var: podman_pod_named_volume
+
+    - name: Create any remote volumes
+      containers.podman.podman_volume:
+        name: "{{ podman_pod_remote_volume.name }}"
+        state: present
+        driver: local
+        options:
+          - "type=nfs"
+          - "o=nolock,hard,rw"
+          - "device={{ podman_pod_remote_volume.remote }}"
+      become: true
+      loop: >-
+        {{ podman_pod_named_volumes
+          | selectattr('remote', 'defined') 
+          | list
+          | unique(attribute='name')
+        }}
+      loop_control:
+        loop_var: podman_pod_remote_volume
 
 - name: Setup the individual containers
   ansible.builtin.include_tasks: container.yml

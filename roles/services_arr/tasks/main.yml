@@ -1,0 +1,22 @@
+
+- name: Configure qbittorrent
+  ansible.builtin.include_tasks: qbittorrent.yml
+
+- name: "Ensure the arr services have been started"
+  ansible.builtin.systemd:
+    name: "{{ services_arr_container.name }}_podman.service"
+    enabled: true
+    state: started
+  loop: "{{ services_arr_container_spec }}"
+  loop_control:
+    loop_var: services_arr_container
+  register: enable_systemd_service
+  # when: not (configs.changed or schema.changed or ssl_key.changed or sign_cert.changed)
+  become: true
+
+- name: Pause for 10 seconds for container to come up
+  ansible.builtin.pause:
+    seconds: 10
+  # when: enable_systemd_service.changed or restart_systemd_service.changed
+  when: enable_systemd_service.changed
+  

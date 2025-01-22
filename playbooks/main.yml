@@ -96,6 +96,7 @@
   hosts: arr.local.wolfbox.dev
   roles:
     - private_internet_access
+    - services_arr
   tags: ['services', 'arr', 'pia']
   ignore_errors: true
 

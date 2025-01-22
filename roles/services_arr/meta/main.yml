@@ -1,0 +1,5 @@
+---
+dependencies:
+  - role: podman_pod
+    vars:
+      podman_pod_name: "{{ services_arr_container_name }}_pod"

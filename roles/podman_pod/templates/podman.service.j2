@@ -18,6 +18,7 @@ RequiresMountsFor=%t/containers
 Environment=PODMAN_SYSTEMD_UNIT=%n
 Restart=on-failure
 TimeoutStopSec=70
+TimeoutStartSec=1800
 ExecStartPre=/bin/rm \
   -f %t/%n.ctr-id
 ExecStart=/usr/bin/podman run \
@@ -29,6 +30,9 @@ ExecStart=/usr/bin/podman run \
   --replace \
   --name={{ podman_pod_container.name }} \
   --pod={{ podman_pod_spec.name }} \
+{% for key,value in podman_pod_container.labels | default({})  | dict2items %}
+  --label "{{ key }}={{ value }}" \
+{% endfor %}
 {% for volume in podman_pod_container.volumes %}
   -v "{{ volume.src | default(volume.name) }}:{{ volume.target }}" \
 {% endfor %}
@@ -38,9 +42,16 @@ ExecStart=/usr/bin/podman run \
 {% for path in podman_pod_container.env_files | default([]) %}
   --env-file={{  path }} \
 {% endfor %}
-  --env='{{ podman_pod_contaienr.uid_key | default('UID') }}={{ container_user.uid }}' \
-  --env='{{ podman_pod_contaienr.uid_key | default('GID') }}={{ container_user.group }}' \
+  --env='{{ podman_pod_container.uid_key | default('UID') }}={{ container_user.uid }}' \
+  --env='{{ podman_pod_container.gid_key | default('GID') }}={{ container_user.group }}' \
+{% if 'args' in podman_pod_container %}
+  {{ podman_pod_container.image_url }}:{{ podman_pod_container.image_version | default('latest') }} \
+{% for arg in podman_pod_container.args %}
+  {{ arg }} \
+{% endfor %}
+{% else %}
   {{ podman_pod_container.image_url }}:{{ podman_pod_container.image_version | default('latest') }}
+{% endif %}
 
 ExecStop=/usr/bin/podman stop \
   --ignore -t 10 \
