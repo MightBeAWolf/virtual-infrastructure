@@ -67,16 +67,15 @@
     - deploy_vms
   tags: ['setup', 'terraform', 'vms']
 
-# ###############################################################################
-# # Deploy the virtual machine configurations
-# ###############################################################################
+###############################################################################
+# Deploy the virtual machine configurations
+###############################################################################
 - name: Deploy Virtual Machine's Configurations
   hosts: virtual_machines
   become: false
   roles:
     - ssh
     - ldap_client
-    # - backup_source
   tags: ['setup', 'terraform', 'vms']
 
 ###############################################################################
@@ -86,7 +85,7 @@
   hosts: ldap.local.wolfbox.dev
   roles:
     - services_openldap
-  tags: ['services', 'openldap', 'ldap', 'backups']
+  tags: ['services', 'openldap', 'ldap']
   ignore_errors: true
 
 ###############################################################################
@@ -99,12 +98,3 @@
     - services_arr
   tags: ['services', 'arr', 'pia']
   ignore_errors: true
-
-# ###############################################################################
-# # Deploy the gitea services
-# ###############################################################################
-# - name: Deploy the Gitea service
-#   hosts: gitea.local.wolfbox.dev
-#   roles:
-#     - services_gitea
-#   tags: ['services', 'gitea', 'backups']
