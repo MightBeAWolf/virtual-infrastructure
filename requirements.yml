@@ -1,4 +1,7 @@
 ---
+- name: ldap_client
+  src: https://github.com/MightBeAWolf/ansible_role_ldap_client
+  version: main
 # To install the roles and collections specified in the requirements.yml file, you
 # would use the following command:
 # ansible-galaxy install -r requirements.yml
