@@ -48,7 +48,7 @@
       become: true
       loop: >-
         {{ podman_pod_named_volumes
-          | selectattr('remote', 'defined') 
+          | selectattr('remote', 'defined')
           | list
           | unique(attribute='name')
         }}

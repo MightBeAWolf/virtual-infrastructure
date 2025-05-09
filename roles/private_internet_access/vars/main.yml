@@ -20,7 +20,7 @@ private_internet_access_settings:
   protocol: "udp"
   updateChannel: "release"
   splitTunnelEnabled: true
-  bypassSubnets: 
+  bypassSubnets:
     - mode: exclude
       subnet: 192.168.2.1/24
 

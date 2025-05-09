@@ -1,4 +1,4 @@
-
+---
 - name: Configure qbittorrent
   ansible.builtin.include_tasks: qbittorrent.yml
 
@@ -19,4 +19,3 @@
     seconds: 10
   # when: enable_systemd_service.changed or restart_systemd_service.changed
   when: enable_systemd_service.changed
-  

@@ -39,7 +39,7 @@ all:
               cores: 2
               memory: 12288
             disk:
-              size: 30G
+              size: 35G
             firewall:
               options:
                 enable: 1
