@@ -1,4 +1,5 @@
 .venv
 *.pyc
 
-./roles/ldap_client
+roles/ldap_client
+roles/podman_pod
