@@ -1,0 +1,94 @@
+---
+- ansible.builtin.include_role:
+    name: podman_pod
+  vars:
+    podman_pod_build_images: []
+    podman_pod_spec: 
+      name:       "{{ services_gitea_container_name }}_pod"
+      ports:      "{{ services_gitea_container_ports }}"
+      containers: "{{ services_gitea_container_spec }}"
+
+
+- name: Create the git user
+  ansible.builtin.user:
+    name: git
+    state: present
+    generate_ssh_key: true
+    ssh_key_file: .ssh/id_ed25519
+    ssh_key_type: ed25519
+  register: git_user
+  become: true
+
+- name: Ensure the container host can ssh into the container
+  ansible.posix.authorized_key:
+    user: git
+    state: present
+    key: "{{ git_user.ssh_public_key }}"
+  become: true
+
+- name: Create the gitea ssh command that will pass the ssh traffic
+  ansible.builtin.template:
+    src: gitea-ssh-wrapper.j2
+    dest: /usr/local/bin/gitea
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: "Ensure the gitea services have been started"
+  ansible.builtin.systemd:
+    name: "{{ services_gitea_service }}"
+    enabled: true
+    state: started
+  loop:
+    - "{{ services_gitea_container_name }}_db_podman.service"
+    - "{{ services_gitea_container_name }}_podman.service"
+  loop_control:
+    loop_var: services_gitea_service
+  register: enable_systemd_service
+  become: true
+
+- name: Pause for 10 seconds for container to come up
+  ansible.builtin.pause:
+    seconds: 10
+  when: enable_systemd_service.changed
+
+- name: Gitea Configs
+  block:
+    - name: Create Gitea Preinstall Configuration
+      ansible.builtin.template:
+        src: app.ini.j2
+        dest: "{{ services_gitea_main_storage }}/gitea/conf/app.preinstall.ini"
+        owner: "{{ services_gitea_user }}"
+        group: "{{ services_gitea_user }}"
+        mode: '0600'
+      register: gitea_preinstall_conf
+      notify: Restart Gitea service
+      become: true
+
+    - name: Create Gitea Configuration
+      ansible.builtin.copy:
+        remote_src: true
+        src: "{{ services_gitea_main_storage }}/gitea/conf/app.preinstall.ini"
+        dest: "{{ services_gitea_main_storage }}/gitea/conf/app.ini"
+        owner: "{{ services_gitea_user }}"
+        group: "{{ services_gitea_user }}"
+        mode: '0600'
+      when: gitea_preinstall_conf.changed
+      register: gitea_app_config
+      notify: Restart Gitea service
+      become: true
+
+    - name: Generate Gitea Secrets
+      containers.podman.podman_container_exec:
+        name: gitea
+        command: >
+          bash -c
+          'gitea generate secret INTERNAL_TOKEN &&
+          gitea generate secret JWT_SECRET &&
+          gitea generate secret SECRET_KEY'
+        user: "{{ services_gitea_user }}"
+      when: gitea_app_config.changed
+      notify: Restart Gitea service
+      become: true
+

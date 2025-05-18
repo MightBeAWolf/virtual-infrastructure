@@ -98,3 +98,14 @@
     - services_arr
   tags: ['services', 'arr', 'pia']
   ignore_errors: true
+
+###############################################################################
+# Deploy the gitea services
+###############################################################################
+- name: Deploy the Gitea service
+  hosts: gitea.local.wolfbox.dev
+  roles:
+    - services_gitea
+  tags: ['services', 'gitea']
+  ignore_errors: true
+

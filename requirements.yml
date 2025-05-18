@@ -9,6 +9,9 @@ roles:
   - name: ldap_client
     src: https://github.com/MightBeAWolf/ansible_role_ldap_client
     version: main
+  - name: ssl_certbot_cloudflare
+    src: https://github.com/MightBeAWolf/ansible_role_ssl_certbot_cloudflare
+    version: main
 
 collections:
   - name: community.general
