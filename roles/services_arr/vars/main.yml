@@ -10,6 +10,8 @@ services_arr_container_ports:
   - "8787:8787"         # Readarr
   - "5055:5055"         # Overseerr
 
+services_arr_volume_storage: "/var/lib/containers/storage/volumes"
+
 services_arr_container_spec:
   - name: "qbittorrent"
     image_url: "lscr.io/linuxserver/qbittorrent"
@@ -25,7 +27,7 @@ services_arr_container_spec:
         remote: 192.168.40.24:/volume1/Data/Shared
         target: /data
       - name: certbot
-        target: /data/certbot:ro
+        target: /srv/certbot:ro
 
   - name: "prowlarr"
     image_url: "lscr.io/linuxserver/prowlarr"
@@ -37,7 +39,7 @@ services_arr_container_spec:
       - name: "prowlarr"
         target: /config
       - name: certbot
-        target: /data/certbot:ro
+        target: /srv/certbot:ro
 
   - name: "radarr"
     image_url: "lscr.io/linuxserver/radarr"
@@ -52,7 +54,7 @@ services_arr_container_spec:
         remote: 192.168.40.24:/volume1/Data/Shared
         target: /data
       - name: certbot
-        target: /data/certbot:ro
+        target: /srv/certbot:ro
 
   - name: "sonarr"
     image_url: "lscr.io/linuxserver/sonarr"
@@ -67,7 +69,7 @@ services_arr_container_spec:
         remote: 192.168.40.24:/volume1/Data/Shared
         target: /data
       - name: certbot
-        target: /data/certbot:ro
+        target: /srv/certbot:ro
 
   - name: "overseerr"
     image_url: "lscr.io/linuxserver/overseerr"
@@ -79,4 +81,4 @@ services_arr_container_spec:
       - name: "overseerr"
         target: /config
       - name: certbot
-        target: /data/certbot:ro
+        target: /srv/certbot:ro
