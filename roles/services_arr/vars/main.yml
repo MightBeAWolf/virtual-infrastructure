@@ -24,6 +24,8 @@ services_arr_container_spec:
       - name: "fileserver"
         remote: 192.168.40.24:/volume1/Data/Shared
         target: /data
+      - name: certbot
+        target: /data/certbot:ro
 
   - name: "prowlarr"
     image_url: "lscr.io/linuxserver/prowlarr"
@@ -34,6 +36,8 @@ services_arr_container_spec:
     volumes:
       - name: "prowlarr"
         target: /config
+      - name: certbot
+        target: /data/certbot:ro
 
   - name: "radarr"
     image_url: "lscr.io/linuxserver/radarr"
@@ -47,6 +51,8 @@ services_arr_container_spec:
       - name: "fileserver"
         remote: 192.168.40.24:/volume1/Data/Shared
         target: /data
+      - name: certbot
+        target: /data/certbot:ro
 
   - name: "sonarr"
     image_url: "lscr.io/linuxserver/sonarr"
@@ -60,6 +66,8 @@ services_arr_container_spec:
       - name: "fileserver"
         remote: 192.168.40.24:/volume1/Data/Shared
         target: /data
+      - name: certbot
+        target: /data/certbot:ro
 
   - name: "overseerr"
     image_url: "lscr.io/linuxserver/overseerr"
@@ -70,3 +78,5 @@ services_arr_container_spec:
     volumes:
       - name: "overseerr"
         target: /config
+      - name: certbot
+        target: /data/certbot:ro

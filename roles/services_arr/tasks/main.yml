@@ -1,4 +1,13 @@
 ---
+- ansible.builtin.include_role:
+    name: podman_pod
+  vars:
+    podman_pod_build_images: []
+    podman_pod_spec: 
+      name:       "{{ services_arr_container_name }}_pod"
+      ports:      "{{ services_arr_container_ports }}"
+      containers: "{{ services_arr_container_spec }}"
+
 - name: Configure qbittorrent
   ansible.builtin.include_tasks: qbittorrent.yml
 
