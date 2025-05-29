@@ -24,6 +24,14 @@ all:
             tags: debian_12,service,infrastructure_as_code
             gateway: 192.168.40.21
             cidr: /21
+          firewall:
+            options:
+              enable: 1
+              log_level_in: info
+            rules:
+              - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
+              - "IN LDAPS(ACCEPT) -source +dc/home-lab -log nolog"
+
 
         arr.local.wolfbox.dev:
           ansible_host: 192.168.41.8
@@ -89,4 +97,3 @@ all:
             rules:
               - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
               - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"
-

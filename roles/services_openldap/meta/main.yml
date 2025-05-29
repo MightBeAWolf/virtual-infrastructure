@@ -1,14 +1,3 @@
 ---
 dependencies:
-  - role: podman_pod
-    vars:
-      podman_pod_name: "{{ services_openldap_container_name }}_pod"
-      podman_pod_build_files:
-        - sudo.schema
-  - role: self_signed_ssl
-    vars:
-      self_signed_ssl_certificate_owner: "{{ services_openldap_container_name }}"
-      self_signed_ssl_certificate_group: "{{ services_openldap_container_name }}"
-      self_signed_ssl_certificate_dir: "{{ services_openldap_main_storage }}/certs"
-      self_signed_ssl_key_file: ldap_server.key
-      self_signed_ssl_certificate_file: ldap_server.crt
+  - role: ssl_certbot_cloudflare
