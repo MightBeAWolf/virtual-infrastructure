@@ -86,7 +86,6 @@
   roles:
     - services_openldap
   tags: ['services', 'openldap', 'ldap']
-  ignore_errors: true
 
 ###############################################################################
 # Deploy the arr services
@@ -97,7 +96,6 @@
     - private_internet_access
     - services_arr
   tags: ['services', 'arr', 'pia']
-  ignore_errors: true
 
 ###############################################################################
 # Deploy the gitea services
@@ -107,5 +105,23 @@
   roles:
     - services_gitea
   tags: ['services', 'gitea']
-  ignore_errors: true
+
+###############################################################################
+# Deploy the n8n services
+###############################################################################
+- name: Deploy the n8n service
+  hosts: n8n.local.wolfbox.dev
+  roles:
+    - services_n8n
+  tags: ['services', 'ai']
+
+
+###############################################################################
+# Deploy the n8n services
+###############################################################################
+- name: Deploy the openwebui service
+  hosts: openwebui.local.wolfbox.dev
+  roles:
+    - services_openwebui
+  tags: ['services', 'ai']
 

@@ -1,0 +1,43 @@
+---
+services_openwebui_container_name: openwebui
+
+services_openwebui_container_ports:
+  - 443:443
+  - 80:80
+  - "127.0.0.1:8080:8080"
+
+services_openwebui_volumes_dir: "/var/lib/containers/storage/volumes/"
+
+services_openwebui_container_spec:
+  - name: "{{ services_openwebui_container_name }}"
+    image_url: ghcr.io/open-webui/open-webui
+    image_version: "main"
+    envs:
+      WEBUI_URL: "https://{{ inventory_hostname }}"
+    volumes:
+      - name: "{{ services_openwebui_container_name }}"
+        target: /app/backend/data
+      - src: /etc/timezone
+        target: /etc/timezone:ro
+      - src: /etc/localtime
+        target: /etc/localtime:ro
+
+  - name: traefik
+    image_url: docker.io/traefik
+    image_version: latest
+    args:
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.file.filename=/etc/traefik/config/dynamic_conf.yml"
+      - "--providers.file.watch=true"
+      - "--api.dashboard=true"
+      - "--log.level=INFO"
+    volumes:
+      - name: traefik_config
+        target: /etc/traefik/config:ro
+      - name: certbot
+        target: /etc/traefik/ssl:ro
+      - src: /etc/timezone
+        target: /etc/timezone:ro
+      - src: /etc/localtime
+        target: /etc/localtime:ro
