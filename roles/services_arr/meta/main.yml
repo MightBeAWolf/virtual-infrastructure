@@ -1,5 +1,10 @@
 ---
 dependencies:
-  - role: podman_pod
+  - role: ssl_certbot_cloudflare
     vars:
-      podman_pod_name: "{{ services_arr_container_name }}_pod"
+      ssl_certbot_cloudflare_additional_domains:
+        - qbittorrent.local.wolfbox.dev
+        - prowlarr.local.wolfbox.dev
+        - radarr.local.wolfbox.dev
+        - sonarr.local.wolfbox.dev
+        - overseerr.local.wolfbox.dev

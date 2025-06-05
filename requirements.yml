@@ -2,5 +2,16 @@
 # To install the roles and collections specified in the requirements.yml file, you
 # would use the following command:
 # ansible-galaxy install -r requirements.yml
+roles:
+  - name: podman_pod
+    src: https://github.com/MightBeAWolf/ansible_role_podman_pod
+    version: main
+  - name: ldap_client
+    src: https://github.com/MightBeAWolf/ansible_role_ldap_client
+    version: main
+  - name: ssl_certbot_cloudflare
+    src: https://github.com/MightBeAWolf/ansible_role_ssl_certbot_cloudflare
+    version: main
+
 collections:
   - name: community.general

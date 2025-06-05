@@ -1,0 +1,35 @@
+---
+services_n8n_container_name: n8n
+
+services_n8n_container_ports:
+  - 443:5678
+
+services_n8n_volumes_dir: "/var/lib/containers/storage/volumes/"
+
+services_n8n_container_spec:
+  - name: "{{ services_n8n_container_name }}"
+    image_url: docker.n8n.io/n8nio/n8n
+    image_version: "latest"
+    envs:
+      # Configure HTTPS/SSL
+      N8N_PROTOCOL: https
+      N8N_SSL_CERT: /data/certbot/live/{{ inventory_hostname }}/fullchain.pem
+      N8N_SSL_KEY: /data/certbot/live/{{ inventory_hostname }}/privkey.pem
+      # Configure Deployement
+      N8N_EDITOR_BASE_URL: "https://{{ inventory_hostname }}"
+      N8N_HOST: "{{ inventory_hostname }}"
+      # N8N_PORT: ""
+      N8N_TEMPLATES_ENABLED: true
+      # Share Information
+      N8N_DIAGNOSTICS_ENABLED: false
+      N8N_HIRING_BANNER_ENABLED: false
+      
+    volumes:
+      - name: "{{ services_n8n_container_name }}"
+        target: /home/node/.n8n
+      - name: certbot
+        target: /data/certbot:ro
+      - src: /etc/timezone
+        target: /etc/timezone:ro
+      - src: /etc/localtime
+        target: /etc/localtime:ro

@@ -24,6 +24,14 @@ all:
             tags: debian_12,service,infrastructure_as_code
             gateway: 192.168.40.21
             cidr: /21
+          firewall:
+            options:
+              enable: 1
+              log_level_in: info
+            rules:
+              - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
+              - "IN LDAPS(ACCEPT) -source +dc/home-lab -log nolog"
+
 
         arr.local.wolfbox.dev:
           ansible_host: 192.168.41.8
@@ -71,3 +79,57 @@ all:
                   # Private Internet Access - Wireguard Connection"
                 - "OUT ACCEPT -dest +dc/home-lab -p tcp -dport 2049 -log nolog
                   # Allow NFS mounts"
+
+        gitea.local.wolfbox.dev:
+          ansible_host: 192.168.41.9
+          target_host: pve.local.wolfbox.dev
+          from_template: debian-12-base
+          guest_info:
+            id: 503
+            desc: The virtualized Gitea host
+            tags: debian_12,service,infrastructure_as_code
+            gateway: 192.168.40.21
+            cidr: /21
+          firewall:
+            options:
+              enable: 1
+              log_level_in: info
+            rules:
+              - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
+              - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"
+
+        n8n.local.wolfbox.dev:
+          ansible_host: 192.168.41.10
+          target_host: pve.local.wolfbox.dev
+          from_template: debian-12-base
+          guest_info:
+            id: 504
+            desc: The virtualized n8n services host
+            tags: debian_12,service,infrastructure_as_code
+            gateway: 192.168.40.21
+            cidr: /21
+          firewall:
+            options:
+              enable: 1
+              log_level_in: info
+            rules:
+              - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
+              - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"
+
+        openwebui.local.wolfbox.dev:
+          ansible_host: 192.168.41.11
+          target_host: pve.local.wolfbox.dev
+          from_template: debian-12-base
+          guest_info:
+            id: 505
+            desc: The virtualized open-webui services host
+            tags: debian_12,service,infrastructure_as_code
+            gateway: 192.168.40.21
+            cidr: /21
+          firewall:
+            options:
+              enable: 1
+              log_level_in: info
+            rules:
+              - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
+              - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"

@@ -1,0 +1,48 @@
+services_gitea_container_name: gitea
+services_gitea_user: git
+services_gitea_database_name: "{{ services_gitea_container_name }}"
+
+services_gitea_container_ports:
+  - "443:3000"
+  - "127.0.0.1:2222:22"
+
+services_gitea_main_storage: "/var/lib/containers/storage/volumes/{{ services_gitea_container_name }}/_data"
+
+services_gitea_container_spec:
+  - name: "{{ services_gitea_container_name }}"
+    image_url: docker.io/gitea/gitea
+    image_version: "latest"
+    user: "{{ services_gitea_user }}"
+    volumes:
+      - name: "{{ services_gitea_container_name }}"
+        target: /data
+      - name: certbot
+        target: /data/certbot:ro
+      - src: /home/git/.ssh
+        target: /data/git/.ssh
+      - src: /etc/timezone
+        target: /etc/timezone:ro
+      - src: /etc/localtime
+        target: /etc/localtime:ro
+    uid_key: USER_UID
+    gid_key: USER_GID
+    systemd:
+      requires:
+        - "{{ services_gitea_container_name }}_db_podman.service"
+      after:
+        - "{{ services_gitea_container_name }}_db_podman.service"
+
+  - name: "{{ services_gitea_container_name }}_db"
+    image_url: docker.io/library/postgres
+    image_version: "latest"
+    volumes:
+      - name: "{{ services_gitea_container_name }}_db"
+        target: /var/lib/postgresql/data
+      - src: /etc/timezone
+        target: /etc/timezone:ro
+      - src: /etc/localtime
+        target: /etc/localtime:ro
+    envs:
+      POSTGRES_USER:     "gitea"
+      POSTGRES_PASSWORD: "{{ lookup('env', 'GITEA_DB_PASSWORD') }}"
+      POSTGRES_DB:       "{{ services_gitea_database_name }}"

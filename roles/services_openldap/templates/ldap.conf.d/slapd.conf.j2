@@ -13,10 +13,10 @@ include   /etc/openldap/schema/sudo.schema
 #######################################################################
 # Add TLS/SSL information
 #######################################################################
-TLSCertificateFile /etc/openldap/certs/ldap_server.crt
-TLSCertificateKeyFile /etc/openldap/certs/ldap_server.key
+TLSCertificateFile /srv/certbot/live/{{ inventory_hostname }}/fullchain.pem
+TLSCertificateKeyFile /srv/certbot/live/{{ inventory_hostname }}/privkey.pem
 # Only required if using a CA-signed certificate
-# TLSCACertificateFile /etc/openldap/certs/ldap_server.crt
+# TLSCACertificateFile /srv/certbot/live/{{ inventory_hostname }}/fullchain.pem
 
 # Do not enable referrals until AFTER you have a working directory
 # service AND an understanding of referrals.

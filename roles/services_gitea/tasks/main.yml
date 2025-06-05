@@ -1,28 +1,18 @@
-- name: Ensure dependencies are installed
-  ansible.builtin.package:
-    name:
-      - podman
-      - fuse-overlayfs
-      - acl
-      - unzip # Used when backing up gitea
-    state: present
-  become: true
+---
+- ansible.builtin.include_role:
+    name: podman_pod
+  vars:
+    podman_pod_build_images: []
+    podman_pod_spec: 
+      name:       "{{ services_gitea_container_name }}_pod"
+      ports:      "{{ services_gitea_container_ports }}"
+      containers: "{{ services_gitea_container_spec }}"
 
-- name: Create the git user's group
-  ansible.builtin.user:
-    name: git
-    system: true
-    state: present
-  become: true
 
 - name: Create the git user
   ansible.builtin.user:
     name: git
-    group: git
-    system: true
     state: present
-    password_lock: true
-    password: '!' # Sets the password as a locked password
     generate_ssh_key: true
     ssh_key_file: .ssh/id_ed25519
     ssh_key_type: ed25519
@@ -38,171 +28,55 @@
 
 - name: Create the gitea ssh command that will pass the ssh traffic
   ansible.builtin.template:
-    src: gitea.j2
+    src: gitea-ssh-wrapper.j2
     dest: /usr/local/bin/gitea
     owner: root
     group: root
     mode: '0755'
   become: true
 
-- name: Create directories for persistent data
-  ansible.builtin.file:
-    path: "{{ services_gitea_vol_src }}"
-    state: directory
-    owner: "{{ git_user.name }}"
-    group: "{{ git_user.group }}"
-    mode: '0750'
-  become: true
-  loop:
-    - /opt/gitea
-    - /var/gitea/db
-  loop_control:
-    loop_var: services_gitea_vol_src
-
-- name: Create the Gitea pod
-  containers.podman.podman_pod:
-    name: gitea-pod
-    state: started
-    ports:
-      - "443:3000"
-      - "127.0.0.1:2222:22"
-      - "127.0.0.1:3306:3306"
-  become: true
-
-- name: Create Gitea Database systemd service file
-  ansible.builtin.template:
-    src: gitea-db-podman.service.j2
-    dest: /etc/systemd/system/gitea-db-podman.service
-    owner: root
-    group: root
-    mode: '0600'
-  register: gitea_db_systemd_unit
-  become: true
-
-- name: Restart the gitea-db-podman.service if there has been a config change
+- name: "Ensure the gitea services have been started"
   ansible.builtin.systemd:
-    name: gitea-db-podman.service
-    state: restarted
-    daemon_reload: true
-  when: gitea_db_systemd_unit.changed
-  become: true
-
-# This should always be checked, where as the above restart is only needed
-# If the unit needs to be reloaded
-- name: Ensure the gitea-db-podman.service has been started
-  ansible.builtin.systemd:
-    name: gitea-db-podman.service
+    name: "{{ services_gitea_service }}"
     enabled: true
     state: started
+  loop:
+    - "{{ services_gitea_container_name }}_db_podman.service"
+    - "{{ services_gitea_container_name }}_podman.service"
+  loop_control:
+    loop_var: services_gitea_service
+  register: enable_systemd_service
   become: true
 
 - name: Pause for 10 seconds for container to come up
   ansible.builtin.pause:
     seconds: 10
-  when: gitea_db_systemd_unit.changed
+  when: enable_systemd_service.changed
 
-- name: Initialize the Gitea DB Scheme
+- name: Gitea Configs
   block:
-    - name: Install database modification requirements
-      ansible.builtin.package:
-        name:
-          - mariadb-server
-          - python3-pymysql
-        state: present
-      become: true
-
-    - name: Define the database within the mariadb server
-      community.mysql.mysql_db:
-        name: gitea
-        state: present
-        login_host: 127.0.0.1
-        login_user: "{{ lookup('env', 'GITEA_DB_USERNAME') }}"
-        login_password: "{{ lookup('env', 'GITEA_DB_PASSWORD') }}"
-
-    - name: Ensure that there is no mariadb service created during the install
-      ansible.builtin.systemd_service:
-        name: mariadb.service
-        enabled: false
-        state: stopped
-      become: true
-
-- name: Create Gitea Podman systemd service file
-  ansible.builtin.template:
-    src: gitea-podman.service.j2
-    dest: /etc/systemd/system/gitea-podman.service
-    owner: root
-    group: root
-    mode: '0600'
-  register: gitea_systemd_unit
-  become: true
-
-- name: Restart the gitea-podman.service if there has been a config change
-  ansible.builtin.systemd:
-    name: gitea-podman.service
-    enabled: true
-    state: restarted
-    daemon_reload: true
-  when: gitea_systemd_unit.changed
-  become: true
-
-# This should always be checked, where as the above restart is only needed
-# If the unit needs to be reloaded
-- name: Ensure the gitea-podman.service has been started
-  ansible.builtin.systemd:
-    name: gitea-podman.service
-    enabled: true
-    state: started
-  become: true
-
-- name: Pause for 15 seconds for container to come up
-  ansible.builtin.pause:
-    seconds: 15
-  when: gitea_systemd_unit.changed
-
-- name: Check for Gitea's Certs and generate if needed
-  block:
-    - name: Check if the certificate exists.changed
-      ansible.builtin.stat:
-        path: /opt/gitea/gitea/cert.pem
-      register: cert_check
-      become: true
-      become_user: "{{ git_user.name }}"
-
-    - name: Generate Gitea HTTPS Certificates
-      containers.podman.podman_container_exec:
-        name: gitea
-        command: "gitea cert --host {{ ansible_host }}"
-        workdir: /data/gitea
-        user: git
-      become: true
-      when: not cert_check.stat.exists
-      notify: Restart Gitea service
-
-- name: Create Gitea Configuration
-  block:
-    # Because we'll add secrets to our ini file later, We'll only want to
-    # compare our template against a configuration without later modifications.
-    # We'll call this pre-modified ini the preinstall ini
     - name: Create Gitea Preinstall Configuration
       ansible.builtin.template:
         src: app.ini.j2
-        dest: /opt/gitea/gitea/conf/app.preinstall.ini
-        owner: "{{ git_user.name }}"
-        group: "{{ git_user.group }}"
+        dest: "{{ services_gitea_main_storage }}/gitea/conf/app.preinstall.ini"
+        owner: "{{ services_gitea_user }}"
+        group: "{{ services_gitea_user }}"
         mode: '0600'
       register: gitea_preinstall_conf
+      notify: Restart Gitea service
       become: true
 
     - name: Create Gitea Configuration
       ansible.builtin.copy:
         remote_src: true
-        src: /opt/gitea/gitea/conf/app.preinstall.ini
-        dest: /opt/gitea/gitea/conf/app.ini
-        owner: "{{ git_user.name }}"
-        group: "{{ git_user.group }}"
+        src: "{{ services_gitea_main_storage }}/gitea/conf/app.preinstall.ini"
+        dest: "{{ services_gitea_main_storage }}/gitea/conf/app.ini"
+        owner: "{{ services_gitea_user }}"
+        group: "{{ services_gitea_user }}"
         mode: '0600'
-      notify: Restart Gitea service
       when: gitea_preinstall_conf.changed
+      register: gitea_app_config
+      notify: Restart Gitea service
       become: true
 
     - name: Generate Gitea Secrets
@@ -213,53 +87,8 @@
           'gitea generate secret INTERNAL_TOKEN &&
           gitea generate secret JWT_SECRET &&
           gitea generate secret SECRET_KEY'
-        user: git
-      become: true
-      when: gitea_preinstall_conf.changed
+        user: "{{ services_gitea_user }}"
+      when: gitea_app_config.changed
       notify: Restart Gitea service
-
-- name: Define Gitea Backup Policy Kit
-  block:
-    - name: Create a the backup kit directory
-      ansible.builtin.file:
-        path: /backups/kits/{{ services_gitea_backup_kit.name }}
-        state: directory
-        owner: backupsys
-        group: backupsys
-        mode: '0700'
       become: true
 
-    - name: Create a symbolic link to the base script
-      ansible.builtin.file:
-        src: ../../scripts/base-backup.sh
-        dest: /backups/kits/{{ services_gitea_backup_kit.name }}/base-backup.sh
-        owner: backupsys
-        group: backupsys
-        state: link
-      become: true
-
-    - name: Create the gitea service specific backup script
-      ansible.builtin.template:
-        src: backup_kit/main.sh.j2
-        dest: /backups/kits/{{ services_gitea_backup_kit.name }}/main.sh
-        owner: backupsys
-        group: backupsys
-        mode: '0700'
-      become: true
-
-    - name: Provide the backupsys privilages over the container
-      ansible.builtin.template:
-        src: backup_kit/backupkit-gitea.sudoers.j2
-        dest: "/etc/sudoers.d/backupkit-{{ services_gitea_backup_kit.name }}"
-        owner: root
-        group: root
-        mode: '0600'
-        validate: /usr/sbin/visudo -cf %s
-      become: true
-
-    - name: Start the backup timer
-      ansible.builtin.systemd_service:
-        name: "backup-{{ services_gitea_backup_kit.freq }}@{{ services_gitea_backup_kit.name }}.timer"
-        state: started
-        enabled: true
-      become: true

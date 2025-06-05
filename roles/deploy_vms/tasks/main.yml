@@ -59,23 +59,38 @@
 
 - name: Add Ansible control node's user public SSH key to a host
   remote_user: "{{ lookup('env', 'PROXMOX_VM_TEMPLATE_USER') }}"
+  vars:
+    control_user: "{{ lookup('env', 'USER') }}"
+    control_home: "{{ lookup('env', 'HOME') }}"
   block:
     - name: Ensure deployed VMs are reachable
       ansible.builtin.wait_for_connection:
         timeout: 300
 
-    - name: Ensure the deploy user has a .ssh directory
+    - name: Create the controller user's home directory
       ansible.builtin.file:
-        path: "/home/{{ ansible_user | default(lookup('env', 'USER')) }}/.ssh"
+        path: "{{ control_home }}"
         state: directory
+        owner: "{{ control_user }}"
+        group: "{{ control_user }}"
         mode: '0700'
-        owner: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-        group: "{{ ansible_user | default(lookup('env', 'USER')) }}"
       become: true
+      register: control_user_home
+
+    - name: Create the ansible controller user's home directory
+      ansible.builtin.copy:
+        remote_src: true
+        src: /etc/skel/
+        dest: "{{ control_home }}"
+        owner: "{{ control_user }}"
+        group: "{{ control_user }}"
+        mode: '0700'
+      become: true
+      when: control_user_home.changed
 
     - name: Add control node's user public SSH key to authorized_keys
       ansible.posix.authorized_key:
-        user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+        user: "{{ control_user }}"
         key: "{{ lookup('env', 'SSH_PUB_KEY') }}"
       become: true
 

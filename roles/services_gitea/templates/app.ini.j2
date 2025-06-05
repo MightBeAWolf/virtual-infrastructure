@@ -1,6 +1,6 @@
 APP_NAME = Gitea: Git with a cup of tea
 RUN_MODE = prod
-RUN_USER = git
+RUN_USER = {{ services_gitea_user }}
 WORK_PATH = /data/gitea
 
 [repository]
@@ -25,15 +25,15 @@ SSH_LISTEN_PORT = 22
 LFS_START_SERVER = true
 LFS_JWT_SECRET =
 OFFLINE_MODE = true
-CERT_FILE = cert.pem
-KEY_FILE = key.pem
+CERT_FILE = /data/certbot/live/{{ inventory_hostname }}/fullchain.pem
+KEY_FILE = /data/certbot/live/{{ inventory_hostname }}/privkey.pem
 
 [database]
-PATH = gitea-db:3306
-DB_TYPE = mysql
-HOST = gitea-db:3306
-NAME = gitea
-USER = {{ lookup('env', 'GITEA_DB_USERNAME') }}
+PATH = {{ services_gitea_container_name }}_db:5432
+HOST = {{ services_gitea_container_name }}_db:5432
+DB_TYPE = postgres
+NAME = {{ services_gitea_database_name }}
+USER = gitea
 PASSWD = {{ lookup('env', 'GITEA_DB_PASSWORD') }}
 LOG_SQL = false
 SCHEMA = 
@@ -93,7 +93,7 @@ ENABLE_OPENID_SIGNUP = true
 ENABLED = true
 
 [repository.pull-request]
-DEFAULT_MERGE_STYLE = merge
+DEFAULT_MERGE_STYLE = rebase
 
 [repository.signing]
 DEFAULT_TRUST_MODEL = committer

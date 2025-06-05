@@ -1,0 +1,51 @@
+---
+- ansible.builtin.include_role:
+    name: podman_pod
+  vars:
+    podman_pod_build_images: []
+    podman_pod_spec: 
+      name:       "{{ services_openwebui_container_name }}_pod"
+      ports:      "{{ services_openwebui_container_ports }}"
+      containers: "{{ services_openwebui_container_spec }}"
+
+- name: Deploy Traefik dynamic configuration
+  ansible.builtin.template:
+    src: dynamic_conf.yml.j2
+    dest: "{{ services_openwebui_volumes_dir }}/traefik_config/_data/dynamic_conf.yml"
+    owner: traefik
+    group: traefik
+    mode: '0644'
+  register: traefik_config
+  become: true
+
+- name: "Ensure the open webui service has been started"
+  ansible.builtin.systemd:
+    name: "{{ services_openwebui_container_name }}_podman.service"
+    enabled: true
+    state: started
+  register: enable_openwebui_systemd_service
+  become: true
+
+- name: "Ensure the open traefik service has been started"
+  ansible.builtin.systemd:
+    name: "traefik_podman.service"
+    enabled: true
+    state: started
+  register: enable_traefik_systemd_service
+  become: true
+
+- name: "Restart traefik service"
+  ansible.builtin.systemd:
+    name: "traefik_podman.service"
+    state: restarted
+  register: restart_traefik_systemd_service
+  when: traefik_config.changed and not enable_traefik_systemd_service.changed
+  become: true
+
+- name: Pause for 10 seconds for container to come up
+  ansible.builtin.pause:
+    seconds: 10
+  when: |
+    enable_openwebui_systemd_service.changed
+    or enable_traefik_systemd_service.changed
+    or restart_traefik_systemd_service.changed

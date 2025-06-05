@@ -1,0 +1,26 @@
+---
+- ansible.builtin.include_role:
+    name: podman_pod
+  vars:
+    podman_pod_build_images: []
+    podman_pod_spec: 
+      name:       "{{ services_n8n_container_name }}_pod"
+      ports:      "{{ services_n8n_container_ports }}"
+      containers: "{{ services_n8n_container_spec }}"
+
+- name: "Ensure the n8n services have been started"
+  ansible.builtin.systemd:
+    name: "{{ services_n8n_service }}"
+    enabled: true
+    state: started
+  loop:
+    - "{{ services_n8n_container_name }}_podman.service"
+  loop_control:
+    loop_var: services_n8n_service
+  register: enable_systemd_service
+  become: true
+
+- name: Pause for 10 seconds for container to come up
+  ansible.builtin.pause:
+    seconds: 10
+  when: enable_systemd_service.changed

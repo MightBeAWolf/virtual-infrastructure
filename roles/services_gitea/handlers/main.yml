@@ -1,6 +1,6 @@
----
 - name: Restart Gitea service
   ansible.builtin.systemd:
-    name: gitea-podman.service
+    name: "{{ services_gitea_container_name }}_podman.service"
     state: restarted
   become: true
+

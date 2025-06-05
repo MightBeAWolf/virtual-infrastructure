@@ -8,13 +8,19 @@ services_openldap_podman_build_images:
   - name: "{{ services_openldap_container_name }}"
     container_file_content: "{{ lookup('file', 'openldap.containerfile') }}"
 
-services_openldap_main_storage: "{{ podman_pod_storage }}/{{ services_openldap_container_name }}/_data"
+services_openldap_main_storage: "/var/lib/containers/storage/volumes/{{ services_openldap_container_name }}/_data"
 
 services_openldap_container_spec:
   - name: "{{ services_openldap_container_name }}"
     image_url: "localhost/{{ services_openldap_container_name }}"
     volumes:
-      - name: "{{ services_openldap_container_name }}"
-        target: /etc/openldap
+      - src: /etc/openldap/ldap.conf
+        target: /etc/openldap/ldap.conf
+      - src: /etc/openldap/slapd.conf
+        target: /etc/openldap/slapd.conf
+      - src: /etc/openldap/slapd.ldif
+        target: /etc/openldap/slapd.ldif
       - name: "{{ services_openldap_container_name }}_db"
         target: /var/lib/openldap/openldap-data
+      - name: certbot
+        target: /srv/certbot:ro

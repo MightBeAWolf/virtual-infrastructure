@@ -67,16 +67,15 @@
     - deploy_vms
   tags: ['setup', 'terraform', 'vms']
 
-# ###############################################################################
-# # Deploy the virtual machine configurations
-# ###############################################################################
+###############################################################################
+# Deploy the virtual machine configurations
+###############################################################################
 - name: Deploy Virtual Machine's Configurations
   hosts: virtual_machines
   become: false
   roles:
     - ssh
     - ldap_client
-    # - backup_source
   tags: ['setup', 'terraform', 'vms']
 
 ###############################################################################
@@ -86,8 +85,7 @@
   hosts: ldap.local.wolfbox.dev
   roles:
     - services_openldap
-  tags: ['services', 'openldap', 'ldap', 'backups']
-  ignore_errors: true
+  tags: ['services', 'openldap', 'ldap']
 
 ###############################################################################
 # Deploy the arr services
@@ -98,13 +96,32 @@
     - private_internet_access
     - services_arr
   tags: ['services', 'arr', 'pia']
-  ignore_errors: true
 
-# ###############################################################################
-# # Deploy the gitea services
-# ###############################################################################
-# - name: Deploy the Gitea service
-#   hosts: gitea.local.wolfbox.dev
-#   roles:
-#     - services_gitea
-#   tags: ['services', 'gitea', 'backups']
+###############################################################################
+# Deploy the gitea services
+###############################################################################
+- name: Deploy the Gitea service
+  hosts: gitea.local.wolfbox.dev
+  roles:
+    - services_gitea
+  tags: ['services', 'gitea']
+
+###############################################################################
+# Deploy the n8n services
+###############################################################################
+- name: Deploy the n8n service
+  hosts: n8n.local.wolfbox.dev
+  roles:
+    - services_n8n
+  tags: ['services', 'ai']
+
+
+###############################################################################
+# Deploy the n8n services
+###############################################################################
+- name: Deploy the openwebui service
+  hosts: openwebui.local.wolfbox.dev
+  roles:
+    - services_openwebui
+  tags: ['services', 'ai']
+
