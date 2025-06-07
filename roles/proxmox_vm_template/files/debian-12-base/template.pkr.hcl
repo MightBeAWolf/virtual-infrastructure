@@ -53,6 +53,17 @@ variable "guest_password" {
     sensitive = true
 }
 
+variable "openldap_sssd_dn" {
+    # Set from the ./run.sh
+    type = string
+    sensitive = true
+}
+
+variable "openldap_sssd_dn_password" {
+    # Set from the ./run.sh
+    type = string
+    sensitive = true
+}
 variable "desc" {
   type = string 
 }
@@ -187,17 +198,31 @@ build {
     sources = ["source.proxmox-iso.debian-12-base"]
 
     provisioner "file" {
-        sources = [
-            "files/20auto-upgrades",
-            "files/50unattended-upgrades",
-            "files/99-pve.cfg",
-            "files/cloud.cfg"
-        ]
+        source = "files/config.d"
         destination = "/tmp/"
+    }
+
+    provisioner "file" {
+        content = templatefile("files/templates/sssd.conf", {var=var})
+        destination = "/tmp/config.d/sssd.conf"
+    }
+
+    provisioner "file" {
+        content = templatefile("files/cloud.cfg", {var=var})
+        destination = "/tmp/config.d/cloud.cfg"
+    }
+
+    provisioner "file" {
+        source = "files/provision.d"
+        destination = "/tmp/provision.d"
     }
 
     provisioner "shell" {
         script = "files/provision.sh"
+    }
+
+    provisioner "shell" {
+        inline = ["rm" "-rf" "/tmp/config.d"]
     }
 
 }

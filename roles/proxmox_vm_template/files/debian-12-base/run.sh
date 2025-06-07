@@ -21,6 +21,8 @@ export PROXMOX_TOKEN="${PROXMOX_API_SECRET}"
 
 export PKR_VAR_guest_username="${PROXMOX_VM_TEMPLATE_USER}"
 export PKR_VAR_guest_password="${PROXMOX_VM_TEMPLATE_PASSWD}"
+export PKR_VAR_openldap_sssd_dn="${OPENLDAP_SSSD_DN:?}"
+export PKR_VAR_openldap_sssd_dn_password="${OPENLDAP_SSSD_DN_PASSWORD:?}"
 
 TARGET="${1:?}"
 # PROXMOX_CLUSTER_NODE="pve"
