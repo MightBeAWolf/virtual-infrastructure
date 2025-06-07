@@ -32,10 +32,8 @@ ldap_group_search_base = ou=groups,dc=wolfbox,dc=dev
 ldap_sudo_search_base = ou=SUDOers,dc=wolfbox,dc=dev
 
 # SSL/TLS settings (if using)
-# ldap_id_use_start_tls = true
-# ldap_tls_reqcert = demand
-ldap_tls_reqcert = never
-# ldap_tls_cacert = /etc/sssd/ca.crt
+ldap_id_use_start_tls = true
+ldap_tls_reqcert = demand
 
 # Timeout and Cache Settings
 cache_credentials = true
@@ -59,8 +57,6 @@ sudo chmod 0600 /etc/sssd/sssd.conf
 
 # Configure nsswitch
 (cat | sudo tee /etc/nsswitch.conf > /dev/null) << 'HEREDOC'
-# Generated with the organizational Ansible virtual-infrastructure project.
-# Do not modify by hand!
 passwd:     files sss systemd
 shadow:     files sss systemd
 group:      files [SUCCESS=merge] sss [SUCCESS=merge] systemd

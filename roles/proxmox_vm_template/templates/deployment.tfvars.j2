@@ -21,6 +21,7 @@ tags = "{{ proxmox_vm_template_def.tags | default('debian_12;template;packer') }
 pool = "{{ proxmox_vm_template_def.pool | default('') }}"
 
 ### HARDWARE ###
+{% if proxmox_vm_template_def.source_template is undefined %}
 disk = {
   # Storage locations, "local", "local-lvm", "local"
   # Main storage is recommended.
@@ -30,3 +31,4 @@ disk = {
   # is assumed.
   size    = "{{ proxmox_vm_template_def.disk.size | default('20') }}"
 }
+{% endif %}

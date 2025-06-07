@@ -1,0 +1,241 @@
+#!/usr/bin/env bash
+
+# Automatically restart machine or updated services after dnf-automatic.
+#
+# The following is required:
+#   - DNF tracer plugin and tracer
+#     $ dnf install -y dnf-plugins-extras-tracer
+#     http://dnf-plugins-extras.readthedocs.io/en/latest/tracer.html
+#     http://tracer-package.com/
+#
+#   - DNF Automatic
+#     $ dnf install -y dnf-automatic && systemctl enable dnf-automatic-install.timer
+#     http://dnf.readthedocs.io/en/latest/automatic.html
+#
+#   - DNF Automatic drop-in to run this script after DNF Automatic ran
+#     $ systemctl edit dnf-automatic-install.service
+#
+#     Enter the following contents:
+#
+#     [Service]
+#     # Path to this script.
+#     ExecStartPost=/usr/local/sbin/dnf-automatic-restart
+#
+# The activity of this script can be monitored using
+# $ journalctl --unit dnf-automatic-install.service
+
+set -euo pipefail
+
+show_help() {
+  cat << EOF
+Usage: ${0##*/} [-d] [-h] [-n HOURS] [-r HOUR]
+
+Automatically restart machine or updated services after dnf-automatic.
+
+    -d        disable reboot
+    -h        display this help and exit
+    -n HOURS  no automatic reboot between hours (e.g. 8-22)
+    -r HOUR   schedule automatic reboot at hour (e.g. 0)
+EOF
+}
+
+error() {
+  >&2 printf 'Error: %s\n' "$1"
+  show_help >&2
+  exit "${2:-1}"
+}
+
+schedule-reboot() {
+  if [[ "$disable_reboot" = true ]]; then
+    >&2 printf 'Rebooting is disabled\n'
+    return
+  fi
+
+  if [[ -n "$no_reboot_from" && -n "$no_reboot_to" ]]; then
+    hour="$(date +%k)"
+
+    local no_reboot_now
+    if ((no_reboot_from > no_reboot_to)); then
+      no_reboot_now=$((hour >= no_reboot_from || hour <= no_reboot_to))
+    else
+      no_reboot_now=$((hour >= no_reboot_from && hour <= no_reboot_to))
+    fi
+
+    if ((no_reboot_now == 1)); then
+      printf 'Rebooting the system is disallowed right now\n'
+
+      if [[ -z "$reboot_at" ]]; then
+        >&2 printf 'Skipped scheduling reboot because reboot time was not specified\n'
+        return
+      fi
+
+      reboot_at="${reboot_at}:00"
+      printf 'Scheduling reboot at %s\n' "$reboot_at"
+    else
+      printf 'Rebooting system\n'
+      reboot_at=now
+    fi
+  elif [[ -n "$reboot_at" ]]; then
+    reboot_at="${reboot_at}:00"
+    printf 'Scheduling reboot at %s\n' "$reboot_at"
+  else
+    printf 'Rebooting system\n'
+    reboot_at=now
+  fi
+
+  if [[ "$reboot_at" == now ]]; then
+    reboot_at=+5
+  fi
+
+  shutdown --reboot "$reboot_at" 'Rebooting after dnf-automatic updates'
+  exit
+}
+
+trim() {
+  local string
+
+  while IFS=$'\n' read -r string; do
+    # https://web.archive.org/web/20121022051228/http://codesnippets.joyent.com/posts/show/1816
+    string="${string#"${string%%[![:space:]]*}"}"
+    string="${string%"${string##*[![:space:]]}"}"
+
+    printf '%s\n' "$string"
+  done
+}
+
+restart-docker-after-firewalld() {
+  local string
+  local command
+  local commands=()
+
+  while IFS=$'\n' read -r string; do
+    commands+=("$string")
+  done
+
+  set -- "${commands[@]}"
+
+  # We need to take action if docker is active and firewalld is restarted.
+  # Docker needs to restart after firewalld.
+  # Assumes arguments are sorted.
+
+  if systemctl is-active --quiet docker; then
+    declare -A indexed_commands
+    for ((i = 1; i <= $#; i++)); do
+      command="${!i}"
+      indexed_commands["$command"]="$i"
+    done
+
+    local firewalld='systemctl restart firewalld'
+    local firewalld_index="${indexed_commands[$firewalld]:-}"
+
+    if [[ -n "$firewalld_index" ]]; then
+      local docker='systemctl restart docker'
+      local docker_index="${indexed_commands[$docker]:-$((firewalld_index + 1))}"
+
+      set -- \
+          "${@:1:$((docker_index - 1))}" \
+          "${@:$((docker_index + 1)):$((firewalld_index - docker_index))}" \
+          "$docker" \
+          "${@:$((firewalld_index + 1))}"
+    fi
+  fi
+
+  for command in "$@"; do
+    printf '%s\n' "$command"
+  done
+}
+
+restart-services() {
+  local daemon_reloaded=
+  local command
+
+  while IFS=$'\n' read -r command; do
+    if [[ -z "$daemon_reloaded" ]]; then
+      printf 'Reloading systemd daemon configuration\n'
+      systemctl daemon-reload
+      daemon_reloaded=true
+    fi
+
+    printf 'Restarting service using %s\n' "$command"
+    $command || {
+      status=$?
+
+      if ((status > 0)); then
+        >&2 printf '%s failed with exit code %s\n' "$command" "$status"
+      fi
+    }
+  done
+}
+
+OPTIND=1 # Reset is necessary if getopts was used previously in the script.
+numeric='^[0-9]+$'
+disable_reboot=false
+no_reboot_from=
+no_reboot_to=
+reboot_at=
+while getopts ':dhn:r:' opt; do
+  case "$opt" in
+      d)
+        disable_reboot=true
+        ;;
+      h)
+        show_help
+        exit 0
+        ;;
+      n)
+        no_reboot_from=${OPTARG%%-*}
+        no_reboot_to=${OPTARG##*-}
+
+        if ! [[ $OPTARG =~ '-' ]]; then
+          error 'No automatic reboot between hours must be a range separated by minus (-)'
+        fi
+
+        if ! [[ $no_reboot_from =~ $numeric && $no_reboot_to =~ $numeric ]]; then
+          error 'No automatic reboot between hours must be numeric.'
+        fi
+
+        ;;
+      r)
+        reboot_at="$(printf %02d "$OPTARG")"
+
+        if ! [[ $reboot_at =~ $numeric ]]; then
+          error 'Reboot at hour must be numeric.'
+        fi
+        ;;
+      :)
+        error "Option -$OPTARG requires an argument."
+        ;;
+      '?')
+        error "Invalid option: -$OPTARG"
+        ;;
+  esac
+done
+
+tracer_status=0
+tracer_out="$(tracer)" || tracer_status=$?
+if ((tracer_status > 0 && (tracer_status < 101 || tracer_status > 104))); then
+  error "Tracer failed with exit code $tracer_status" "$tracer_status"
+fi
+
+printf 'tracer output:\n%s\n' "$tracer_out"
+
+if ((tracer_status == 104)); then
+  printf 'The kernel was updated\n'
+  schedule-reboot
+fi
+
+for unit in systemd auditd; do
+  if [[ "$tracer_out" == *$unit* ]]; then
+    printf '%s was updated\n' "$unit"
+    schedule-reboot
+  fi
+done
+
+(tracer --services-only || true) |
+  tail --lines=+3 |
+  sort |
+  uniq |
+  trim |
+  restart-docker-after-firewalld |
+  restart-services
+

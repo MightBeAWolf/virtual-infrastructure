@@ -1,4 +1,4 @@
-# Debian 12 Template
+# Redhat 8 Template
 # ---
 
 variable "proxmox_cluster_api_uri" {
@@ -16,14 +16,14 @@ variable "id" {
     type = string
 }
 
-variable "preseed_file" {
+variable "kickstart_file" {
   type    = string
-  default = "template.preseed"
+  default = "files/kickstart.ks"
 }
 
 variable "name" {
   type    = string
-  default = "debian-12-base" 
+  default = "redhat-8-base" 
 }
 
 variable "vlan" {
@@ -53,6 +53,17 @@ variable "guest_password" {
     sensitive = true
 }
 
+variable "openldap_sssd_dn" {
+    # Set from the ./run.sh
+    type = string
+    sensitive = true
+}
+
+variable "openldap_sssd_dn_password" {
+    # Set from the ./run.sh
+    type = string
+    sensitive = true
+}
 variable "desc" {
   type = string 
 }
@@ -88,7 +99,7 @@ packer {
 
 
 # Resource Definiation for the VM Template
-source "proxmox-iso" "debian-12-base" {
+source "proxmox-iso" "redhat-8-base" {
     # Proxmox host settings
     proxmox_url = var.proxmox_cluster_api_uri
  
@@ -110,7 +121,7 @@ source "proxmox-iso" "debian-12-base" {
     # iso_file = "local:iso/ubuntu-20.04.2-live-server-amd64.iso"
     # - or -
     # (Option 2) Download ISO
-    iso_file = "wolftrack-nas:iso/debian-12.11.0-amd64-netinst.iso"
+    iso_file = "shared-proxmox:iso/rhel-8.10-x86_64-boot.iso"
     iso_checksum = "none"
     unmount_iso = true
 
@@ -128,10 +139,10 @@ source "proxmox-iso" "debian-12-base" {
     }
 
     # VM CPU Settings
-    cores = "1"
+    cores = "4"
     
     # VM Memory Settings
-    memory = "2048" 
+    memory = "4096" 
 
     # VM Network Settings
     network_adapters {
@@ -147,20 +158,16 @@ source "proxmox-iso" "debian-12-base" {
 
     boot_command = [
         "<wait><wait><wait><esc><wait><wait><wait>",
-        "/install.amd/vmlinuz ",
-        "initrd=/install.amd/initrd.gz ",
-        "auto=true ",
-        "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/${var.preseed_file} ",
-        "hostname=${var.name} ",
-        "domain=${var.domain} ",
-        "interface=auto ",
-        "vga=788 noprompt quiet --<enter>"
+        "vmlinuz ",
+        "initrd=initrd.img ",
+        "ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/${var.kickstart_file} ",
+        "<enter>"
     ]
     boot = "c"
     boot_wait = "5s"
 
     # PACKER Autoinstall Settings
-    http_content = { "/${var.preseed_file}" = templatefile(var.preseed_file, { var = var }) }
+    http_content = { "/${var.kickstart_file}" = templatefile(var.kickstart_file, { var = var }) }
     # (Optional) Bind IP Address and Port
     # http_bind_address = "0.0.0.0"
     http_port_min = 49152
@@ -183,21 +190,35 @@ source "proxmox-iso" "debian-12-base" {
 # Build Definition to create the VM Template
 build {
 
-    name = "debian-12-base"
-    sources = ["source.proxmox-iso.debian-12-base"]
+    name = "redhat-8-base"
+    sources = ["source.proxmox-iso.redhat-8-base"]
 
     provisioner "file" {
-        sources = [
-            "files/20auto-upgrades",
-            "files/50unattended-upgrades",
-            "files/99-pve.cfg",
-            "files/cloud.cfg"
-        ]
+        source = "files/config.d"
         destination = "/tmp/"
+    }
+
+    provisioner "file" {
+        content = templatefile("files/templates/sssd.conf", {var=var})
+        destination = "/tmp/config.d/sssd.conf"
+    }
+
+    provisioner "file" {
+        content = templatefile("files/cloud.cfg", {var=var})
+        destination = "/tmp/config.d/cloud.cfg"
+    }
+
+    provisioner "file" {
+        source = "files/provision.d"
+        destination = "/tmp/provision.d"
     }
 
     provisioner "shell" {
         script = "files/provision.sh"
+    }
+
+    provisioner "shell" {
+        inline = ["rm" "-rf" "/tmp/config.d"]
     }
 
 }

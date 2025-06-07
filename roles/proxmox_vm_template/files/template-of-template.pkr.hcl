@@ -1,6 +1,3 @@
-# Debian 12 Template
-# ---
-
 variable "proxmox_cluster_api_uri" {
     # Set from the ./run.sh
     type = string
@@ -16,14 +13,14 @@ variable "id" {
     type = string
 }
 
-variable "preseed_file" {
-  type    = string
-  default = "template.preseed"
-}
-
 variable "name" {
   type    = string
-  default = "debian-12-base" 
+  default = "template-of-template" 
+}
+
+variable "source_template" {
+  type    = string
+  default = "redhat-8-base" 
 }
 
 variable "vlan" {
@@ -86,14 +83,16 @@ packer {
   }
 }
 
-
-# Resource Definiation for the VM Template
-source "proxmox-iso" "debian-12-base" {
+source "proxmox-clone" "template-of-template" {
     # Proxmox host settings
     proxmox_url = var.proxmox_cluster_api_uri
- 
     # (Optional) Skip TLS Verification
     insecure_skip_tls_verify = true
+
+    # task_timeout (duration string | ex: "1h5m2s") - task_timeout (duration
+    # string | ex: "10m") - The timeout for Promox API operations, e.g. clones.
+    # Defaults to 1 minute.
+    task_timeout = "30m"
 
     http_interface = "${var.http_interface}"
     
@@ -105,27 +104,14 @@ source "proxmox-iso" "debian-12-base" {
     template_description = "${var.desc}"
     tags = "${var.tags}"
 
-    # VM OS Settings
-    # (Option 1) Local ISO File
-    # iso_file = "local:iso/ubuntu-20.04.2-live-server-amd64.iso"
-    # - or -
-    # (Option 2) Download ISO
-    iso_file = "wolftrack-nas:iso/debian-12.11.0-amd64-netinst.iso"
-    iso_checksum = "none"
-    unmount_iso = true
+    # Source VM template to clone from
+    clone_vm = "${var.source_template}"
 
     # VM System Settings
     qemu_agent = true
 
     # VM Hard Disk Settings
     scsi_controller = "virtio-scsi-pci"
-
-    disks {
-        disk_size    = var.disk.size
-        storage_pool = var.disk.storage
-        type = "virtio"
-        format = "raw"
-    }
 
     # VM CPU Settings
     cores = "1"
@@ -145,30 +131,9 @@ source "proxmox-iso" "debian-12-base" {
     cloud_init = true
     cloud_init_storage_pool = var.disk.storage
 
-    boot_command = [
-        "<wait><wait><wait><esc><wait><wait><wait>",
-        "/install.amd/vmlinuz ",
-        "initrd=/install.amd/initrd.gz ",
-        "auto=true ",
-        "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/${var.preseed_file} ",
-        "hostname=${var.name} ",
-        "domain=${var.domain} ",
-        "interface=auto ",
-        "vga=788 noprompt quiet --<enter>"
-    ]
-    boot = "c"
-    boot_wait = "5s"
-
-    # PACKER Autoinstall Settings
-    http_content = { "/${var.preseed_file}" = templatefile(var.preseed_file, { var = var }) }
-    # (Optional) Bind IP Address and Port
-    # http_bind_address = "0.0.0.0"
-    http_port_min = 49152
-    http_port_max = 49154
-
     ssh_username = "${var.guest_username}"
     # (Option 1) Add your Password here
-    ssh_password = "${var.guest_password}"
+    # ssh_password = "${var.guest_password}"
     # - or -
     # (Option 2) Add your Private SSH KEY file here
     # ssh_private_key_file = "~/.ssh/id_ed25519"
@@ -178,27 +143,5 @@ source "proxmox-iso" "debian-12-base" {
     # can take a long time. Yet this is required so that the template can be
     # used on all nodes sharing that storage
     ssh_timeout = "180m"
-}
-
-# Build Definition to create the VM Template
-build {
-
-    name = "debian-12-base"
-    sources = ["source.proxmox-iso.debian-12-base"]
-
-    provisioner "file" {
-        sources = [
-            "files/20auto-upgrades",
-            "files/50unattended-upgrades",
-            "files/99-pve.cfg",
-            "files/cloud.cfg"
-        ]
-        destination = "/tmp/"
-    }
-
-    provisioner "shell" {
-        script = "files/provision.sh"
-    }
-
 }
 

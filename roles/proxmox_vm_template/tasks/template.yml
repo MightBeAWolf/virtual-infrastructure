@@ -35,6 +35,13 @@
         dest: "{{ build_dir }}"
         mode: 'preserve'
 
+    - name: template | Copy template-of-template.pkr.hcl
+      ansible.builtin.copy:
+        src: "template-of-template.pkr.hcl"
+        dest: "{{ build_dir }}"
+        mode: 'preserve'
+      when: proxmox_vm_template_def.source_template is defined
+
     - name: template | Sync the packer template definition files
       ansible.builtin.template:
         src: "{{ proxmox_vm_template_config_file }}"
@@ -78,3 +85,10 @@
           - "-var-file=./variables.hcl"
       register: packer_generation
       changed_when: packer_generation.rc == 0
+
+  always:
+    - name: template | Remove state build_dir if build was successful
+      ansible.builtin.file:
+        path: "{{ build_dir }}"
+        state: absent
+      when: packer_generation.rc == 0
