@@ -1,15 +1,5 @@
 http:
   routers:
-    traefik-dashboard:
-      rule: "Host(`{{ inventory_hostname }}`) && PathPrefix(`/traefik`)"
-      entrypoints:
-        - websecure
-      service: api@internal
-      middlewares:
-        - traefik-dashboard-strip
-      tls:
-        domains:
-          - main: "{{ inventory_hostname }}"
     openwebui:
       rule: "Host(`{{ inventory_hostname }}`)"
       entrypoints:
@@ -23,12 +13,6 @@ http:
       loadBalancer:
         servers:
           - url: "http://{{ services_openwebui_container_name }}:8080"
-  middlewares:
-    traefik-dashboard-strip:
-      stripPrefix:
-        prefixes:
-          - /traefik
-
 tls:
   certificates:
     - certFile: /etc/traefik/ssl/live/{{ inventory_hostname }}/fullchain.pem

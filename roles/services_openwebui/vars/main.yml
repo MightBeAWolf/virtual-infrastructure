@@ -30,7 +30,7 @@ services_openwebui_container_spec:
       - "--entrypoints.websecure.address=:443"
       - "--providers.file.filename=/etc/traefik/config/dynamic_conf.yml"
       - "--providers.file.watch=true"
-      - "--api.dashboard=true"
+      - "--api.dashboard=false"
       - "--log.level=INFO"
     volumes:
       - name: traefik_config
