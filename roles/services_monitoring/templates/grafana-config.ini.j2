@@ -1,0 +1,70 @@
+[server]
+# choices http,https,h2 or socket
+protocol = http
+
+# The host for the server to listen on. If your machine has more than one network
+# interface, you can use this setting to expose the Grafana service on only
+# one network interface and not have it available on others, such as the
+# loopback interface. An empty value is equivalent to setting the value
+# to 0.0.0.0, which means the Grafana service binds to all interfaces. In
+# environments where network address translation (NAT) is used, ensure you use
+# the network interface address and not a final public address; otherwise, you
+# might see errors such as bind: cannot assign requested address in the logs.
+# http_addr: 0.0.0.0
+
+# The port to bind to, defaults to 3000
+# http_port: 3000
+
+# This setting is only used in as a part of the root_url setting (see below).
+# Important if you use GitHub or Google OAuth.
+# domain: 
+
+# Serve Grafana from sub-path specified in root_url setting. By default it is
+# set to false for compatibility reasons.
+#
+# By enabling this setting and using a sub-path in root_url like
+# root_url = http://localhost:3000/grafana, Grafana is accessible on
+# http://localhost:3000/grafana. If accessed without sub-path Grafana
+# redirects the request to the sub-path.
+# serve_from_sub_path: 
+
+# This is the full URL used to access Grafana from a web browser. This is
+# important if you use Google or GitHub OAuth authentication (for the callback
+# URL to be correct).
+# Note:
+#     This setting is also important if you have a reverse proxy in front of
+#     Grafana that exposes it through a sub-path. In that case add the
+#     sub-path to the end of this URL setting.
+root_url = https://{{ inventory_hostname }}
+
+# Set this option to true to enable HTTP compression, this can improve transfer
+# speed and bandwidth utilization. It is recommended that most users set it to
+# true. By default it is set to false for compatibility reasons.
+enable_gzip = true
+
+# Path to the certificate file (if protocol is set to https or h2).
+# cert_file = "/mnt/ssl/live/{{ inventory_hostname }}/fullchain.pem"
+
+# Path to the certificate key file (if protocol is set to https or h2).
+# cert_key = "/mnt/ssl/live/{{ inventory_hostname }}/privkey.pem"
+
+[paths]
+provisioning = /mnt/config/provisioning
+
+[auth.ldap]
+# Set to `true` to enable LDAP integration (default: `false`)
+enabled = true
+
+# Path to the LDAP specific configuration file (default: `/etc/grafana/ldap.toml`)
+config_file = /mnt/config/grafana-ldap.toml
+
+# Allow sign-up should be `true` (default) to allow Grafana to create users
+# on successful LDAP authentication. If set to `false` only already existing
+# Grafana users will be able to login.
+allow_sign_up = true
+
+# Prevent synchronizing ldap users organization roles
+skip_org_role_sync = false
+
+[log]
+# filters = ldap:debug

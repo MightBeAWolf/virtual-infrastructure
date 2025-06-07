@@ -1,0 +1,84 @@
+http:
+  routers:
+    traefik-dashboard:
+      rule: "Host(`{{ inventory_hostname }}`) && PathPrefix(`/traefik`)"
+      entrypoints:
+        - websecure
+      service: api@internal
+      tls:
+        domains:
+          - main: "{{ inventory_hostname }}"
+
+    grafana:
+      rule: "Host(`{{ inventory_hostname }}`) && !PathPrefix(`/traefik`) && !PathPrefix(`/loki`) && !PathPrefix(`/alloy`) && !PathPrefix(`/prometheus`) && !PathPrefix(`/influxdb`)"
+      entrypoints:
+        - websecure
+      service: grafana
+      tls:
+        domains:
+          - main: "{{ inventory_hostname }}"
+
+    loki:
+      rule: "Host(`{{ inventory_hostname }}`) && PathPrefix(`/loki`)"
+      entrypoints:
+        - websecure
+      service: loki
+      tls:
+        domains:
+          - main: "{{ inventory_hostname }}"
+
+    alloy:
+      rule: "Host(`{{ inventory_hostname }}`) && PathPrefix(`/alloy`)"
+      entrypoints:
+        - websecure
+      service: alloy
+      tls:
+        domains:
+          - main: "{{ inventory_hostname }}"
+
+    prometheus:
+      rule: "Host(`{{ inventory_hostname }}`) && PathPrefix(`/prometheus`)"
+      entrypoints:
+        - websecure
+      service: prometheus
+      tls:
+        domains:
+          - main: "{{ inventory_hostname }}"
+
+    influxdb:
+      rule: "Host(`{{ inventory_hostname }}`) && PathPrefix(`/influxdb`)"
+      entrypoints:
+        - websecure
+      service: influxdb
+      tls:
+        domains:
+          - main: "{{ inventory_hostname }}"
+  services:
+    grafana:
+      loadBalancer:
+        servers:
+          - url: "http://grafana:3000"
+    loki:
+      loadBalancer:
+        servers:
+          - url: "http://loki:3100"
+    alloy:
+      loadBalancer:
+        servers:
+          - url: "http://alloy:12345"
+
+    prometheus:
+      loadBalancer:
+        servers:
+          - url: "http://prometheus:9090"
+
+    influxdb:
+      loadBalancer:
+        servers:
+          - url: "http://influxdb:8086"
+
+tls:
+  certificates:
+    - certFile: /etc/traefik/ssl/live/{{ inventory_hostname }}/fullchain.pem
+      keyFile: /etc/traefik/ssl/live/{{ inventory_hostname }}/privkey.pem
+

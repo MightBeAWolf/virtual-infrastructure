@@ -1,0 +1,52 @@
+---
+- ansible.builtin.include_role:
+    name: podman_pod
+  vars:
+    podman_pod_build_images: []
+    podman_pod_spec: 
+      name:       "{{ services_monitoring_pod_name }}"
+      ports:      "{{ services_monitoring_container_ports }}"
+      containers: "{{ services_monitoring_container_spec }}"
+
+- name: Check if the LDAP credentials are set and not empty
+  ansible.builtin.assert:
+    that:
+      - lookup('env', 'OPENLDAP_GRAFANA_DN')
+      - lookup('env', 'OPENLDAP_GRAFANA_DN_PASSWORD')
+      - lookup('env', 'OPENLDAP_GRAFANA_DN') | length > 0
+      - lookup('env', 'OPENLDAP_GRAFANA_DN_PASSWORD') | length > 0
+    fail_msg: "The client Grafana LDAP credentials are not set in the environment.
+      Did you use the ./run.sh wrapper?"
+
+- name: Iterate through service definitions
+  ansible.builtin.include_tasks: 'service.yml'
+  loop:
+    - name: traefik
+      configs:
+        - src: dynamic_conf.yml.j2
+    - name: grafana
+      configs:
+        - src: grafana-config.ini.j2
+        - src: grafana-ldap.toml.j2
+        - src: provisioning/access-control/main.yaml.j2
+        - src: provisioning/alerting/main.yaml.j2
+        - src: provisioning/dashboards/main.yaml.j2
+        - src: provisioning/datasources/main.yaml.j2
+        - src: provisioning/plugins/main.yaml.j2
+
+    - name: loki
+      configs:
+        - src: loki-config.yaml.j2
+
+    - name: alloy
+      configs:
+        - src: config.alloy.j2
+
+    - name: prometheus
+      configs:
+        - src: prometheus.yml.j2
+
+    - name: influxdb
+
+  loop_control:
+    loop_var: services_monitoring_service

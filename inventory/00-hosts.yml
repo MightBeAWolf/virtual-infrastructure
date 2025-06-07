@@ -24,14 +24,13 @@ all:
             tags: debian_12,service,infrastructure_as_code
             gateway: 192.168.40.21
             cidr: /21
-          firewall:
-            options:
-              enable: 1
-              log_level_in: info
-            rules:
-              - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
-              - "IN LDAPS(ACCEPT) -source +dc/home-lab -log nolog"
-
+            firewall:
+              options:
+                enable: 1
+                log_level_in: info
+              rules:
+                - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
+                - "IN LDAPS(ACCEPT) -source +dc/home-lab -log nolog"
 
         arr.local.wolfbox.dev:
           ansible_host: 192.168.41.8
@@ -90,13 +89,13 @@ all:
             tags: debian_12,service,infrastructure_as_code
             gateway: 192.168.40.21
             cidr: /21
-          firewall:
-            options:
-              enable: 1
-              log_level_in: info
-            rules:
-              - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
-              - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"
+            firewall:
+              options:
+                enable: 1
+                log_level_in: info
+              rules:
+                - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
+                - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"
 
         n8n.local.wolfbox.dev:
           ansible_host: 192.168.41.10
@@ -108,13 +107,13 @@ all:
             tags: debian_12,service,infrastructure_as_code
             gateway: 192.168.40.21
             cidr: /21
-          firewall:
-            options:
-              enable: 1
-              log_level_in: info
-            rules:
-              - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
-              - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"
+            firewall:
+              options:
+                enable: 1
+                log_level_in: info
+              rules:
+                - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
+                - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"
 
         openwebui.local.wolfbox.dev:
           ansible_host: 192.168.41.11
@@ -126,10 +125,29 @@ all:
             tags: debian_12,service,infrastructure_as_code
             gateway: 192.168.40.21
             cidr: /21
-          firewall:
-            options:
-              enable: 1
-              log_level_in: info
-            rules:
-              - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
-              - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"
+            firewall:
+              options:
+                enable: 1
+                log_level_in: info
+              rules:
+                - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
+                - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"
+
+        monitoring.local.wolfbox.dev:
+          ansible_host: 192.168.41.12
+          ansible_user: cluster
+          target_host: pve.local.wolfbox.dev
+          guest_info:
+            id: 506
+            desc: The Monitoring Server
+            tags: debian_12,service,infrastructure_as_code
+            gateway: 192.168.40.21
+            cidr: /21
+            firewall:
+              options:
+                enable: 1
+                log_level_in: info
+              rules:
+                - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
+                - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"
+                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 3100 -log nolog # Loki"

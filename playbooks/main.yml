@@ -88,6 +88,15 @@
   tags: ['services', 'openldap', 'ldap']
 
 ###############################################################################
+# Deploy the monitoring services
+###############################################################################
+- name: Deploy the monitoring service
+  hosts: monitoring.local.wolfbox.dev
+  roles:
+    - services_monitoring
+  tags: ['services', 'monitoring']
+
+###############################################################################
 # Deploy the arr services
 ###############################################################################
 - name: Deploy the Arr service

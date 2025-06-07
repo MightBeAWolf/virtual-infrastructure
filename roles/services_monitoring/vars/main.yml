@@ -1,0 +1,153 @@
+---
+services_monitoring_pod_name: monitoring_pod
+services_monitoring_container_ports:
+  - 443:443 # Traefik HTTPS portal
+  - 80:80 #Traefik HTTP redirect to HTTPS
+  - 127.0.0.1:3000:3000 # Grafana log/metric visualization
+  - 127.0.0.1:3100:3100 # Loki log processing
+  - 127.0.0.1:12345:12345 # Alloy log intake
+  - 127.0.0.1:9090:9090 # Prometheus log intake
+  - 127.0.0.1:8086:8086 # InfluxDB
+
+services_monitoring_volumes_dir: "/var/lib/containers/storage/volumes/"
+
+services_monitoring_container_spec:
+  - name: traefik
+    image_url: docker.io/traefik
+    image_version: latest
+    args:
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.file.filename=/etc/traefik/config/dynamic_conf.yml"
+      - "--providers.file.watch=true"
+      - "--api=true"
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+      - "--api.basePath=/traefik"
+      # - "--log.level=INFO"
+      - "--log.level=DEBUG"
+    volumes:
+      - name: traefik_config
+        target: /etc/traefik/config:ro
+      - name: certbot
+        target: /etc/traefik/ssl:ro
+      - src: /etc/timezone
+        target: /etc/timezone:ro
+      - src: /etc/localtime
+        target: /etc/localtime:ro
+
+  - name: "grafana"
+    image_url: docker.io/grafana/grafana
+    image_version: "latest"
+    envs:
+      GF_PATHS_PROVISIONING: "/mnt/config/provisioning"
+    args:
+      - "--config=/mnt/config/grafana-config.ini"
+    volumes:
+      - name: "grafana_config"
+        target: /mnt/config:ro
+      - name: "grafana_data"
+        target: /var/lib/grafana
+      - src: /etc/timezone
+        target: /etc/timezone:ro
+      - src: /etc/localtime
+        target: /etc/localtime:ro
+
+# docker run \
+#   --name loki \
+#   -v $(pwd):/mnt/config \
+#   -p 3100:3100 \
+#   grafana/loki:3.4.1 \
+#   -config.file=/mnt/config/loki-config.yaml
+  - name: "loki"
+    image_url: docker.io/grafana/loki
+    image_version: "latest"
+    # envs:
+    args:
+      - "-config.file=/mnt/config/loki-config.yaml"
+    volumes:
+      - name: "loki_config"
+        target: /mnt/config:ro
+      - src: /etc/timezone
+        target: /etc/timezone:ro
+      - src: /etc/localtime
+        target: /etc/localtime:ro
+
+# docker run \
+#   -v <CONFIG_FILE_PATH>:/etc/alloy/config.alloy \
+#   -p 12345:12345 \
+#   grafana/alloy:latest \
+#     run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data \
+#     /etc/alloy/config.alloy
+  - name: "alloy"
+    image_url: docker.io/grafana/alloy
+    image_version: "latest"
+    # envs:
+    args:
+      - "run"
+      - "--server.http.listen-addr=0.0.0.0:12345"
+      - "--server.http.ui-path-prefix=/alloy"
+      - "--storage.path=/var/lib/alloy"
+      - "/mnt/config"
+    volumes:
+      - name: "alloy_config"
+        target: /mnt/config:ro
+      - name: "alloy_data"
+        target: /var/lib/alloy
+      - src: /var/log/journal
+        target: /var/log/journal:ro
+      - src: /etc/timezone
+        target: /etc/timezone:ro
+      - src: /etc/localtime
+        target: /etc/localtime:ro
+
+# docker run \
+#   -p 9090:9090 \
+#   -v /path/to/prometheus.yml:/etc/prometheus/prometheus.yml \
+#   prom/prometheus
+  - name: "prometheus"
+    image_url: docker.io/prom/prometheus
+    image_version: "latest"
+    # envs:
+    args:
+      - "--web.listen-address=0.0.0.0:9090"
+      - "--web.external-url=https://{{ inventory_hostname }}/prometheus"
+      - "--web.route-prefix=/prometheus"
+      - "--config.file=/mnt/config/prometheus.yml"
+    volumes:
+      - name: "prometheus_config"
+        target: /mnt/config:ro
+      - name: "prometheus_data"
+        target: /prometheus
+      - src: /etc/timezone
+        target: /etc/timezone:ro
+      - src: /etc/localtime
+        target: /etc/localtime:ro
+
+# docker run \
+#     -p 8086:8086 \
+#     -v "$PWD/data:/var/lib/influxdb2" \
+#     -v "$PWD/config:/etc/influxdb2" \
+#     influxdb:2
+  - name: influxdb
+    image_url: docker.io/influxdb
+    image_version: "2"
+    envs:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: setup
+      DOCKER_INFLUXDB_INIT_PASSWORD: setup
+    # args:
+    #   - "--tls-cert=/etc/ssl/live/{{ inventory_hostname }}/fullchain.pem"
+    #   - "--tls-key=/etc/ssl/live/{{ inventory_hostname }}/privkey.pem"
+    volumes:
+      - name: influxdb_config
+        target: /etc/influxdb2
+      - name: influxdb_data
+        target: /var/lib/influxdb2
+      - name: certbot
+        target: /etc/ssl:ro
+      - src: /etc/timezone
+        target: /etc/timezone:ro
+      - src: /etc/localtime
+        target: /etc/localtime:ro
+
