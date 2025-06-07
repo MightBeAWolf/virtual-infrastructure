@@ -38,20 +38,6 @@ moduleload	back_mdb.so
 access to dn.base=""
 	by * read
 
-# Define the global access
-# - The ldap_admin role is given write access to everything
-# - Users are given the ability to login to the ldap system and provided access
-#   to read their own information. Note that without this, users will not be
-#   able to login and bind their ldap session to themselves, not even to then
-#   obtain access through their assigned roles.
-access to *
-        by dn="cn=ldapdm,{{ services_openldap_config.base_dn }}" manage
-        by group.exact="cn=ldap_admin,ou=role,{{ services_openldap_config.base_dn }}" write
-        by group.exact="cn=ldap_user_admin,ou=role,{{ services_openldap_config.base_dn }}" read
-        by self read
-        by anonymous auth
-        by * break
-
 # Restrict who can access passwords. This effectively hides passwords from the
 # ldap_read_access role. Explicitly, this allows:
 # - The sssd user to read, authenticate, and write passwords
@@ -84,6 +70,20 @@ access to dn.subtree="ou=groups,{{ services_openldap_config.base_dn }}"
 access to dn.subtree="ou=SUDOers,{{ services_openldap_config.base_dn }}"
         by group.exact="cn=ldap_user_admin,ou=role,{{ services_openldap_config.base_dn }}" write
         by group.exact="cn=ldap_read_access,ou=role,{{ services_openldap_config.base_dn }}" read
+        by * break
+
+# Define the global access
+# - The ldap_admin role is given write access to everything
+# - Users are given the ability to login to the ldap system and provided access
+#   to read their own information. Note that without this, users will not be
+#   able to login and bind their ldap session to themselves, not even to then
+#   obtain access through their assigned roles.
+access to *
+        by dn="cn=ldapdm,{{ services_openldap_config.base_dn }}" manage
+        by group.exact="cn=ldap_admin,ou=role,{{ services_openldap_config.base_dn }}" write
+        by group.exact="cn=ldap_user_admin,ou=role,{{ services_openldap_config.base_dn }}" read
+        by self read
+        by anonymous auth
         by * break
 
 
