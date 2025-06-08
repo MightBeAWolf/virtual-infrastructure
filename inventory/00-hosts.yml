@@ -4,13 +4,15 @@ all:
     proxmox:
       hosts:
         pve.local.wolfbox.dev:
-          # Note the typo of 'inte' is reflective of the name on proxmox.
           proxmox_node_id: pve
           api_uri: https://pve.local.wolfbox.dev:8006/api2/json
           templates:
             - name: debian-12-base
               id: 8000
               desc: "Debian 12 Bookwork template"
+            - name: redhat-8-base
+              id: 8001
+              desc: "Redhat 8 template"
 
     virtual_machines:
       hosts:
@@ -150,4 +152,3 @@ all:
               rules:
                 - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
                 - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"
-                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 3100 -log nolog # Loki"
