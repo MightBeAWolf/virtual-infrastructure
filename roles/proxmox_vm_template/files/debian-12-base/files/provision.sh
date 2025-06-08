@@ -6,7 +6,7 @@ for script in "/tmp/provision.d"/*.sh; do
     echo "Script $script failed." >&2
     echo "$script" >> /tmp/provision.d/failed.log
   fi
-  rm "${script:?}"
+  rm "$script"
 done
 HEREDOC
 
