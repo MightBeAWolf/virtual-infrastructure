@@ -56,7 +56,7 @@ d-i pkgsel/include string sudo, unattended-upgrades, qemu-guest-agent, \
 cloud-init, network-manager, sssd, oddjob-mkhomedir, libpam-sss, libnss-sss, \
 sssd-tools, libsss-sudo, vim, podman, podman-compose, acl, curl, git, unzip, \
 libxkbcommon-x11-0, libnl-3-200, libnl-route-3-200, iptables, psmisc, jq, \
-spice-vdagent, nfs-common, rsync
+spice-vdagent, nfs-common, rsync, build-essential
 
 # If not, you can put an entire recipe into the preconfiguration file in one
 # (logical) line. This example creates a small /boot partition, suitable

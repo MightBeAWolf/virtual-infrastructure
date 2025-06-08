@@ -3,11 +3,11 @@
 # Function to clean up temporary directory
 cleanup() {
     echo "Cleaning up temporary files..."
-    rm -rf "$TMP_DIR"
+    rm -rf "${TMP_DIR:?}"
 }
 
 # Trap to clean up in case of error or script exit
-trap cleanup EXIT ERR INT TERM
+trap cleanup EXIT INT TERM
 
 # Create a temporary directory
 TMP_DIR=$(mktemp -d -t helix-install-XXXXXXXXXX)

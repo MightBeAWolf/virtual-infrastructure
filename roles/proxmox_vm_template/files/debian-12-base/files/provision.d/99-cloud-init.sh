@@ -10,8 +10,8 @@ apt -y autoclean
 # Prepare cloud-init for the template
 cloud-init clean
 rm -f /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg
-mv /tmp/confid.g/99-pve.cfg            /etc/cloud/cloud.cfg.d/99-pve.cfg
-mv /tmp/confid.g/cloud.cfg             /etc/cloud/cloud.cfg
+mv /tmp/config.d/99-pve.cfg            /etc/cloud/cloud.cfg.d/99-pve.cfg
+mv /tmp/config.d/cloud.cfg             /etc/cloud/cloud.cfg
 
 sync
 rm "/etc/sudoers.d/${SUDO_USER:-${USER}}"

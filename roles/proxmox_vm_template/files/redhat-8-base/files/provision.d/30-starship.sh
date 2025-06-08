@@ -17,10 +17,10 @@ cleanup() {
 }
 
 # Trap for cleanup on exit or interruption
-trap cleanup EXIT ERR INT TERM
+trap cleanup EXIT INT TERM
 
 # Check for existing FiraCode font
-font_exists=$(find "$FONT_DIR" -type f -name 'Fira Code Regular Nerd Font Complete.ttf' | head -n 1)
+font_exists=$( [[ -d "${FONT_DIR}" ]] && find "$FONT_DIR" -type f -name 'Fira Code Regular Nerd Font Complete.ttf' | head -n 1)
 
 # Download and install fonts if they aren't already installed
 if [ -z "$font_exists" ]; then

@@ -222,7 +222,7 @@ build {
     }
 
     provisioner "shell" {
-        inline = ["rm" "-rf" "/tmp/config.d"]
+        inline = ["rm -rf /tmp/config.d"]
     }
 
 }

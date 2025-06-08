@@ -13,14 +13,14 @@ FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/FiraC
 # Cleanup function to remove temporary directory
 cleanup() {
     echo "Cleaning up temporary files..."
-    rm -rf "$TMP_DIR"
+    rm -rf "${TMP_DIR:?}"
 }
 
 # Trap for cleanup on exit or interruption
-trap cleanup EXIT ERR INT TERM
+trap cleanup EXIT INT TERM
 
 # Check for existing FiraCode font
-font_exists=$(find "$FONT_DIR" -type f -name 'Fira Code Regular Nerd Font Complete.ttf' | head -n 1)
+font_exists=$( [[ -d "${FONT_DIR}" ]] && find "$FONT_DIR" -type f -name 'Fira Code Regular Nerd Font Complete.ttf' | head -n 1)
 
 # Download and install fonts if they aren't already installed
 if [ -z "$font_exists" ]; then
@@ -42,7 +42,7 @@ if [ -z "$font_exists" ]; then
         echo "Installing FiraCode Nerd Font..."
         mkdir -p "$FONT_DIR"
         unzip -o -q "$TMP_DIR/$FONT_ZIP" -d "$FONT_DIR"
-        rm -f "$TMP_DIR/$FONT_ZIP" # Remove the zip file after extracting
+        rm -f "${TMP_DIR:?}/${FONT_ZIP:?}" # Remove the zip file after extracting
 
         # Rebuild font cache
         if command -v fc-cache &> /dev/null; then

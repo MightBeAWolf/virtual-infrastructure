@@ -2,13 +2,9 @@
 
 # Define services to disable
 SERVICES_TO_STOP=(
-    avahi-daemon.service
-    cups.service
-    cups.socket
     ModemManager.service
-    rpcbind.service
     rpcbind.socket
-    fwupd.service
+    rpcbind.service
     wpa_supplicant.service
 )
 
