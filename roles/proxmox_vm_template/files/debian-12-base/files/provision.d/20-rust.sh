@@ -1,2 +1,1 @@
-#!/bin/bash
-bash <(curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs) -y --no-modify-path
+../../../shared/files/provision.d/20-rust.sh
