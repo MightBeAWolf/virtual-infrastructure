@@ -10,7 +10,7 @@ http:
           - main: "{{ inventory_hostname }}"
 
     grafana:
-      rule: "Host(`{{ inventory_hostname }}`) && !PathPrefix(`/traefik`) && !PathPrefix(`/loki`) && !PathPrefix(`/alloy`) && !PathPrefix(`/prometheus`) && !PathPrefix(`/influxdb`)"
+      rule: "Host(`{{ inventory_hostname }}`) && !PathPrefix(`/traefik`) && !PathPrefix(`/loki`) && !PathPrefix(`/prometheus`) && !PathPrefix(`/influxdb`)"
       entrypoints:
         - websecure
       service: grafana
@@ -23,15 +23,6 @@ http:
       entrypoints:
         - websecure
       service: loki
-      tls:
-        domains:
-          - main: "{{ inventory_hostname }}"
-
-    alloy:
-      rule: "Host(`{{ inventory_hostname }}`) && PathPrefix(`/alloy`)"
-      entrypoints:
-        - websecure
-      service: alloy
       tls:
         domains:
           - main: "{{ inventory_hostname }}"
@@ -62,10 +53,6 @@ http:
       loadBalancer:
         servers:
           - url: "http://loki:3100"
-    alloy:
-      loadBalancer:
-        servers:
-          - url: "http://alloy:12345"
 
     prometheus:
       loadBalancer:

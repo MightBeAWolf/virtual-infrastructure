@@ -38,10 +38,6 @@
       configs:
         - src: loki-config.yaml.j2
 
-    - name: alloy
-      configs:
-        - src: config.alloy.j2
-
     - name: prometheus
       configs:
         - src: prometheus.yml.j2

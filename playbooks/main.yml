@@ -65,7 +65,7 @@
   gather_facts: false
   roles:
     - deploy_vms
-  tags: ['setup', 'terraform', 'vms']
+  tags: ['setup', 'vms', 'terraform']
 
 ###############################################################################
 # Deploy the virtual machine configurations
@@ -74,8 +74,15 @@
   hosts: virtual_machines
   become: false
   roles:
-    - ssh
-    - ldap_client
+    - role: ssh
+      tags: ['ssh', 'authentication']
+
+    - role: ldap_client
+      tags: ['client', 'ldap', 'openldap', 'authentication', 'identity']
+
+    - role: alloy
+      become: true
+      tags: ['logs', 'monitoring', 'alloy']
   tags: ['setup', 'terraform', 'vms']
 
 ###############################################################################

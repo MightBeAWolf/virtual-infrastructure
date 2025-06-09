@@ -5,7 +5,6 @@ services_monitoring_container_ports:
   - 80:80 #Traefik HTTP redirect to HTTPS
   - 127.0.0.1:3000:3000 # Grafana log/metric visualization
   - 127.0.0.1:3100:3100 # Loki log processing
-  - 127.0.0.1:12345:12345 # Alloy log intake
   - 127.0.0.1:9090:9090 # Prometheus log intake
   - 127.0.0.1:8086:8086 # InfluxDB
 
@@ -66,36 +65,10 @@ services_monitoring_container_spec:
     args:
       - "-config.file=/mnt/config/loki-config.yaml"
     volumes:
+      - name: "loki_data"
+        target: /mnt/data
       - name: "loki_config"
         target: /mnt/config:ro
-      - src: /etc/timezone
-        target: /etc/timezone:ro
-      - src: /etc/localtime
-        target: /etc/localtime:ro
-
-# docker run \
-#   -v <CONFIG_FILE_PATH>:/etc/alloy/config.alloy \
-#   -p 12345:12345 \
-#   grafana/alloy:latest \
-#     run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data \
-#     /etc/alloy/config.alloy
-  - name: "alloy"
-    image_url: docker.io/grafana/alloy
-    image_version: "latest"
-    # envs:
-    args:
-      - "run"
-      - "--server.http.listen-addr=0.0.0.0:12345"
-      - "--server.http.ui-path-prefix=/alloy"
-      - "--storage.path=/var/lib/alloy"
-      - "/mnt/config"
-    volumes:
-      - name: "alloy_config"
-        target: /mnt/config:ro
-      - name: "alloy_data"
-        target: /var/lib/alloy
-      - src: /var/log/journal
-        target: /var/log/journal:ro
       - src: /etc/timezone
         target: /etc/timezone:ro
       - src: /etc/localtime

@@ -12,6 +12,10 @@ roles:
   - name: ssl_certbot_cloudflare
     src: https://github.com/MightBeAWolf/ansible_role_ssl_certbot_cloudflare
     version: main
+  - name: alloy
+    src: https://github.com/MightBeAWolf/ansible_role_alloy
+    version: main
 
 collections:
   - name: community.general
+  - name: grafana.grafana

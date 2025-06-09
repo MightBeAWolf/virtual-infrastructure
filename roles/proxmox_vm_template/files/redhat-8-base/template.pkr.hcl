@@ -121,7 +121,7 @@ source "proxmox-iso" "redhat-8-base" {
     # iso_file = "local:iso/ubuntu-20.04.2-live-server-amd64.iso"
     # - or -
     # (Option 2) Download ISO
-    iso_file = "shared-proxmox:iso/rhel-8.10-x86_64-boot.iso"
+    iso_file = "wolftrack-nas:iso/rhel-8.10-x86_64-boot.iso"
     iso_checksum = "none"
     unmount_iso = true
 
@@ -204,7 +204,7 @@ build {
     }
 
     provisioner "file" {
-        content = templatefile("files/cloud.cfg", {var=var})
+        content = templatefile("files/templates/cloud.cfg", {var=var})
         destination = "/tmp/config.d/cloud.cfg"
     }
 

@@ -4,3 +4,4 @@
 roles/ldap_client
 roles/podman_pod
 roles/ssl_certbot_cloudflare
+roles/alloy

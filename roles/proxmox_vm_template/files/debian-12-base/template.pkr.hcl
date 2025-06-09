@@ -208,7 +208,7 @@ build {
     }
 
     provisioner "file" {
-        content = templatefile("files/cloud.cfg", {var=var})
+        content = templatefile("files/templates/cloud.cfg", {var=var})
         destination = "/tmp/config.d/cloud.cfg"
     }
 
