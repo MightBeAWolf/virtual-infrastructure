@@ -23,8 +23,7 @@ services_monitoring_container_spec:
       - "--api.dashboard=true"
       - "--api.insecure=false"
       - "--api.basePath=/traefik"
-      # - "--log.level=INFO"
-      - "--log.level=DEBUG"
+      - "--log.level=INFO"
     volumes:
       - name: traefik_config
         target: /etc/traefik/config:ro
