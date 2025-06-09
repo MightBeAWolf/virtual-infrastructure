@@ -34,6 +34,10 @@ loki.relabel "journal" {
     source_labels = ["__journal_priority"]
     target_label  = "priority"
   }
+  rule {
+    source_labels = ["__journal__systemd_unit"]
+    target_label  = "unit"
+  }
 }
 
 loki.write "endpoint" {
