@@ -10,9 +10,6 @@ all:
             - name: debian-12-base
               id: 8000
               desc: "Debian 12 Bookwork template"
-            - name: redhat-8-base
-              id: 8001
-              desc: "Redhat 8 template"
 
     virtual_machines:
       hosts:
