@@ -15,5 +15,5 @@ RUN apk --no-cache add \
 COPY  --chmod=0444 sudo.schema /etc/openldap/schema/sudo.schema
 
 from base as installed-openldap-dependencies
-CMD ["slapd", "-d", "-1", "-h", "ldaps:/// ldap:///"]
+CMD ["slapd", "-d", "-256", "-h", "ldaps:/// ldap:///"]
 
