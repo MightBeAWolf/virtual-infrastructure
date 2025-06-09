@@ -77,6 +77,8 @@ all:
                   # Private Internet Access - Wireguard Connection"
                 - "OUT ACCEPT -dest +dc/home-lab -p tcp -dport 2049 -log nolog
                   # Allow NFS mounts"
+                - "OUT HTTPS(ACCEPT) -dest +dc/home-lab -log nolog
+                  # Allow monitoring to go out"
 
         gitea.local.wolfbox.dev:
           ansible_host: 192.168.41.9
