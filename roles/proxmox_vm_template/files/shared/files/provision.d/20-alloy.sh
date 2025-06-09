@@ -20,6 +20,7 @@ loki.source.journal "read" {
   }
   forward_to   = [loki.write.endpoint.receiver]
   relabel_rules = loki.relabel.journal.rules
+  format_as_json = true
 }
 
 loki.relabel "journal" {
