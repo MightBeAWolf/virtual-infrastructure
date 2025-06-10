@@ -83,6 +83,15 @@
     - role: alloy
       become: true
       tags: ['logs', 'monitoring', 'alloy']
+  tasks:
+    - name: Generate /etc/hosts
+      template:
+        src: hostsfile.j2
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: '0644'
+      become: true
   tags: ['setup', 'terraform', 'vms']
 
 ###############################################################################
