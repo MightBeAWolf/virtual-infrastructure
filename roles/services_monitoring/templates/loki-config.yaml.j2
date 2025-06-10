@@ -9,6 +9,8 @@ server:
 
 common:
   instance_addr: 127.0.0.1
+  instance_interface_names:
+    - "lo"
   path_prefix: /mnt/data
   storage:
     filesystem:
@@ -16,6 +18,8 @@ common:
       rules_directory: /mnt/data/rules
   replication_factor: 1
   ring:
+    instance_interface_names:
+      - "lo"
     kvstore:
       store: inmemory
 
