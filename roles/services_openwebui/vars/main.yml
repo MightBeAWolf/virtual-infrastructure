@@ -31,7 +31,6 @@ services_openwebui_container_spec:
       - "--providers.file.filename=/etc/traefik/config/dynamic_conf.yml"
       - "--providers.file.watch=true"
       - "--api.dashboard=false"
-      - "--log.level=INFO"
     volumes:
       - name: traefik_config
         target: /etc/traefik/config:ro
