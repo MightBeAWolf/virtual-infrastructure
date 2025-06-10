@@ -151,3 +151,8 @@ all:
               rules:
                 - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
                 - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"
+          alloy_systemd_units_to_ignore:
+            - grafana_podman.service
+            - loki_podman.service
+            - prometheus_podman.service
+            - influxdb_podman.service
