@@ -28,6 +28,7 @@
       configs:
         - src: grafana-config.ini.j2
         - src: grafana-ldap.toml.j2
+        - src: dashboards/resources/proxmox.json.j2
         - src: provisioning/access-control/main.yaml.j2
         - src: provisioning/alerting/main.yaml.j2
         - src: provisioning/dashboards/main.yaml.j2

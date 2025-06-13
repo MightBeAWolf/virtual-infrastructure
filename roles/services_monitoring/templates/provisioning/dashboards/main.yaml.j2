@@ -1,12 +1,22 @@
-# # config file version
 apiVersion: 1
 
-#providers:
-# - name: 'default'
-#   orgId: 1
-#   folder: ''
-#   folderUid: ''
-#   type: file
-#   options:
-#     path: /var/lib/grafana/dashboards
-
+providers:
+  # <string> an unique provider name. Required
+  - name: 'Proxmox [InfluxDB Flux]'
+    # <int> Org id. Default to 1
+    orgId: 1
+    # <string> name of the dashboard folder.
+    folder: 'resources'
+    # <string> provider type. Default to 'file'
+    type: file
+    # <bool> disable dashboard deletion
+    disableDeletion: false
+    # <int> how often Grafana will scan for changed dashboards
+    updateIntervalSeconds: 10
+    # <bool> allow updating provisioned dashboards from the UI
+    allowUiUpdates: false
+    options:
+      # <string, required> path to dashboard files on disk. Required when using the 'file' type
+      path: /mnt/config/dashboards/resources
+      # <bool> use folder names from filesystem to create folders in Grafana
+      foldersFromFilesStructure: true
