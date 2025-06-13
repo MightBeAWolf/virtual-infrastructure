@@ -1,0 +1,79 @@
+http:
+  routers:
+    qbittorrent:
+      rule: "Host(`qbittorrent.{{ inventory_hostname }}`)"
+      entrypoints:
+        - websecure
+      service: qbittorrent
+      tls:
+        domains:
+          - main: "{{ inventory_hostname }}"
+
+    prowlarr:
+      rule: "Host(`prowlarr.{{ inventory_hostname }}`)"
+      entrypoints:
+        - websecure
+      service: prowlarr
+      tls:
+        domains:
+          - main: "{{ inventory_hostname }}"
+
+    radarr:
+      rule: "Host(`radarr.{{ inventory_hostname }}`)"
+      entrypoints:
+        - websecure
+      service: radarr
+      tls:
+        domains:
+          - main: "{{ inventory_hostname }}"
+
+    sonarr:
+      rule: "Host(`sonarr.{{ inventory_hostname }}`)"
+      entrypoints:
+        - websecure
+      service: sonarr
+      tls:
+        domains:
+          - main: "{{ inventory_hostname }}"
+
+    overseerr:
+      rule: "Host(`overseerr.{{ inventory_hostname }}`)"
+      entrypoints:
+        - websecure
+      service: overseerr
+      tls:
+        domains:
+          - main: "{{ inventory_hostname }}"
+
+  services:
+    qbittorrent:
+      loadBalancer:
+        servers:
+          - url: "http://qbittorrent:8080"
+
+    prowlarr:
+      loadBalancer:
+        servers:
+          - url: "http://prowlarr:9696"
+
+    radarr:
+      loadBalancer:
+        servers:
+          - url: "http://radarr:7878"
+
+    sonarr:
+      loadBalancer:
+        servers:
+          - url: "http://sonarr:8989"
+
+    overseerr:
+      loadBalancer:
+        servers:
+          - url: "http://overseerr:5055"
+
+tls:
+  certificates:
+    - certFile: /etc/traefik/ssl/live/{{ inventory_hostname }}/fullchain.pem
+      keyFile: /etc/traefik/ssl/live/{{ inventory_hostname }}/privkey.pem
+
+

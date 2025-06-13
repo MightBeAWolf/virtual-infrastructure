@@ -31,7 +31,7 @@ all:
                 - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
                 - "IN LDAPS(ACCEPT) -source +dc/home-lab -log nolog"
 
-        arr.local.wolfbox.dev:
+        arr.wolfbox.dev:
           ansible_host: 192.168.41.8
           ansible_user: cluster
           target_host: pve.local.wolfbox.dev
@@ -43,7 +43,7 @@ all:
             cidr: /21
             compute:
               cores: 2
-              memory: 12288
+              memory: 4096
             disk:
               size: 35G
             firewall:
@@ -61,14 +61,7 @@ all:
                   -log nolog \
                   # Allow connections to the Pirvate Internet Access Servers"
                 - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
-                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 8080 -log nolog # Qbittorrent"
-                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 6881 -log nolog # Qbittorrent"
-                - "IN ACCEPT -source +dc/home-lab -p udp -dport 6881 -log nolog # Qbittorrent"
-                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 9696 -log nolog # Prowlarr"
-                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 7878 -log nolog # Radarr"
-                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 8989 -log nolog # Sonarr"
-                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 8787 -log nolog # Readarr"
-                - "IN ACCEPT -source +dc/home-lab -p tcp -dport 5055 -log nolog # Overseerr"
+                - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"
                 - "OUT ACCEPT -dest +dc/home-lab -p tcp -dport 32400 -log nolog # Overseerr to Plex"
                 - "OUT DNS(DROP) -log nolog # Disable logging invalid DNS queires"
                 - "OUT ACCEPT -p tcp -dport 1337 -log nolog \

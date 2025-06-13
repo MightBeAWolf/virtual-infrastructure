@@ -8,6 +8,15 @@
       ports:      "{{ services_arr_container_ports }}"
       containers: "{{ services_arr_container_spec }}"
 
+- name: "Deploy Traefik configuration"
+  ansible.builtin.template:
+    src: "dynamic_conf.yml.j2"
+    dest: "{{ services_arr_volume_storage }}/traefik_config/_data/dynamic_conf.yml"
+    owner: "traefik"
+    group: "traefik"
+    mode: '0644'
+  become: true
+
 - name: Configure qbittorrent
   ansible.builtin.include_tasks: qbittorrent.yml
 

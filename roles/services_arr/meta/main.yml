@@ -3,8 +3,8 @@ dependencies:
   - role: ssl_certbot_cloudflare
     vars:
       ssl_certbot_cloudflare_additional_domains:
-        - qbittorrent.local.wolfbox.dev
-        - prowlarr.local.wolfbox.dev
-        - radarr.local.wolfbox.dev
-        - sonarr.local.wolfbox.dev
-        - overseerr.local.wolfbox.dev
+        - qbittorrent.{{ inventory_hostname }}
+        - prowlarr.{{ inventory_hostname }}
+        - radarr.{{ inventory_hostname }}
+        - sonarr.{{ inventory_hostname }}
+        - overseerr.{{ inventory_hostname }}

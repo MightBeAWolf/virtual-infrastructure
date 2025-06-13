@@ -1,18 +1,38 @@
 services_arr_container_name: arr
 
 services_arr_container_ports:
-  - "8080:8080"         # Qbittorrent
-  - "6881:6881"         # Qbittorrent
-  - "6881:6881/udp"     # Qbittorrent
-  - "9696:9696"         # Prowlarr
-  - "7878:7878"         # Radarr
-  - "8989:8989"         # Sonarr
-  - "8787:8787"         # Readarr
-  - "5055:5055"         # Overseerr
+  - 443:443 # Traefik HTTPS portal
+  - 80:80   # Traefik redirect to HTTPS
+  - "6881:6881"               # Qbittorrent torrent ports
+  - "6881:6881/udp"           # Qbittorrent torrent ports
+  - "127.0.0.1:8080:8080"     # Qbittorrent web portal
+  - "127.0.0.1:9696:9696"     # Prowlarr
+  - "127.0.0.1:7878:7878"     # Radarr
+  - "127.0.0.1:8989:8989"     # Sonarr
+  - "127.0.0.1:5055:5055"     # Overseerr
 
 services_arr_volume_storage: "/var/lib/containers/storage/volumes"
 
 services_arr_container_spec:
+  - name: traefik
+    image_url: docker.io/traefik
+    image_version: latest
+    args:
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.file.filename=/etc/traefik/config/dynamic_conf.yml"
+      - "--providers.file.watch=false"
+      - "--api=false"
+    volumes:
+      - name: traefik_config
+        target: /etc/traefik/config:ro
+      - name: certbot
+        target: /etc/traefik/ssl:ro
+      - src: /etc/timezone
+        target: /etc/timezone:ro
+      - src: /etc/localtime
+        target: /etc/localtime:ro
+
   - name: "qbittorrent"
     image_url: "lscr.io/linuxserver/qbittorrent"
     uid_key: PUID

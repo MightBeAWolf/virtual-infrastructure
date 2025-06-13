@@ -116,7 +116,7 @@
 # Deploy the arr services
 ###############################################################################
 - name: Deploy the Arr service
-  hosts: arr.local.wolfbox.dev
+  hosts: arr.wolfbox.dev
   roles:
     - private_internet_access
     - services_arr
