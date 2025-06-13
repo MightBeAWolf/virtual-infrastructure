@@ -1,16 +1,7 @@
 http:
   routers:
-    traefik-dashboard:
-      rule: "Host(`{{ inventory_hostname }}`) && PathPrefix(`/traefik`)"
-      entrypoints:
-        - websecure
-      service: api@internal
-      tls:
-        domains:
-          - main: "{{ inventory_hostname }}"
-
     grafana:
-      rule: "Host(`{{ inventory_hostname }}`) && !PathPrefix(`/traefik`) && !PathPrefix(`/loki`) && !PathPrefix(`/prometheus`) && !PathPrefix(`/influxdb`)"
+      rule: "Host(`{{ inventory_hostname }}`)"
       entrypoints:
         - websecure
       service: grafana
@@ -19,7 +10,7 @@ http:
           - main: "{{ inventory_hostname }}"
 
     loki:
-      rule: "Host(`{{ inventory_hostname }}`) && PathPrefix(`/loki`)"
+      rule: "Host(`loki.{{ inventory_hostname }}`)"
       entrypoints:
         - websecure
       service: loki
@@ -28,7 +19,7 @@ http:
           - main: "{{ inventory_hostname }}"
 
     prometheus:
-      rule: "Host(`{{ inventory_hostname }}`) && PathPrefix(`/prometheus`)"
+      rule: "Host(`prometheus.{{ inventory_hostname }}`)"
       entrypoints:
         - websecure
       service: prometheus
@@ -37,7 +28,7 @@ http:
           - main: "{{ inventory_hostname }}"
 
     influxdb:
-      rule: "Host(`{{ inventory_hostname }}`) && PathPrefix(`/influxdb`)"
+      rule: "Host(`influxdb.{{ inventory_hostname }}`)"
       entrypoints:
         - websecure
       service: influxdb

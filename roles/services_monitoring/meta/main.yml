@@ -1,3 +1,8 @@
 ---
 dependencies:
   - role: ssl_certbot_cloudflare
+    vars:
+      ssl_certbot_cloudflare_additional_domains:
+        - "loki.{{ inventory_hostname }}"
+        - "prometheus.{{ inventory_hostname }}"
+        - "influxdb.{{ inventory_hostname }}"

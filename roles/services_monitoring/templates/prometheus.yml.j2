@@ -2,5 +2,5 @@ scrape_configs:
   - job_name: "Monitor Server's Loki Metrics"
     static_configs:
       - targets: ['loki:3100']
-    metrics_path: /loki/metrics
+    metrics_path: /metrics
     scheme: http

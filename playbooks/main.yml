@@ -107,7 +107,7 @@
 # Deploy the monitoring services
 ###############################################################################
 - name: Deploy the monitoring service
-  hosts: monitoring.local.wolfbox.dev
+  hosts: monitoring.wolfbox.dev
   roles:
     - services_monitoring
   tags: ['services', 'monitoring']

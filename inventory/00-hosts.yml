@@ -134,7 +134,7 @@ all:
                 - "IN SSH(ACCEPT) -source +dc/home-lab -log nolog"
                 - "IN HTTPS(ACCEPT) -source +dc/home-lab -log nolog"
 
-        monitoring.local.wolfbox.dev:
+        monitoring.wolfbox.dev:
           ansible_host: 192.168.41.12
           ansible_user: cluster
           target_host: pve.local.wolfbox.dev
@@ -144,6 +144,8 @@ all:
             tags: debian_12,service,infrastructure_as_code
             gateway: 192.168.40.21
             cidr: /21
+            compute:
+              memory: 4096
             firewall:
               options:
                 enable: 1

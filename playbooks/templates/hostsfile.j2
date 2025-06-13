@@ -1,10 +1,10 @@
 # Loopback entries; do not change.
 # For historical reasons, localhost precedes localhost.localdomain:
-127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
-::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+127.0.0.1   localhost localhost.localdomain {{  inventory_hostname | regex_replace('\..*$', '')  }} {{ inventory_hostname }} localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain {{  inventory_hostname | regex_replace('\..*$', '')  }} {{ inventory_hostname }} localhost6 localhost6.localdomain6
 
 {% for host in groups['all'] %}
-{% if 'ansible_host' in  hostvars[host] %}
+{% if host != inventory_hostname and 'ansible_host' in  hostvars[host] %}
 {{ hostvars[host]['ansible_host'] }} {{ hostvars[host]['inventory_hostname'] }}
 {% endif %}
 {% endfor %}

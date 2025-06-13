@@ -82,8 +82,7 @@ services_monitoring_container_spec:
     # envs:
     args:
       - "--web.listen-address=0.0.0.0:9090"
-      - "--web.external-url=https://{{ inventory_hostname }}/prometheus"
-      - "--web.route-prefix=/prometheus"
+      - "--web.external-url=https://prometheus.{{ inventory_hostname }}"
       - "--config.file=/mnt/config/prometheus.yml"
     volumes:
       - name: "prometheus_config"
@@ -105,11 +104,10 @@ services_monitoring_container_spec:
     image_version: "2"
     envs:
       DOCKER_INFLUXDB_INIT_MODE: setup
-      DOCKER_INFLUXDB_INIT_USERNAME: setup
-      DOCKER_INFLUXDB_INIT_PASSWORD: setup
-    # args:
-    #   - "--tls-cert=/etc/ssl/live/{{ inventory_hostname }}/fullchain.pem"
-    #   - "--tls-key=/etc/ssl/live/{{ inventory_hostname }}/privkey.pem"
+      DOCKER_INFLUXDB_INIT_USERNAME: "{{ lookup('env', 'INFLUXDB_INIT_USERNAME') }}"
+      DOCKER_INFLUXDB_INIT_PASSWORD: "{{ lookup('env', 'INFLUXDB_INIT_PASSWORD') }}"
+      DOCKER_INFLUXDB_INIT_ORG: "{{ lookup('env', 'INFLUXDB_INIT_ORG') }}"
+      DOCKER_INFLUXDB_INIT_BUCKET: main
     volumes:
       - name: influxdb_config
         target: /etc/influxdb2

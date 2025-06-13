@@ -41,7 +41,7 @@ loki.relabel "journal" {
 
 loki.write "endpoint" {
   endpoint{
-    url = "https://monitoring.local.wolfbox.dev/loki/loki/api/v1/push"
+    url = "https://loki.monitoring.wolfbox.dev/loki/api/v1/push"
   }
 }
 HEREDOC
