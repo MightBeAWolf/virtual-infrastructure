@@ -10,7 +10,7 @@ d-i keyboard-configuration/xkb-keymap select us
 
 # Clock Setup
 # d-i time/zone string Canada/Eastern
-d-i time/zone string America/Denver
+d-i time/zone string America/Los_Angeles
 d-i clock-setup/utc boolean false
 # set above to false if making a bootable USB to run on same system as Windows
 

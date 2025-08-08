@@ -77,7 +77,7 @@ rhsm --organization=16531086 --activation-key=Base_EDA_Workstation
 syspurpose --role="Red Hat Enterprise Linux Workstation" --sla="Self-Support" --usage="Production"
 
 # System timezone
-timezone America/Denver --isUtc
+timezone America/Los_Angeles --isUtc
 
 # Root password
 rootpw --iscrypted $6$KpqW9nj3oWI1DLzK$a.Bnpr68rxZu21CLFaCHcso4P7q2EOw20Jrp1ZwbqyIOAzbSL6LJt7YD7NZSggtisFBLRTk3N./A9HgFzXDaJ1
