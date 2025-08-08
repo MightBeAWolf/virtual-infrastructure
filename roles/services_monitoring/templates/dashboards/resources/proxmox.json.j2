@@ -1,44 +1,4 @@
 {
-  "__inputs": [],
-  "__elements": {},
-  "__requires": [
-    {
-      "type": "panel",
-      "id": "bargauge",
-      "name": "Bar gauge",
-      "version": ""
-    },
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "10.0.1"
-    },
-    {
-      "type": "datasource",
-      "id": "influxdb",
-      "name": "InfluxDB",
-      "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "stat",
-      "name": "Stat",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "table",
-      "name": "Table",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "timeseries",
-      "name": "Time series",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -64,18 +24,13 @@
   "description": "Proxmox Dashboard complete written in Flux w/ Cluster support",
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "gnetId": 15356,
   "graphTooltip": 0,
-  "id": null,
+  "id": 2,
   "links": [],
   "liveNow": true,
   "panels": [
     {
       "collapsed": false,
-      "datasource": {
-        "type": "influxdb",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -85,16 +40,6 @@
       "id": 18,
       "panels": [],
       "repeat": "server",
-      "repeatDirection": "h",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Summary $server",
       "type": "row"
     },
@@ -117,7 +62,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#EAB839",
@@ -145,6 +90,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -152,10 +98,12 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "10.0.1",
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -185,7 +133,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -208,6 +156,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -215,10 +164,12 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "10.0.1",
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -249,7 +200,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -273,6 +224,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -280,10 +232,12 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "10.0.1",
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -314,7 +268,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#EAB839",
@@ -342,6 +296,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -349,10 +304,12 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "10.0.1",
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -385,7 +342,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -406,8 +363,16 @@
       "id": 14,
       "options": {
         "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
+        "namePlacement": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -417,10 +382,11 @@
           "values": false
         },
         "showUnfilled": true,
+        "sizing": "auto",
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.0.1",
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -452,7 +418,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -475,6 +441,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -482,10 +449,12 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "10.0.1",
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -512,14 +481,14 @@
           },
           "decimals": 2,
           "mappings": [],
-          "min": 0.00,
           "max": 29.33,
+          "min": 0,
           "thresholds": {
             "mode": "percentage",
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#EAB839",
@@ -547,6 +516,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -554,10 +524,12 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "10.0.1",
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -590,7 +562,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#EAB839",
@@ -618,6 +590,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -625,10 +598,12 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "10.0.1",
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -648,7 +623,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 70
+        "y": 7
       },
       "id": 49,
       "panels": [],
@@ -679,7 +654,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -720,7 +695,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 71
+        "y": 8
       },
       "id": 16,
       "options": {
@@ -735,7 +710,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "10.0.1",
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -791,7 +766,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -832,7 +807,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 71
+        "y": 8
       },
       "id": 19,
       "options": {
@@ -847,7 +822,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "10.0.1",
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -880,28 +855,59 @@
       "type": "table"
     },
     {
-      "collapsed": false,
       "datasource": {
-        "type": "influxdb",
-        "uid": "000000001"
+        "type": "loki",
+        "uid": "P6C57F0077DBC8F66"
       },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 50,
+      "options": {
+        "dedupStrategy": "none",
+        "enableInfiniteScrolling": false,
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "pluginVersion": "12.2.0-16818804881",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P6C57F0077DBC8F66"
+          },
+          "direction": "backward",
+          "editorMode": "code",
+          "expr": "{job=\"loki.source.journal.read\"}\n  | label_format level=detected_level\n  | level=~\"error|critical\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Logs",
+      "type": "logs"
+    },
+    {
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 78
+        "y": 23
       },
       "id": 23,
       "panels": [],
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Memory and CPU usage $server",
       "type": "row"
     },
@@ -916,11 +922,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Percent",
             "axisPlacement": "left",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -929,6 +937,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
@@ -952,7 +961,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -989,7 +998,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 79
+        "y": 24
       },
       "id": 21,
       "options": {
@@ -1002,11 +1011,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "8.2.5",
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -1049,11 +1059,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "Memory",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "hue",
@@ -1062,6 +1074,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineStyle": {
               "fill": "solid"
@@ -1088,7 +1101,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1104,7 +1117,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 79
+        "y": 24
       },
       "id": 24,
       "options": {
@@ -1117,11 +1130,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "8.2.5",
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -1146,11 +1160,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1159,6 +1175,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1182,7 +1199,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1197,7 +1214,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 88
+        "y": 33
       },
       "id": 26,
       "options": {
@@ -1210,10 +1227,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -1225,7 +1244,6 @@
         }
       ],
       "title": "VM CPU usage",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -1239,11 +1257,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1252,6 +1272,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1275,7 +1296,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1291,7 +1312,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 88
+        "y": 33
       },
       "id": 27,
       "options": {
@@ -1306,10 +1327,12 @@
           "sortDesc": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -1321,7 +1344,6 @@
         }
       ],
       "title": "VM memory usage",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -1335,11 +1357,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1348,6 +1372,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1371,7 +1396,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1386,7 +1411,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 96
+        "y": 41
       },
       "id": 28,
       "options": {
@@ -1399,10 +1424,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -1414,7 +1441,6 @@
         }
       ],
       "title": "LXC CPU usage",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -1428,11 +1454,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1441,6 +1469,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1463,7 +1492,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1479,7 +1508,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 96
+        "y": 41
       },
       "id": 29,
       "options": {
@@ -1492,10 +1521,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -1507,7 +1538,6 @@
         }
       ],
       "title": "LXC memory usage",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -1521,11 +1551,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1534,6 +1566,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1557,7 +1590,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1573,7 +1606,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 104
+        "y": 49
       },
       "id": 30,
       "options": {
@@ -1589,10 +1622,12 @@
           "sortDesc": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -1604,7 +1639,6 @@
         }
       ],
       "title": "VM I/O Read",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -1618,11 +1652,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1631,6 +1667,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1654,7 +1691,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1670,7 +1707,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 104
+        "y": 49
       },
       "id": 31,
       "options": {
@@ -1686,10 +1723,12 @@
           "sortDesc": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -1701,7 +1740,6 @@
         }
       ],
       "title": "VMs I/O Write",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -1715,11 +1753,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1728,6 +1768,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1751,7 +1792,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1767,7 +1808,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 112
+        "y": 57
       },
       "id": 32,
       "options": {
@@ -1780,10 +1821,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -1795,7 +1838,6 @@
         }
       ],
       "title": "LXC I/O Read",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -1809,11 +1851,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1822,6 +1866,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1845,7 +1890,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1861,7 +1906,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 112
+        "y": 57
       },
       "id": 33,
       "options": {
@@ -1874,10 +1919,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -1889,7 +1936,6 @@
         }
       ],
       "title": "LXC I/O Write",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -1903,11 +1949,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1916,6 +1964,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1939,7 +1988,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1955,7 +2004,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 120
+        "y": 65
       },
       "id": 34,
       "options": {
@@ -1968,10 +2017,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -1983,7 +2034,6 @@
         }
       ],
       "title": "VM traffic In",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -1997,11 +2047,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -2010,6 +2062,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
@@ -2033,7 +2086,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -2049,7 +2102,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 120
+        "y": 65
       },
       "id": 35,
       "options": {
@@ -2062,10 +2115,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -2077,7 +2132,6 @@
         }
       ],
       "title": "VM traffic out",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -2091,11 +2145,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -2104,6 +2160,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
@@ -2127,7 +2184,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -2143,7 +2200,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 128
+        "y": 73
       },
       "id": 36,
       "options": {
@@ -2156,10 +2213,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -2171,7 +2230,6 @@
         }
       ],
       "title": "LXC traffic In",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -2185,11 +2243,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -2198,6 +2258,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
@@ -2221,7 +2282,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -2237,7 +2298,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 128
+        "y": 73
       },
       "id": 37,
       "options": {
@@ -2250,10 +2311,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0-16818804881",
       "targets": [
         {
           "datasource": {
@@ -2265,34 +2328,28 @@
         }
       ],
       "title": "LXC traffic out",
-      "transformations": [],
       "type": "timeseries"
     }
   ],
+  "preload": false,
   "refresh": "30s",
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 41,
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": false,
           "text": "chromaweb-flux-telegraf",
           "value": "chromaweb-flux-telegraf"
         },
         "description": "Fluxlang Capable Datasouce",
-        "hide": 0,
         "includeAll": false,
         "label": "Datasource",
-        "multi": false,
         "name": "dsProxmox",
         "options": [],
         "query": "influxdb",
-        "queryValue": "",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
         "type": "datasource"
       },
       {
@@ -2302,16 +2359,12 @@
           "uid": "Proxmox (InfluxDB)"
         },
         "definition": "buckets()",
-        "hide": 0,
         "includeAll": false,
-        "multi": false,
         "name": "Bucket",
         "options": [],
         "query": "buckets()",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       },
       {
@@ -2321,7 +2374,6 @@
           "uid": "Proxmox (InfluxDB)"
         },
         "definition": "from(bucket: \"${Bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => \n    r._measurement == \"system\" and\n    r.object == \"nodes\"\n  )\n  |> keyValues(keyColumns: [\"host\"])\n  |> group()\n  |> keep(columns: [\"host\"])\n  |> distinct(column: \"host\")\n\n",
-        "hide": 0,
         "includeAll": true,
         "label": "Server",
         "multi": true,
@@ -2330,8 +2382,6 @@
         "query": "from(bucket: \"${Bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => \n    r._measurement == \"system\" and\n    r.object == \"nodes\"\n  )\n  |> keyValues(keyColumns: [\"host\"])\n  |> group()\n  |> keep(columns: [\"host\"])\n  |> distinct(column: \"host\")\n\n",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       }
     ]
@@ -2344,6 +2394,5 @@
   "timezone": "",
   "title": "Proxmox Cluster [Flux]",
   "uid": "IfgdXjtnk",
-  "version": 27,
-  "weekStart": ""
+  "version": 7
 }
