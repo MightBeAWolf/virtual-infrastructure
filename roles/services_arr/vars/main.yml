@@ -22,10 +22,12 @@ services_arr_container_spec:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--entryPoints.ping.address=127.0.0.1:8082" # Only accessed locally
+      - "--entryPoints.traefik.address=127.0.0.1:8080"
       - "--ping.entrypoint=ping"
       - "--providers.file.filename=/etc/traefik/config/dynamic_conf.yml"
       - "--providers.file.watch=false"
-      - "--api=false"
+      - "--api=true"
+      - "--api.insecure=true"
     volumes:
       - name: traefik_config
         target: /etc/traefik/config:ro
