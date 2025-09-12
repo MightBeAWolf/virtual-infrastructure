@@ -18,8 +18,11 @@ services_arr_container_spec:
     image_url: docker.io/traefik
     image_version: latest
     args:
+      - "--ping" # Used for healthcheck
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      - "--entryPoints.ping.address=127.0.0.1:8082" # Only accessed locally
+      - "--ping.entrypoint=ping"
       - "--providers.file.filename=/etc/traefik/config/dynamic_conf.yml"
       - "--providers.file.watch=false"
       - "--api=false"
