@@ -37,7 +37,7 @@ services_gitea_container_spec:
     image_version: "latest"
     volumes:
       - name: "{{ services_gitea_container_name }}_db"
-        target: /var/lib/postgresql/data
+        target: /var/lib/postgresql
       - src: /etc/timezone
         target: /etc/timezone:ro
       - src: /etc/localtime
